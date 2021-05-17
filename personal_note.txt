@@ -1,0 +1,19 @@
+Personal note for Takafumi Shiraogawa.
+From May 17th, 2021.
+
+
+APDFT code requires Python 3.6 or newer.
+My environment can be checked by
+$ python3 -V
+Python 3.8.5
+The condition is fulfilled.
+
+-- Set an environment --
+I installed the code in Mac.
+/docs/installation.rst is useful for beginning this code.
+I did
+$ sudo pip3 install jinja2 basis_set_exchange Cython numpy scipy h5py pyscf cclib structlog colorama
+, and the paths were setted by
+$ echo 'export PATH="'$/Users/takafumishiraogawa/Program/gAPDFT/src':$PATH"' >> ~/.bashrc
+$ echo 'export PYTHONPATH="'$/Users/takafumishiraogawa/Program/gAPDFT/src':$PYTHONPATH"' >> ~/.bashrc
+$ source ~/.bashrc
