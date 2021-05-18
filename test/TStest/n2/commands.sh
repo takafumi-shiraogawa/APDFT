@@ -1,0 +1,7 @@
+( cd QM/order-0/site-all-cc && bash run.sh )
+( cd QM/order-1/site-0-up && bash run.sh )
+( cd QM/order-1/site-0-dn && bash run.sh )
+( cd QM/order-1/site-1-up && bash run.sh )
+( cd QM/order-1/site-1-dn && bash run.sh )
+( cd QM/order-2/site-0-1-up && bash run.sh )
+( cd QM/order-2/site-0-1-dn && bash run.sh )

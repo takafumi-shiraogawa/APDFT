@@ -1,0 +1,20 @@
+calc=ccsd
+mem=5GB
+core=frozen
+ccprog=mrcc
+basis=def2-TZVP
+grdens=on
+rgrid=Log3
+grtol=10
+agrid=LD0770
+unit=angs
+geom=xyz
+2
+
+7 0.000000 0.000000 0.000000
+7 0.000000 0.000000 1.000000
+qmmm=Amber
+pointcharges
+2
+0.000000 0.000000 0.000000 0.000000
+0.000000 0.000000 1.000000 0.050000

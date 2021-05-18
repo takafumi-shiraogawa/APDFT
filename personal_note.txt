@@ -21,6 +21,7 @@ system
 3.6.13
 $ pyenv global 3.6.13
 
+
 -- Set an environment --
 I installed the code in Mac.
 /docs/installation.rst is useful for beginning this code.
@@ -43,3 +44,13 @@ $ apdft energies benzene.xyz
 for the standard version or
 $ cli.py energies benzene.xyz
 for the developement version can be used
+
+
+-- Start a test calculation --
+I can refer docs/usage.rst
+For test calculations, I made TStest/ in test/.
+I created n2/ in TStest/ and copied n2.xyz from test/.
+$ apdft energies n2.xyz
+or
+$ cli.py energies n2.xyz
+command.sh, apdft.conf, and QM/ were generated.
