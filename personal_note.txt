@@ -5,15 +5,41 @@ From May 17th, 2021.
 APDFT code requires Python 3.6 or newer.
 My environment can be checked by
 $ python3 -V
-Python 3.8.5
+Python 3.9.5
 The condition is fulfilled.
+We also need to check the default version of Python by
+$ python --version
+Python 2.7.16
+To switch from python 2 to 3, I installed pyenv
+$ brew install pyenv
+$ echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bash_profile
+$ echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile
+$ echo 'eval "$(pyenv init -)"' >> ~/.bash_profile
+$ pyenv install 3.6.13
+$ pyenv versions
+system
+3.6.13
+$ pyenv global 3.6.13
 
 -- Set an environment --
 I installed the code in Mac.
 /docs/installation.rst is useful for beginning this code.
 I did
 $ sudo pip3 install jinja2 basis_set_exchange Cython numpy scipy h5py pyscf cclib structlog colorama
-, and the paths were setted by
-$ echo 'export PATH="'$/Users/takafumishiraogawa/Program/gAPDFT/src':$PATH"' >> ~/.bashrc
-$ echo 'export PYTHONPATH="'$/Users/takafumishiraogawa/Program/gAPDFT/src':$PYTHONPATH"' >> ~/.bashrc
-$ source ~/.bashrc
+Because structlog v.21.1.0 does not work for the APDFT code now,
+I need to change the version.
+$ pip3 uninstall structlog
+$ pip3 install structlog==19.1.0
+$ pip3 install pandas
+, and the paths were setted in .bash_profile by adding
+export PATH=$PATH:/Users/takafumishiraogawa/Program/gAPDFT/src/
+export PYTHONPATH=$PYTHONPATH:/Users/takafumishiraogawa/Program/gAPDFT/src/
+Then, I did
+$ source ~/.bash_profile
+Finally, APDFT was installed.
+$ pip install apdft
+For test calculations,
+$ apdft energies benzene.xyz
+for the standard version or
+$ cli.py energies benzene.xyz
+for the developement version can be used
