@@ -90,7 +90,7 @@ you may restrict the number of potential targets by either limiting the sites
 that are transformed, limiting the maximum change in nuclear charge at all sites
 (with the command line option --apdft_maxdz), or by lowering the maximal net charge
 of target molecules (with --apdft_maxcharge).
-  --apdft_maxdz: Maximum absolute difference in Z space from center around.
+  --apdft_maxdz: sum of maximum absolute difference in Z space from center around.
   --apdft_maxcharge: ?
   --apdft_maxorder: specifies the truncation order of APDFT - 1 (APDFTn-1).
                     For example, apdft_maxorder = 2 is APDFT3.
