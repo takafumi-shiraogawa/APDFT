@@ -63,6 +63,11 @@ After changing apdft.conf and running
 $ apdft energies n2.xyz
 again, new inputs for a specific condition can be obtained.
 
+Then, for required electonic densities,
+QM calculations are performed by
+$ . commands.sh
+At each QM/ directory, run.log can be obtained.
+
 * descriptions obtained from docs/usage.rsf
 apdft.conf:
   The configuraton file.
