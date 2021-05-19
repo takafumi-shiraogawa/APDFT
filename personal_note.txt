@@ -32,7 +32,11 @@ I need to change the version.
 $ pip3 uninstall structlog
 $ pip3 install structlog==19.1.0
 $ pip3 install pandas
-, and the paths were setted in .bash_profile by adding
+Moreover, I confirmed that the latest version of PySCF (v1.7.6) does not work properly for APDFT,
+and the old one needed to be used.
+$ pip3 uninstall pyscf
+$ pip3 install pyscf==1.6.5
+The paths were setted in .bash_profile by adding
 export PATH=$PATH:/Users/takafumishiraogawa/Program/gAPDFT/src/
 export PYTHONPATH=$PYTHONPATH:/Users/takafumishiraogawa/Program/gAPDFT/src/
 Then, I did
@@ -54,3 +58,81 @@ $ apdft energies n2.xyz
 or
 $ cli.py energies n2.xyz
 command.sh, apdft.conf, and QM/ were generated.
+
+After changing apdft.conf and running
+$ apdft energies n2.xyz
+again, new inputs for a specific condition can be obtained.
+
+* descriptions obtained from docs/usage.rsf
+apdft.conf:
+  The configuraton file.
+command.sh:
+  All required calls to QM software like Gaussian and MRCC
+  to obtain the energies and electron densities apdft needs.
+  This file assumes standard paths for each of the software package.
+  If you system differs from that for any reason, you might need to
+  adjust environment variables accordingly. Each line contains all
+  required commands for a single calculation, therefore they can be
+  executed independently from each other. The commands are written
+  to be called from the directory the script is in.
+QM/order-*/:
+  Folders containing the generated input files for the QM software packages.
+  The folder structure needs to be kept the same.
+
+At times, the number of possible alchemical prediction targets, i.e. molecules
+for which you will get estimates from APDFT can be overwhealming. In that case,
+you may restrict the number of potential targets by either limiting the sites
+that are transformed, limiting the maximum change in nuclear charge at all sites
+(with the command line option --apdft_maxdz), or by lowering the maximal net charge
+of target molecules (with --apdft_maxcharge).
+  --apdft_maxdz: Maximum absolute difference in Z space from center around.
+  --apdft_maxcharge: ?
+  --apdft_maxorder: specifies the truncation order of APDFT - 1 (APDFTn-1).
+                    For example, apdft_maxorder = 2 is APDFT3.
+                    APDFT4 or larger ones are not implemented.
+
+To limit the sites to be transformed, use the command line option '--apdft_includeonly'.
+This option accepts either a list of indices (i.e. atom numbers starting at zero), ranges
+of indices, or a list of elements. All of the following examples would be a valid input.
+  --apdft_includeonly 0,1,23
+  --apdft_includeonly B,C,N
+  --apdft_includeonly 0-42,C,110
+
+energy_code is G09 or PYSCF or others.
+  G09: HF, PBE0, B3LYP, and CCSD
+  PYSCF: HF and CCSD
+
+
+* examples of N2
+number_calculations = 7,
+number_predictions = 3
+
+apdft.conf:
+apdft_maxdz = 3
+apdft_maxorder = 2
+apdft_maxcharge = 0
+
+
+commands.sh:
+( cd QM/order-0/site-all-cc && bash run.sh )
+( cd QM/order-1/site-0-up && bash run.sh )
+( cd QM/order-1/site-0-dn && bash run.sh )
+( cd QM/order-1/site-1-up && bash run.sh )
+( cd QM/order-1/site-1-dn && bash run.sh )
+( cd QM/order-2/site-0-1-up && bash run.sh )
+( cd QM/order-2/site-0-1-dn && bash run.sh )
+
+Inputs of QM calculations needed for evaluation of the electron-density response
+are stored in QM/.
+QM/
+  order-0/
+    site-all-cc/
+  order-1/
+    site-0-dn/
+    site-0-up/
+    site-1-dn/
+    site-1-up/
+  order-2/
+    site-0-1-dn/
+    site-0-1-up/
+

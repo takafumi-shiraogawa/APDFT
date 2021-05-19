@@ -1,20 +1,93 @@
-calc=ccsd
-mem=5GB
-core=frozen
-ccprog=mrcc
-basis=def2-TZVP
-grdens=on
-rgrid=Log3
-grtol=10
-agrid=LD0770
-unit=angs
-geom=xyz
-2
+import numpy as np
+import numpy
+import pyscf
+import pyscf.gto
+import pyscf.qmmm
+import pyscf.scf
+import pyscf.dft
+import pyscf.lib
+from pyscf.data import nist
 
-7 0.000000 0.000000 0.000000
-7 0.000000 0.000000 1.000000
-qmmm=Amber
-pointcharges
-2
-0.000000 0.000000 0.000000 0.000000
-0.000000 0.000000 1.000000 0.050000
+angstrom = 1 / 0.52917721067
+
+mol = pyscf.gto.Mole()
+mol.atom = "7 0.000000 0.000000 0.000000;7 0.000000 0.000000 1.000000"
+mol.basis = {7: '#----------------------------------------------------------------------\n# Basis Set Exchange\n# Version v0.8.13\n# https://www.basissetexchange.org\n#----------------------------------------------------------------------\n#   Basis set: def2-TZVP\n# Description: def2-TZVP\n#        Role: orbital\n#     Version: 1  (Data from Turbomole 7.3)\n#----------------------------------------------------------------------\n\n\nBASIS "ao basis" PRINT\n#BASIS SET: (11s,6p,2d,1f) -> [5s,3p,2d,1f]\nN    S\n  19730.8006470              0.21887984991E-03\n   2957.8958745              0.16960708803E-02\n    673.22133595             0.87954603538E-02\n    190.68249494             0.35359382605E-01\n     62.295441898            0.11095789217\n     22.654161182            0.24982972552\nN    S\n      8.9791477428           0.40623896148\n      3.6863002370           0.24338217176\nN    S\n      0.84660076805          1.0000000\nN    S\n      0.33647133771          1.0000000\nN    S\n      0.13647653675          1.0000000\nN    P\n     49.200380510            0.55552416751E-02\n     11.346790537            0.38052379723E-01\n      3.4273972411           0.14953671029\n      1.1785525134           0.34949305230\nN    P\n      0.41642204972           .45843153697\nN    P\n      0.14260826011           .24428771672\nN    D\n      1.65400000             1.0000000\nN    D\n      0.46900000             1.0000000\nN    F\n      1.09300000             1.0000000\nEND\n'}
+mol.verbose = 0
+mol.build()
+
+method = "HF"
+if method not in ["CCSD", "HF"]:
+    raise NotImplementedError("Method %s not supported." % method)
+
+deltaZ = np.array((0.0,0.04999999999999982))
+includeonly = np.array((0,1))
+
+
+def add_qmmm(calc, mol, deltaZ):
+    mf = pyscf.qmmm.mm_charge(calc, mol.atom_coords()[includeonly]/ angstrom, deltaZ)
+
+    class NoSelfQMMM(mf.__class__):
+        def energy_nuc(self):
+            q = mol.atom_charges().astype(np.float)
+            q[includeonly] += deltaZ
+            return mol.energy_nuc(q)
+
+    return NoSelfQMMM()
+
+
+if method == "HF":
+    calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
+    hfe = calc.kernel(verbose=0)
+    dm1_ao = calc.make_rdm1()
+    total_energy = calc.e_tot
+if method == "CCSD":
+    calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
+    hfe = calc.kernel(verbose=0)
+    mycc = pyscf.cc.CCSD(calc).run()
+    dm1 = mycc.make_rdm1()
+    dm1_ao = np.einsum("pi,ij,qj->pq", calc.mo_coeff, dm1, calc.mo_coeff.conj())
+    total_energy = mycc.e_tot
+
+# GRIDLESS, as things should be ############################
+# Total energy of SCF run
+
+print("TOTAL_ENERGY", total_energy)
+
+# Electronic EPN from electron density
+for site in includeonly:
+    mol.set_rinv_orig_(mol.atom_coords()[site])
+    print("ELECTRONIC_EPN", site, np.matmul(dm1_ao, mol.intor("int1e_rinv")).trace())
+
+# Electronic Dipole w.r.t to center of geometry
+with mol.with_common_orig(mol.atom_coords().mean(axis=0)):
+    ao_dip = mol.intor_symmetric("int1e_r", comp=3)
+dipole = numpy.einsum("xij,ji->x", ao_dip, dm1_ao).real
+print("ELECTRONIC_DIPOLE", *dipole)
+
+# GRID, as things were #####################################
+grid = pyscf.dft.gen_grid.Grids(mol)
+grid.level = 3
+grid.build()
+ao_value = pyscf.dft.numint.eval_ao(mol, grid.coords, deriv=0)
+rho = pyscf.dft.numint.eval_rho(mol, ao_value, dm1_ao, xctype="LDA")
+
+# Ionic Forces
+for site in includeonly:
+    rvec = grid.coords - mol.atom_coords()[site]
+    force = [
+        (rho * grid.weights * rvec[:, _] / np.linalg.norm(rvec, axis=1) ** 3).sum()
+        for _ in range(3)
+    ]
+    print("IONIC_FORCE", site, *force)
+
+# Quadrupole moments
+rs = grid.coords - mol.atom_coords().mean(axis=0)
+ds = np.linalg.norm(rs, axis=1) ** 2
+# Q = np.zeros((3,3))
+for i in range(3):
+    for j in range(i, 3):
+        q = 3 * rs[:, i] * rs[:, j]
+        if i == j:
+            q -= ds
+        print("ELECTRONIC_QUADRUPOLE", i, j, (rho * q * grid.weights).sum())
