@@ -1,0 +1,13 @@
+Note for implementation of APDFT with molecular geometry changes
+From May 24th, 2021.
+
+
+Flowchart:
+1. Calculate and save electronic energy and electron density of
+   a reference system
+2. Calculate stencil coefficients
+3. Calculate one-electron integrals of both terms
+4. Update the geometry of the target system
+5. Re-calculate integral of the former terms
+6. Back to 4
+
