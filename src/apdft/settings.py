@@ -88,7 +88,7 @@ class Option:
 
 class Configuration:
     """ A complete set of configuration values. Merges settings and default values. 
-    
+
     Settings are referred to as category.variablename. """
 
     def __init__(self):
@@ -101,7 +101,13 @@ class Configuration:
                 3,
                 "Restricts target molecules to have at most this change in nuclear charge per atom",
             ),
-            Option("apdft", "maxorder", int, 2, "Maximum alchemical expansion order"),
+            # apdft_maxorder = n - 1 means APDFTn
+            # That is, apdft_maxorder = 2 corresponds to APDFT3,
+            # and APDFT4 and higher-order ones can not be used,
+            # possibly.
+            Option("apdft", "maxorder", int, 2,
+                   "Maximum alchemical expansion order"),
+            # Sum of absolute values of nuclear charge changes at each atom
             Option(
                 "apdft",
                 "maxcharge",
@@ -109,7 +115,8 @@ class Configuration:
                 0,
                 "Restricts target molecules to have at most this total molecular charge",
             ),
-            Option("apdft", "basisset", str, "def2-TZVP", "The basis set to be used"),
+            Option("apdft", "basisset", str, "def2-TZVP",
+                   "The basis set to be used"),
             Option("apdft", "method", str, "CCSD", "Method to be used"),
             Option(
                 "apdft",
@@ -132,7 +139,9 @@ class Configuration:
                 False,
                 "Whether to superimpose atomic basis set functions from neighboring elements for fractional nuclear charges",
             ),
-            Option("energy", "code", CodeEnum, "MRCC", "QM code to be used"),
+            # T.S.: default QM code changes from MRCC to PYSCF
+            # Option("energy", "code", CodeEnum, "MRCC", "QM code to be used"),
+            Option("energy", "code", CodeEnum, "PYSCF", "QM code to be used"),
             Option(
                 "energy",
                 "dryrun",

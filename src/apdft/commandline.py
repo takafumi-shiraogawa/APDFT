@@ -16,11 +16,15 @@ def entry_cli():
     parser = build_main_commandline()
     conf = aconf.Configuration()
     conf.from_file()
+    # mode and modeshort are energies and *.xyz, respectively
+    # in the first invocation
     mode, modeshort, conf = parse_into(parser, configuration=conf)
 
     # execute
     if mode == "energies":
         mode_energies(conf, modeshort)
+    elif mode == "energies_geometries":
+        mode_energies_geometries(conf, modeshort)
     else:
         apdft.log.log("Unknown mode %s" % mode, level="error")
 
@@ -136,6 +140,58 @@ def mode_energies(conf, modeshort=None):
         derivatives.analyse(conf.debug_validation)
 
 
+def mode_energies_geometries(conf, modeshort=None):
+    print('')
+    print('*** energies_geometries mode ***')
+    print('')
+
+    # select QM code
+    calculator_options = conf.apdft_method, conf.apdft_basisset, conf.debug_superimpose
+    calculator = conf.energy_code.get_calculator_class()(*calculator_options)
+
+    # parse input
+    try:
+        nuclear_numbers, coordinates = apdft.read_xyz(conf.energy_geometry)
+    except FileNotFoundError:
+        apdft.log.log(
+            'Unable to open input file "%s".' % conf.energy_geometry, level="error"
+        )
+        return
+
+    # Parse optional targetlist
+    if len(conf.apdft_targets) != 0:
+        with open(conf.apdft_targets) as fh:
+            targetlist = parse_target_list(fh.readlines())
+    else:
+        targetlist = None
+
+    # call APDFT library
+    derivatives = ap.APDFT(
+        conf.apdft_maxorder,
+        nuclear_numbers,
+        coordinates,
+        ".",
+        calculator,
+        conf.apdft_maxcharge,
+        conf.apdft_maxdz,
+        conf.apdft_includeonly,
+        targetlist,
+    )
+
+    cost, coverage = derivatives.estimate_cost_and_coverage()
+    if conf.debug_validation:
+        cost += coverage
+    apdft.log.log(
+        "Cost estimated.",
+        number_calculations=cost,
+        number_predictions=coverage,
+        level="RESULT",
+    )
+    if not conf.energy_dryrun:
+        derivatives.prepare(conf.debug_validation)
+        derivatives.analyse(conf.debug_validation)
+
+
 def build_main_commandline(set_defaults=True):
     """ Builds an argparse object of the user-facing command line interface."""
 
@@ -147,7 +203,9 @@ def build_main_commandline(set_defaults=True):
     )
 
     # mode selection
-    modes = ["energies"]
+    # "energies_geometries" is added to treat molecular
+    #  geometry changes
+    modes = ["energies", "energies_geometries"]
     parser.add_argument(
         "mode",
         choices=modes,
@@ -157,7 +215,8 @@ def build_main_commandline(set_defaults=True):
     )
 
     # allow for shortcut where a mode gets one single argument of any kind
-    parser.add_argument("modeshort", type=str, nargs="?", help=argparse.SUPPRESS)
+    parser.add_argument("modeshort", type=str, nargs="?",
+                        help=argparse.SUPPRESS)
 
     # options
     for category in sorted(c.list_sections()):
@@ -187,7 +246,7 @@ def build_main_commandline(set_defaults=True):
 
 def parse_into(parser, configuration=None, cliargs=None):
     """ Updates the configuration with the values specified on the command line.
-    
+
     Args:
         parser:         An argparse parser instance.
         configuration:  A :class:`apdft.settings.Configuration` instance. If `None`, a new instance will be returned.
@@ -217,7 +276,7 @@ def parse_into(parser, configuration=None, cliargs=None):
             else:
                 raise ValueError("Unknown argument found.")
 
-    if mode == "energies":
+    if mode == "energies" or "energies_geometries":
         if modeshort is not None:
             configuration.energy_geometry = modeshort
     return mode, modeshort, configuration

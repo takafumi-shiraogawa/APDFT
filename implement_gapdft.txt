@@ -11,3 +11,16 @@ Flowchart:
 5. Re-calculate integral of the former terms
 6. Back to 4
 
+
+First milestone of the implementation is to calculate the energy
+of the charge and geometry changes.
+For this purpose, tasks are
+1. Make arguments for generating input files and folders need
+   to be modified.
+2.
+
+
+apdft.commandline.py
+
+change apdft.commandline.build_main_commandline to allow
+for 'energies_geometries' for command line arguments
