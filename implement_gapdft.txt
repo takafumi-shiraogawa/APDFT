@@ -15,12 +15,26 @@ Flowchart:
 First milestone of the implementation is to calculate the energy
 of the charge and geometry changes.
 For this purpose, tasks are
-1. Make arguments for generating input files and folders need
-   to be modified.
-2.
+1. Make an argument "energies_geometries" for generating input
+   files and folders need to be modified.
+2. Make directries and inputs of QM calculations for obtaining
+   perturbed electron densities with molecular geometry changes.
 
 
 apdft.commandline.py
 
 change apdft.commandline.build_main_commandline to allow
 for 'energies_geometries' for command line arguments
+
+commandline.mode_energies_geometries
+-> derivatives.estimate_cost_and_coverage_general()
+-> physics.estimate_cost_and_coverage_general(self)
+-> physics.enumerate_all_targets_general(self)
+-> apdft.math.IntegerPartitions.partition
+
+
+Note for implementation of higher-order APDFT (higher than APDFT3)
+The followings need to be modified:
+  For perturbed electron densities
+    settings.APDFT.estimate_cost_and_coverage_general
+

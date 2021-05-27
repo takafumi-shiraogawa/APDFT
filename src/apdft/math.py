@@ -26,7 +26,14 @@ class IntegerPartitions(object):
         if (around is None) != (maxdz is None):
             raise ValueError("Cannot define center or radius alone.")
 
+        # If the site number is 1
         if maxelements == 1:
+            # If the nuclear number of the atom is given and
+            # maxdz is smaller than the absolute difference in
+            # the allowed total charge and the number of protons
+            # That is, the latter condition means that it is not
+            # possible to reach the allowed charge by the change
+            # of the atomic charge.
             if around is not None and maxdz < abs(total - around[-maxelements]):
                 return []
             else:

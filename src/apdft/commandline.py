@@ -16,8 +16,9 @@ def entry_cli():
     parser = build_main_commandline()
     conf = aconf.Configuration()
     conf.from_file()
-    # mode and modeshort are energies and *.xyz, respectively
-    # in the first invocation
+    # mode and modeshort are energies (or energies_geometries)
+    # and *.xyz, respectively in the first invocation of apdft
+    # (or cli.py)
     mode, modeshort, conf = parse_into(parser, configuration=conf)
 
     # execute
@@ -148,6 +149,7 @@ def mode_energies_geometries(conf, modeshort=None):
     # select QM code
     calculator_options = conf.apdft_method, conf.apdft_basisset, conf.debug_superimpose
     calculator = conf.energy_code.get_calculator_class()(*calculator_options)
+    # In this mode, the default calculator is PYSCF.
 
     # parse input
     try:
@@ -178,7 +180,9 @@ def mode_energies_geometries(conf, modeshort=None):
         targetlist,
     )
 
-    cost, coverage = derivatives.estimate_cost_and_coverage()
+    # cost is different from that of estimate_cost_and_coverage()
+    # since the derivatives for the nuclear distribution are required.
+    cost, coverage = derivatives.estimate_cost_and_coverage_general()
     if conf.debug_validation:
         cost += coverage
     apdft.log.log(

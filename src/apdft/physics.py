@@ -516,6 +516,52 @@ class APDFT(object):
             ]
         return res
 
+    def enumerate_all_targets_general(self):
+        """ Builds a list of all possible targets.
+
+		Note that the order is not guaranteed to be stable.
+
+		Args:
+			self:		Class instance from which the total charge and number of sites is determined.
+		Returns:
+			A list of lists with the integer nuclear charges."""
+        # there might be a user-specified explicit list
+        if self._targetlist is not None:
+            return self._targetlist
+
+        # Generate targets
+        if self._max_deltaz is None:
+            around = None
+            limit = None
+        else:
+            around = np.array(self._nuclear_numbers)
+            limit = self._max_deltaz
+
+        res = []
+        nsites = len(self._nuclear_numbers)
+        nprotons = sum(self._nuclear_numbers)
+        # shift changes from -max_charge to max_charge
+        for shift in range(-self._max_charge, self._max_charge + 1):
+            # If the number of protons of the system is lower than 0
+            if nprotons + shift < 1:
+                continue
+            res += apdft.math.IntegerPartitions.partition(
+                nprotons + shift, nsites, around, limit
+            )
+
+        # filter for included atoms
+        ignore_atoms = list(
+            set(range(len(self._nuclear_numbers))) - set(self._include_atoms)
+        )
+        if len(self._include_atoms) != len(self._nuclear_numbers):
+            res = [
+                _
+                for _ in res
+                if [_[idx] for idx in ignore_atoms]
+                == [self._nuclear_numbers[idx] for idx in ignore_atoms]
+            ]
+        return res
+
     def estimate_cost_and_coverage(self):
         """ Estimates number of single points (cost) and number of targets (coverage).
 
@@ -528,6 +574,40 @@ class APDFT(object):
         cost = sum({0: 1, 1: 2 * N, 2: N * (N - 1)}[_] for _ in self._orders)
 
         coverage = len(self.enumerate_all_targets())
+        return cost, coverage
+
+    def estimate_cost_and_coverage_general(self):
+        """ Estimates number of single points (cost) and number of targets (coverage).
+            This is a modified estimate_cost_and_coverage and can
+            treat molecular geometry changes.
+
+		Args:
+			self:		Class instance from which the total charge and number of sites is determined.
+		Returns:
+			Tuple of ints: number of single points, number of targets."""
+
+        N = len(self._include_atoms)
+        # Required order of APDFTn is up to n - 1.
+        # (In the current implementation, the maximum order of perturbed
+        # electron densities calculated by the central finite difference
+        # is 2 (APDFT3).)
+        # Here, self._orders is 0, 1, ..., n - 1.
+        cost = sum({0: 1, 1: 2 * N, 2: N * (N - 1)}[_] for _ in self._orders)
+
+        # Add a cost with respect to molecular geometry changes.
+        # ToDo: consider 3 Cartesian components
+        cost += sum({0: 0, 1: 2 * N, 2: N * (N - 1)}[_] for _ in self._orders)
+
+        # Add a cost with respect to mixed changes for atomic charge
+        # and geometry.
+        # ToDo: consider 3 Cartesian components
+        cost += sum({0: 0, 1: 0, 2: N * N}[_] for _ in self._orders)
+
+        # The number of candidates does not change with nuclear charge transformations
+        # because it is assumed that the molecular geometry is determined by the nuclear
+        # charges of atoms.
+        # self.enumerate_all_targets() is the list of all the target systems.
+        coverage = len(self.enumerate_all_targets_general())
         return cost, coverage
 
     def get_energy_from_reference(self, nuclear_charges, is_reference_molecule=False):
