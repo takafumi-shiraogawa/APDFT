@@ -192,7 +192,7 @@ def mode_energies_geometries(conf, modeshort=None):
         level="RESULT",
     )
     if not conf.energy_dryrun:
-        derivatives.prepare(conf.debug_validation)
+        derivatives.prepare_general(conf.debug_validation)
         derivatives.analyse(conf.debug_validation)
 
 
