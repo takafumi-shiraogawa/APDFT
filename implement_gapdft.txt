@@ -37,7 +37,7 @@ Make directories and commands.sh of QM calculations:
    commandline.mode_energies_geometries
    -> derivatives.prepare(conf.debug_validation)
       derivatives.analyse(conf.debug_validation)
-   -> physics.apdft.prepare
+   -> physics.apdft.prepare_general
 
 
 

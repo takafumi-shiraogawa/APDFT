@@ -170,7 +170,9 @@ def mode_energies_geometries(conf, modeshort=None):
     # call APDFT library
     derivatives = ap.APDFT(
         conf.apdft_maxorder,
+        # e.g., [7, 7]
         nuclear_numbers,
+        # e.g., [[0. 0. 0.] [0. 0. 1.]]
         coordinates,
         ".",
         calculator,

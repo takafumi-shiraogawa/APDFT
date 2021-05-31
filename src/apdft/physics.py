@@ -160,6 +160,18 @@ class APDFT(object):
 
         return baseline
 
+    # For molecular geometry changes
+    def _calculate_delta_R_vector(self, numatoms, order, sites, direction):
+        baseline = np.zeros((numatoms, 3))
+
+        if order > 0:
+            sign = {"up": 1, "dn": -1}[direction] * self._delta
+            # It is assumed that only Z coordinate changes
+            # TODO: generalize to three Cartesian components
+            baseline[list(sites), 2] += sign
+
+        return baseline
+
     def prepare(self, explicit_reference=False):
         """ Builds a complete folder list of all relevant calculations."""
         if os.path.isdir("QM"):
@@ -333,13 +345,15 @@ class APDFT(object):
                         continue
                     os.makedirs(path)
 
-                    charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
+                    # It is assumed that only Z coordinate changes
+                    # TODO: generalize to three Cartesian components
+                    nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
                         len(self._nuclear_numbers), order, combination_r, direction
                     )
                     inputfile = self._calculator.get_input(
-                        self._coordinates,
+                        nuclear_positions,
                         self._nuclear_numbers,
-                        charges,
+                        self._nuclear_numbers,
                         None,
                         includeonly=self._include_atoms,
                     )
@@ -353,8 +367,8 @@ class APDFT(object):
                         )
 
             # Loop for mixed changes of nuclear charge and coordinate
-            for combination_zr in it.combinations_with_replacement(
-                self._include_atoms, order
+            for combination_zr in it.product(
+                self._include_atoms, repeat = order
             ):
                 # If the order is 2 and selected two atoms are
                 # equivalent, QM calculations are not needed for
@@ -385,11 +399,18 @@ class APDFT(object):
                         continue
                     os.makedirs(path)
 
+                    # For nuclear charge changes
+                    # TODO:generalize to higher-order APDFT (n > 3)
                     charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
-                        len(self._nuclear_numbers), order, combination_zr, direction
+                        len(self._nuclear_numbers), order, tuple([combination_zr[0]]), direction
+                    )
+                    # For molecular geometry changes
+                    # TODO:generalize to higher-order APDFT (n > 3)
+                    nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                        len(self._nuclear_numbers), order, tuple([combination_zr[1]]), direction
                     )
                     inputfile = self._calculator.get_input(
-                        self._coordinates,
+                        nuclear_positions,
                         self._nuclear_numbers,
                         charges,
                         None,
