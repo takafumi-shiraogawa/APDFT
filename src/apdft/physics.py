@@ -729,6 +729,8 @@ class APDFT(object):
             ]
         return res
 
+
+    # For a "energies_geometries" mode
     def enumerate_all_targets_general(self):
         """ Builds a list of all possible targets.
 
@@ -924,6 +926,61 @@ class APDFT(object):
         # return results
         return targets, energies, dipoles
 
+    # For a "energies_geometries" mode
+    def predict_all_targets_general(self):
+        # assert one order of targets
+        targets = self.enumerate_all_targets_general()
+        own_nuc_nuc = Coulomb.nuclei_nuclei(
+            self._coordinates, self._nuclear_numbers)
+
+        energies = np.zeros((len(targets), len(self._orders)))
+        dipoles = np.zeros((len(targets), 3, len(self._orders)))
+
+        # get base information
+        refenergy = self.get_energy_from_reference(
+            self._nuclear_numbers, is_reference_molecule=True
+        )
+        epn_matrix = self.get_epn_matrix()
+        dipole_matrix = self.get_linear_density_matrix("ELECTRONIC_DIPOLE")
+
+        # get target predictions
+        for targetidx, target in enumerate(targets):
+            deltaZ = target - self._nuclear_numbers
+
+            deltaZ_included = deltaZ[self._include_atoms]
+            alphas = self.get_epn_coefficients(deltaZ_included)
+
+            # energies
+            deltaEnn = Coulomb.nuclei_nuclei(
+                self._coordinates, target) - own_nuc_nuc
+            for order in sorted(self._orders):
+                contributions = -np.multiply(
+                    np.outer(alphas[:, order], deltaZ_included), epn_matrix
+                ).sum()
+                energies[targetidx, order] = contributions
+                if order > 0:
+                    energies[targetidx, order] += energies[targetidx, order - 1]
+            energies[targetidx, :] += deltaEnn + refenergy
+
+            # dipoles
+            if dipole_matrix is not None:
+                betas = self.get_linear_density_coefficients(deltaZ_included)
+                nuc_dipole = Dipoles.point_charges(
+                    self._coordinates.mean(axis=0), self._coordinates, target
+                )
+                for order in sorted(self._orders):
+                    ed = np.multiply(dipole_matrix, betas[:, order, np.newaxis]).sum(
+                        axis=0
+                    )
+                    dipoles[targetidx, :, order] = ed
+                    dipoles[targetidx, :, order] += np.sum(
+                        dipoles[targetidx, :, :order]
+                    )
+                dipoles[targetidx] += nuc_dipole[:, np.newaxis]
+
+        # return results
+        return targets, energies, dipoles
+
     def analyse(self, explicit_reference=False):
         """ Performs actual analysis and integration. Prints results"""
         try:
@@ -982,6 +1039,86 @@ class APDFT(object):
         result_energies = {"targets": targetnames, "total_energy": energies[:, -1]}
         for order in self._orders:
             result_energies["total_energy_order%d" % order] = energies[:, order]
+        result_dipoles = {
+            "targets": targetnames,
+            "dipole_moment_x": dipoles[:, 0, -1],
+            "dipole_moment_y": dipoles[:, 1, -1],
+            "dipole_moment_z": dipoles[:, 2, -1],
+        }
+        for order in self._orders:
+            for didx, dim in enumerate("xyz"):
+                result_dipoles["dipole_moment_%s_order%d" % (dim, order)] = dipoles[
+                    :, didx, order
+                ]
+        if explicit_reference:
+            result_energies["reference_energy"] = comparison_energies
+            result_dipoles["reference_dipole_x"] = comparison_dipoles[:, 0]
+            result_dipoles["reference_dipole_y"] = comparison_dipoles[:, 1]
+            result_dipoles["reference_dipole_z"] = comparison_dipoles[:, 2]
+        pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
+        pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
+
+    # For a "energies_geometries" mode
+    def analyse_general(self, explicit_reference=False):
+        """ Performs actual analysis and integration. Prints results"""
+        try:
+            targets, energies, dipoles = self.predict_all_targets_general()
+        except (FileNotFoundError, AttributeError):
+            apdft.log.log(
+                "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.",
+                level="warning",
+            )
+            return
+
+        if explicit_reference:
+            comparison_energies = np.zeros(len(targets))
+            comparison_dipoles = np.zeros((len(targets), 3))
+            for targetidx, target in enumerate(targets):
+                path = "QM/comparison-%s" % "-".join(map(str, target))
+                try:
+                    comparison_energies[targetidx] = self._calculator.get_total_energy(
+                        path
+                    )
+                except FileNotFoundError:
+                    apdft.log.log(
+                        "Comparison calculation is missing. Predictions are unaffected. Will skip this comparison.",
+                        level="warning",
+                        calculation=path,
+                        target=target,
+                    )
+                    comparison_energies[targetidx] = np.nan
+                    comparison_dipoles[targetidx] = np.nan
+                    continue
+                except ValueError:
+                    apdft.log.log(
+                        "Comparison calculation is damaged. Predictions are unaffected. Will skip this comparison.",
+                        level="warning",
+                        calculation=path,
+                        target=target,
+                    )
+                    comparison_energies[targetidx] = np.nan
+                    comparison_dipoles[targetidx] = np.nan
+                    continue
+
+                nd = apdft.physics.Dipoles.point_charges(
+                    [0, 0, 0], self._coordinates, target
+                )
+                # TODO: load dipole
+                # comparison_dipoles[targetidx] = ed + nd
+        else:
+            comparison_energies = None
+            comparison_dipoles = None
+
+        self._print_energies(targets, energies, comparison_energies)
+        self._print_dipoles(targets, dipoles, comparison_dipoles)
+
+        # persist results to disk
+        targetnames = [APDFT._get_target_name(_) for _ in targets]
+        result_energies = {"targets": targetnames,
+                           "total_energy": energies[:, -1]}
+        for order in self._orders:
+            result_energies["total_energy_order%d" %
+                            order] = energies[:, order]
         result_dipoles = {
             "targets": targetnames,
             "dipole_moment_x": dipoles[:, 0, -1],

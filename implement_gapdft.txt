@@ -19,6 +19,10 @@ For this purpose, tasks are
    files and folders need to be modified.
 2. Make directries and inputs of QM calculations for obtaining
    perturbed electron densities with molecular geometry changes.
+3. Set targets with different molecular geometry from a reference
+   molecule.
+4. Numerical integration
+5. Nuclear-nuclear repulsion
 
 
 apdft.commandline.py
@@ -39,7 +43,12 @@ Make directories and commands.sh of QM calculations:
       derivatives.analyse(conf.debug_validation)
    -> physics.apdft.prepare_general
 
-
+APDFT
+   commandline.mode_energies_geometries
+   -> derivatives.analyse_general(conf.debug_validation)
+   -> physics.analyse_general
+   -> physics.predict_all_targets_general
+      -> physics.enumerate_all_targets_general
 
 
 Note for implementation of higher-order APDFT (higher than APDFT3)
