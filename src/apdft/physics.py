@@ -814,7 +814,7 @@ class APDFT(object):
         # Add a cost with respect to mixed changes for atomic charge
         # and geometry.
         # TODO: consider 3 Cartesian components
-        cost += sum({0: 0, 1: 0, 2: N * N}[_] for _ in self._orders)
+        cost += sum({0: 0, 1: 0, 2: 2 * N * N}[_] for _ in self._orders)
 
         # The number of candidates does not change with nuclear charge transformations
         # because it is assumed that the molecular geometry is determined by the nuclear
