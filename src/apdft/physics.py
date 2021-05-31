@@ -390,9 +390,6 @@ class APDFT(object):
                     continue
 
                 for direction in directions:
-                    # In QM/order-0/, site-all-cc is unique.
-                    if direction == "cc":
-                        continue
                     path = "QM/order-%d/zr-site%s-%s" % (order, label, direction)
                     commands.append("( cd %s && bash run.sh )" % path)
                     if os.path.isdir(path):
