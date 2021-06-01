@@ -153,7 +153,7 @@ def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
     calculator = conf.energy_code.get_calculator_class()(*calculator_options)
     # In this mode, the default calculator is PYSCF.
 
-    # parse input
+    # parse input for a reference molecule
     try:
         nuclear_numbers, coordinates = apdft.read_xyz(conf.energy_geometry)
     except FileNotFoundError:
@@ -161,6 +161,27 @@ def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
             'Unable to open input file "%s".' % conf.energy_geometry, level="error"
         )
         return
+
+    # parse input for a target geometry
+    try:
+        target_nuclear_numbers, target_coordinates = \
+            apdft.read_xyz(conf.energy_geometry2)
+    except FileNotFoundError:
+        apdft.log.log(
+            'Unable to open input file "%s".' % conf.energy_geometry2, level="error"
+        )
+        return
+
+    # If target molecule is different from the reference
+    if (target_nuclear_numbers != nuclear_numbers).any():
+        apdft.log.log(
+            'Atoms are different in reference "%s" and target"%s".' % \
+            (conf.energy_geometry, conf.energy_geometry2), level="error"
+        )
+        return
+
+    # The lists of target atoms are not necessary.
+    del target_nuclear_numbers
 
     # Parse optional targetlist
     if len(conf.apdft_targets) != 0:

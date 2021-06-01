@@ -58,6 +58,13 @@ To use new molecular geometry:
    2. Make a new option in apdft.conf.
       Need to change settings.Configuration.__init__
 
+   Read a actual coordinate
+      commandline.mode_energies_geometries
+      -> apdft.read_xyz  (__init__.py)
+
+   modeshort_2: *.xyz
+   configuration = apdft.settings.Configuration()
+   configuration.energy_geometry2
 
 Note for implementation of higher-order APDFT (higher than APDFT3)
 The followings need to be modified:
