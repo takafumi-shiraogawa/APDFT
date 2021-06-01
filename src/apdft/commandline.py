@@ -15,17 +15,19 @@ def entry_cli():
     # load configuration
     parser = build_main_commandline()
     conf = aconf.Configuration()
+    # try to read "apdft.conf"
+    # If there is no "apdft.conf", conf becomes None.
     conf.from_file()
     # mode and modeshort are energies (or energies_geometries)
     # and *.xyz, respectively in the first invocation of apdft
     # (or cli.py)
-    mode, modeshort, conf = parse_into(parser, configuration=conf)
+    mode, modeshort, modeshort_2, conf = parse_into(parser, configuration=conf)
 
     # execute
     if mode == "energies":
         mode_energies(conf, modeshort)
     elif mode == "energies_geometries":
-        mode_energies_geometries(conf, modeshort)
+        mode_energies_geometries(conf, modeshort, modeshort_2)
     else:
         apdft.log.log("Unknown mode %s" % mode, level="error")
 
@@ -141,7 +143,7 @@ def mode_energies(conf, modeshort=None):
         derivatives.analyse(conf.debug_validation)
 
 
-def mode_energies_geometries(conf, modeshort=None):
+def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
     print('')
     print('*** energies_geometries mode ***')
     print('')
@@ -210,7 +212,7 @@ def build_main_commandline(set_defaults=True):
 
     # mode selection
     # "energies_geometries" is added to treat molecular
-    #  geometry changes
+    # geometry changes
     modes = ["energies", "energies_geometries"]
     parser.add_argument(
         "mode",
@@ -222,6 +224,9 @@ def build_main_commandline(set_defaults=True):
 
     # allow for shortcut where a mode gets one single argument of any kind
     parser.add_argument("modeshort", type=str, nargs="?",
+                        help=argparse.SUPPRESS)
+
+    parser.add_argument("modeshort_2", type=str, nargs="?",
                         help=argparse.SUPPRESS)
 
     # options
@@ -270,6 +275,7 @@ def parse_into(parser, configuration=None, cliargs=None):
     valid_options = configuration.list_options()
     mode = None
     modeshort = None  # single argument for a mode for simplicity
+    modeshort_2 = None
     for k, v in vars(args).items():
         if k in valid_options:
             if v is not None:
@@ -279,10 +285,16 @@ def parse_into(parser, configuration=None, cliargs=None):
                 mode = v[0]
             elif k == "modeshort":
                 modeshort = v
+            elif k == "modeshort_2":
+                modeshort_2 = v
             else:
                 raise ValueError("Unknown argument found.")
 
-    if mode == "energies" or "energies_geometries":
+    if mode == "energies":
         if modeshort is not None:
             configuration.energy_geometry = modeshort
-    return mode, modeshort, configuration
+    elif mode == "energies_geometries":
+        if modeshort is not None:
+            configuration.energy_geometry = modeshort
+            configuration.energy_geometry2 = modeshort_2
+    return mode, modeshort, modeshort_2, configuration

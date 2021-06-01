@@ -157,6 +157,13 @@ class Configuration:
                 "XYZ file of the reference molecule",
             ),
             Option(
+                "energy",
+                "geometry2",
+                str,
+                "inp2.xyz",
+                "XYZ file of the target molecule",
+            ),
+            Option(
                 "apdft",
                 "targets",
                 str,

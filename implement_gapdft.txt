@@ -20,7 +20,7 @@ For this purpose, tasks are
 2. Make directries and inputs of QM calculations for obtaining
    perturbed electron densities with molecular geometry changes.
 3. Set targets with different molecular geometry from a reference
-   molecule.
+   molecule. (Read target geometry)
 4. Numerical integration
 5. Nuclear-nuclear repulsion
 
@@ -49,6 +49,14 @@ APDFT
    -> physics.analyse_general
    -> physics.predict_all_targets_general
       -> physics.enumerate_all_targets_general
+
+
+To use new molecular geometry:
+   1. Read a new geometry of a reference molecule.
+      Need to change commandline.
+      cli.py energies_geometries *.xyz *.xyz
+   2. Make a new option in apdft.conf.
+      Need to change settings.Configuration.__init__
 
 
 Note for implementation of higher-order APDFT (higher than APDFT3)
