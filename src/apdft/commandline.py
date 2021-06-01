@@ -144,9 +144,9 @@ def mode_energies(conf, modeshort=None):
 
 
 def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
-    print('')
-    print('*** energies_geometries mode ***')
-    print('')
+    apdft.log.log(
+        'Mode "energies_geometries"', level="info"
+    )
 
     # select QM code
     calculator_options = conf.apdft_method, conf.apdft_basisset, conf.debug_superimpose
