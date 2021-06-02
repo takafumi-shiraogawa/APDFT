@@ -61,6 +61,43 @@ class PyscfCalculator(apc.Calculator):
 
         return template.render(**env)
 
+    # For a different target geometry from the reference
+    # Used in mode "energies_geometries"
+    def get_input_general(
+        self,
+        coordinates,
+        target_coordinates,
+        nuclear_numbers,
+        nuclear_charges,
+        grid,
+        iscomparison=False,
+        includeonly=None,
+    ):
+        basedir = os.path.dirname(os.path.abspath(__file__))
+        with open("%s/templates/pyscf2.py" % basedir) as fh:
+            template = j.Template(fh.read())
+
+        env = {}
+        env["atoms"] = PyscfCalculator._format_coordinates(
+            nuclear_numbers, coordinates)
+        # Target atoms
+        # The atom types are identical with the reference ("atoms").
+        env["target_atoms"] = PyscfCalculator._format_coordinates(
+            nuclear_numbers, target_coordinates)
+        env["basisset"] = PyscfCalculator._format_basis(
+            nuclear_numbers, self._basisset)
+        env["method"] = self._methods[self._method]
+
+        if includeonly is None:
+            includeonly = range(len(nuclear_numbers))
+        env["includeonly"] = PyscfCalculator._format_list(includeonly)
+
+        deltaZ = np.array(nuclear_charges) - np.array(nuclear_numbers)
+        deltaZ = deltaZ[includeonly]
+        env["deltaZ"] = PyscfCalculator._format_list(deltaZ)
+
+        return template.render(**env)
+
     @staticmethod
     @functools.lru_cache(maxsize=10)
     def _cached_log_read(folder):

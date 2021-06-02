@@ -250,11 +250,16 @@ class APDFT(object):
             fh.write("\n".join(commands))
 
     # For mode "energies_geometries"
-    def prepare_general(self, explicit_reference=False):
+    def prepare_general(self, target_coordinate=None, explicit_reference=False):
         """ Builds a complete folder list of all relevant calculations."""
         if os.path.isdir("QM"):
             apdft.log.log(
                 "Input folder exists. Reusing existing data.", level="warning"
+            )
+
+        if target_coordinate is None:
+            apdft.log.log(
+                "Target molecular coordinate is not given.", level="error"
             )
 
         commands = []
@@ -300,8 +305,9 @@ class APDFT(object):
                     charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
                         len(self._nuclear_numbers), order, combination_z, direction
                     )
-                    inputfile = self._calculator.get_input(
+                    inputfile = self._calculator.get_input_general(
                         self._coordinates,
+                        target_coordinate,
                         self._nuclear_numbers,
                         charges,
                         None,
@@ -350,8 +356,9 @@ class APDFT(object):
                     nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
                         len(self._nuclear_numbers), order, combination_r, direction
                     )
-                    inputfile = self._calculator.get_input(
+                    inputfile = self._calculator.get_input_general(
                         nuclear_positions,
+                        target_coordinate,
                         self._nuclear_numbers,
                         self._nuclear_numbers,
                         None,
@@ -406,8 +413,9 @@ class APDFT(object):
                     nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
                         len(self._nuclear_numbers), order, tuple([combination_zr[1]]), direction
                     )
-                    inputfile = self._calculator.get_input(
+                    inputfile = self._calculator.get_input_general(
                         nuclear_positions,
+                        target_coordinate,
                         self._nuclear_numbers,
                         charges,
                         None,

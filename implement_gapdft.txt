@@ -66,6 +66,16 @@ To use new molecular geometry:
    configuration = apdft.settings.Configuration()
    configuration.energy_geometry2
 
+   The target geometry is obtained at
+   commandline.mode_energies_geometries.
+   This needs to used in inputs of QM calculations.
+   physics.prepare_general needs to be changed.
+   -> self._calculator.get_input
+   -> calculator.pyscf
+   calculator.pyscf needs to obtain the target geometry.
+   /src/apdft/calculator/templates/pyscf2.py was made for
+   a new template.
+
 Note for implementation of higher-order APDFT (higher than APDFT3)
 The followings need to be modified:
   For perturbed electron densities
