@@ -26,6 +26,8 @@ includeonly = np.array(({{includeonly}}))
 
 
 def add_qmmm(calc, mol, deltaZ):
+    # Background charges are patched to the underlying SCF calculation
+    # The qmmm module implements the elctronic embedding model.
     mf = pyscf.qmmm.mm_charge(calc, mol.atom_coords()[includeonly]/ angstrom, deltaZ)
 
     def energy_nuc(self):
@@ -39,16 +41,26 @@ def add_qmmm(calc, mol, deltaZ):
 
 
 if method == "HF":
+    # Set SCF calculation condition
     calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
+    # kernel() function is the simple way to call HF driver.
+    # verbose is the output level.
     hfe = calc.kernel(verbose=0)
+    # One-particle density matrix in AO representation:
+    # MO occupation number
+    # * MO coefficients
+    # * conjugated MO coefficients
     dm1_ao = calc.make_rdm1()
     total_energy = calc.e_tot
     Enn = calc.energy_nuc()
+
 if method == "CCSD":
     calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
     hfe = calc.kernel(verbose=0)
     mycc = pyscf.cc.CCSD(calc).run()
+    # Unrelaxed density matrix is evaluated in the MO basis
     dm1 = mycc.make_rdm1()
+    # Convert the density matrix into the AO basis
     dm1_ao = np.einsum("pi,ij,qj->pq", calc.mo_coeff, dm1, calc.mo_coeff.conj())
     total_energy = mycc.e_tot
     Enn = calc.energy_nuc()
@@ -72,10 +84,22 @@ print("ELECTRONIC_DIPOLE", *dipole)
 
 # GRID, as things were #####################################
 grid = pyscf.dft.gen_grid.Grids(mol)
+# level = 3 is a standard condition of PySCF
 grid.level = 3
 grid.build()
+# Calculate AO values on the grids
 ao_value = pyscf.dft.numint.eval_ao(mol, grid.coords, deriv=0)
+# Calculate electron density on the grids
+# Using xctype="LDA", rho only contains the electron density
+# at the grids
 rho = pyscf.dft.numint.eval_rho(mol, ao_value, dm1_ao, xctype="LDA")
+
+# Electronic Dipole evaluated with grids
+# Set distance vectors to the grids from a mass center
+# of the molecule
+num_r = grid.coords - mol.atom_coords().mean(axis=0)
+num_dipole = np.einsum('g,g,gx->x', rho, grid.weights, num_r)
+print("NUMERICAL_DIPOLE", *num_dipole)
 
 # Ionic Forces
 for site in includeonly:
