@@ -10,13 +10,20 @@ from pyscf.data import nist
 
 angstrom = 1 / 0.52917721067
 
+# Set information on a reference molecule
 mol = pyscf.gto.Mole()
 mol.atom = "{{ atoms }}"
-target_atom = "{{ target_atoms }}"
 mol.basis = {{basisset}}
 mol.verbose = 0
 mol.build()
 
+# Set information on a target molecule
+target_mol = pyscf.gto.Mole()
+target_mol.atom = "{{ target_atoms }}"
+target_mol.build()
+
+# Set a quantum chemical computation method
+# Only CCSD or HF is allowed.
 method = "{{ method }}"
 if method not in ["CCSD", "HF"]:
     raise NotImplementedError("Method %s not supported." % method)
@@ -52,7 +59,11 @@ if method == "HF":
     # * conjugated MO coefficients
     dm1_ao = calc.make_rdm1()
     total_energy = calc.e_tot
+    # Calculate nuclear-nuclear repulsion energy of
+    # of the reference molecule and
     Enn = calc.energy_nuc()
+    # of the target molecular geometry
+    target_Enn = target_mol.energy_nuc()
 
 if method == "CCSD":
     calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
@@ -63,13 +74,18 @@ if method == "CCSD":
     # Convert the density matrix into the AO basis
     dm1_ao = np.einsum("pi,ij,qj->pq", calc.mo_coeff, dm1, calc.mo_coeff.conj())
     total_energy = mycc.e_tot
+    # Calculate nuclear-nuclear repulsion energy of
+    # of the reference molecule and
     Enn = calc.energy_nuc()
+    # of the target molecular geometry
+    target_Enn = target_mol.energy_nuc()
 
 # GRIDLESS, as things should be ############################
 # Total energy of SCF run
 
 print("TOTAL_ENERGY", total_energy)
 print("NN_ENERGY", Enn)
+print("TARGET_NucNuc_ENERGY", target_Enn)
 
 # Electronic EPN from electron density
 for site in includeonly:

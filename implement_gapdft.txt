@@ -76,6 +76,14 @@ To use new molecular geometry:
    /src/apdft/calculator/templates/pyscf2.py was made for
    a new template.
 
+
+Calculation of nuclear-nuclear repulsion energy
+   This can be done in QM calculations by PySCF.
+   The template of the QM calculation is
+   /src/apdft/calculator/templates/pyscf2.py
+   mol.energy_nuc()
+
+
 Note for implementation of higher-order APDFT (higher than APDFT3)
 The followings need to be modified:
   For perturbed electron densities
