@@ -218,7 +218,7 @@ def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
     )
     if not conf.energy_dryrun:
         derivatives.prepare_general(target_coordinates, conf.debug_validation)
-        derivatives.analyse_general(conf.debug_validation)
+        derivatives.analyse_general(target_coordinates, conf.debug_validation)
 
 
 def build_main_commandline(set_defaults=True):

@@ -935,7 +935,7 @@ class APDFT(object):
         return targets, energies, dipoles
 
     # For a "energies_geometries" mode
-    def predict_all_targets_general(self):
+    def predict_all_targets_general(self, target_coordinate):
         # assert one order of targets
         targets = self.enumerate_all_targets_general()
         own_nuc_nuc = Coulomb.nuclei_nuclei(
@@ -945,6 +945,7 @@ class APDFT(object):
         dipoles = np.zeros((len(targets), 3, len(self._orders)))
 
         # get base information
+        # refenergy is the total energy
         refenergy = self.get_energy_from_reference(
             self._nuclear_numbers, is_reference_molecule=True
         )
@@ -959,8 +960,10 @@ class APDFT(object):
             alphas = self.get_epn_coefficients(deltaZ_included)
 
             # energies
+            # Diference of nuclear-nuclear repulsion energies of
+            # target and reference molecules.
             deltaEnn = Coulomb.nuclei_nuclei(
-                self._coordinates, target) - own_nuc_nuc
+                target_coordinate, target) - own_nuc_nuc
             for order in sorted(self._orders):
                 contributions = -np.multiply(
                     np.outer(alphas[:, order], deltaZ_included), epn_matrix
@@ -1067,10 +1070,16 @@ class APDFT(object):
         pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
 
     # For a "energies_geometries" mode
-    def analyse_general(self, explicit_reference=False):
+    def analyse_general(self, target_coordinate=None, explicit_reference=False):
         """ Performs actual analysis and integration. Prints results"""
+        # If the target coordinate is not given, the error message is displayed.
+        if target_coordinate is None:
+            apdft.log.log(
+                "Target molecular coordinate is not given.", level="error"
+            )
+
         try:
-            targets, energies, dipoles = self.predict_all_targets_general()
+            targets, energies, dipoles = self.predict_all_targets_general(target_coordinate)
         except (FileNotFoundError, AttributeError):
             apdft.log.log(
                 "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.",

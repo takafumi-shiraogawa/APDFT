@@ -83,6 +83,18 @@ Calculation of nuclear-nuclear repulsion energy
    /src/apdft/calculator/templates/pyscf2.py
    mol.energy_nuc()
 
+   In APDFT results, only total energies are presented,
+   and electronic energy is not presented in the QM calculation
+   results.
+   In the development version of APDFT (GitHub not released version),
+   the nuclear-nuclear repulsion energy is printed as "NN_ENERGY" in
+   the QM calculation results.
+   physics.Coulomb.nuclei_nuclei(coordinates, charges)
+
+   commandline.mode_energies_geometries
+   -> physics.analyse_general
+   -> physics.predict_all_targets_general
+
 
 Note for implementation of higher-order APDFT (higher than APDFT3)
 The followings need to be modified:
