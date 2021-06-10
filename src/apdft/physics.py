@@ -527,6 +527,128 @@ class APDFT(object):
 
         return alphas
 
+    # For a "energies_geometries" mode
+    def _get_stencil_coefficients_general(self, deltaZ, shift):
+        """ Calculates the prefactors of the density terms outlined in the documentation of the implementation, e.g. alpha and beta.
+
+        In general, this collects all terms of the taylor expansion for one particular target and returns their coefficients.
+        For energies, the n-th order derivative of the density is divided by :math:`(n+1)!`, while the target density is obtained
+        from a regular Taylor expansion, i.e. the density derivative is divided by :math:`n!`. Therefore, a `shift` of 1 returns
+        energy coefficients and a `shift` of 0 returns density coefficients.
+
+        Args:
+            self:   APDFT instance to obtain the stencil from.
+            deltaZ: Array of length N. Target system as described by the change in nuclear charges. [e]
+            shift:  Integer. Shift of the factorial term in the energy expansion or density expansion.
+        """
+
+        # build alphas
+        N = len(self._include_atoms)
+        nvals = {0: 1, 1: 2 * (N * 2) + 0, 2: (2 * (N * (N - 1))) + (2 * N * N)}
+        # Dimension of alphas is (the number of QM calculations, the order of APDFT).
+        alphas = np.zeros(
+            (sum([nvals[_] for _ in self._orders]), len(self._orders)))
+
+        # test input
+        if N != len(deltaZ):
+            raise ValueError(
+                "Mismatch of array lengths: %d dZ values for %d nuclei."
+                % (len(deltaZ), N)
+            )
+
+        # order 0
+        # APDFT(0 + 1) = APDFT1
+        # For energy, APDFT1 uses the raw density of the reference molecule.
+        if 0 in self._orders:
+            alphas[0, 0] = 1
+
+        # order 1
+        # APDFT(1 + 1) = APDFT2
+        # For energy, the 1st-order perturbed density of APDFT1 consider
+        # the effects of individual changes of atomic charges.
+        if 1 in self._orders:
+            # self._delta is 0.05, a small fraction for the finite difference
+            prefactor = 1 / (2 * self._delta) / np.math.factorial(1 + shift)
+            for siteidx in range(N):
+                # For "up" change of the charge,
+                # alphas[n, 1] (n = 1, 3, ..., 2N - 1).
+                # For "dn" change of the charge,
+                # alphas[n, 1] (n = 2, 4, ..., 2N).
+                # deltaZ arises from the chain rule of the derivative.
+                alphas[1 + siteidx * 2, 1] += prefactor * deltaZ[siteidx]
+                alphas[1 + siteidx * 2 + 1, 1] -= prefactor * deltaZ[siteidx]
+
+        # order 2
+        # APDFT(2 + 1) = APDFT3
+        # For energy, the 2nd-order perturbed density of APDFT1 consider
+        # the effects of combinatorial changes of atomic charges.
+        if 2 in self._orders:
+            # alphas has the following structure:
+            #   0: the row reference density
+            #   from 1 to 2N: the double changes of charges at one atom
+            #                     odd number is for "up".
+            #                     even number is for "dn".
+            #   from 2N + 1 to the end: the double changes of charges
+            #                           at different atoms
+            #                           odd number is for "up".
+            #                           even number is for "dn".
+            # pos is used to specify the position in alphas
+            pos = 1 + N * 2 - 2
+            # Loops for the combination of two atoms
+            # (duplication is allowed)
+            for siteidx_i in range(N):
+                for siteidx_j in range(siteidx_i, N):
+                    if siteidx_i != siteidx_j:
+                        pos += 2
+                    # If there is no charge change in selected atoms of
+                    # target and reference molecules, the contribution to
+                    # the target energy (or property) becomes zero.
+                    # Note that the derivative of the density with respect to
+                    # the charge is not zero.
+                    if deltaZ[siteidx_j] == 0 or deltaZ[siteidx_i] == 0:
+                        continue
+                    # If selected atoms with the charge change are different
+                    # (It is same as siteidx_j > siteidx_i if all atoms are targeted.)
+                    if self._include_atoms[siteidx_j] > self._include_atoms[siteidx_i]:
+                        #                 2 * (delta ** 2) = 2 * (0.05 ** 2)
+                        #                                  = 2 * 0.025
+                        #                                  = 0.005
+                        prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
+                            2 + shift
+                        )
+                        prefactor *= deltaZ[siteidx_i] * deltaZ[siteidx_j]
+                        # Following alphas are for the seven terms in the mixed derivatives
+                        # with respect to the two different charges
+                        alphas[pos, 2] += prefactor
+                        alphas[pos + 1, 2] += prefactor
+                        # For the raw reference density
+                        alphas[0, 2] += 2 * prefactor
+                        # For the single change of the atomic charge
+                        alphas[1 + siteidx_i * 2, 2] -= prefactor
+                        alphas[1 + siteidx_i * 2 + 1, 2] -= prefactor
+                        alphas[1 + siteidx_j * 2, 2] -= prefactor
+                        alphas[1 + siteidx_j * 2 + 1, 2] -= prefactor
+                    # If selected atoms with the charge change are same
+                    # (It is same as siteidx_j == siteidx_i if all atoms are targeted.)
+                    if self._include_atoms[siteidx_j] == self._include_atoms[siteidx_i]:
+                        # To use same perturbed density with the first-order one, 2h -> h
+                        # is used, and therefore in prefactor 1 / ((2 * self._delta) ** 2)
+                        # becomes 1 / (self._delta ** 2).
+                        prefactor = (1 / (self._delta ** 2)) / np.math.factorial(
+                            2 + shift
+                        )
+                        prefactor *= deltaZ[siteidx_i] * deltaZ[siteidx_j]
+                        # In
+                        # alphas
+                        # For the raw electron density
+                        alphas[0, 2] -= 2 * prefactor
+                        # For the double changes at the same atom
+                        # Note that here siteidx_i == siteidx_j.
+                        alphas[1 + siteidx_i * 2, 2] += prefactor
+                        alphas[1 + siteidx_j * 2 + 1, 2] += prefactor
+
+        return alphas
+
     def get_epn_coefficients(self, deltaZ):
         """ EPN coefficients are the weighting of the electronic EPN from each of the finite difference calculations.
         
@@ -625,19 +747,28 @@ class APDFT(object):
 
         return folders
 
+    # Used in physics.predict_all_targets(_general) to obtain epn_matrix
     def get_epn_matrix(self):
         """ Collects :math:`\int_Omega rho_i(\mathbf{r}) /|\mathbf{r}-\mathbf{R}_I|`. """
         N = len(self._include_atoms)
+        # folders has the dimension of the number of QM calculations
         folders = self.get_folder_order()
 
+        # Dimension is (the number of QM calculations, the number of atoms).
         coeff = np.zeros((len(folders), N))
 
+        # This function is iteratively used in get_epn_matrix.
+        # folder: a specific folder of a QM calculation
+        # order: the order of APDFT - 1
+        # direction: "up" or "down"
+        # combination: atoms whose charges change
         def get_epn(folder, order, direction, combination):
             res = 0.0
             charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
                 len(self._nuclear_numbers), order, combination, direction
             )
             try:
+                # For PySCF, self._coordinates and charges are not used.
                 res = self._calculator.get_epn(
                     folder, self._coordinates, self._include_atoms, charges
                 )
@@ -823,6 +954,7 @@ class APDFT(object):
 
         # Add a cost with respect to mixed changes for atomic charge
         # and geometry.
+        # In the order 2, the prefactor 2 is for "up" and "dn".
         # TODO: consider 3 Cartesian components
         cost += sum({0: 0, 1: 0, 2: 2 * N * N}[_] for _ in self._orders)
 
@@ -949,15 +1081,22 @@ class APDFT(object):
         refenergy = self.get_energy_from_reference(
             self._nuclear_numbers, is_reference_molecule=True
         )
+        # Dimension of epn_matrix is
+        # (the number of QM calculations, the number of atoms).
+        # TODO: need to be generalized
         epn_matrix = self.get_epn_matrix()
+        # TODO: need to be generalized
         dipole_matrix = self.get_linear_density_matrix("ELECTRONIC_DIPOLE")
+
+        # get difference between reference and target geometries
+        deltaR = target_coordinate - self._coordinates
 
         # get target predictions
         for targetidx, target in enumerate(targets):
             deltaZ = target - self._nuclear_numbers
 
             deltaZ_included = deltaZ[self._include_atoms]
-            alphas = self.get_epn_coefficients(deltaZ_included)
+            alphas = self.get_epn_coefficients_general(deltaZ_included)
 
             # energies
             # Diference of nuclear-nuclear repulsion energies of
@@ -975,7 +1114,7 @@ class APDFT(object):
 
             # dipoles
             if dipole_matrix is not None:
-                betas = self.get_linear_density_coefficients(deltaZ_included)
+                betas = self.get_linear_density_coefficients_general(deltaZ_included)
                 nuc_dipole = Dipoles.point_charges(
                     self._coordinates.mean(axis=0), self._coordinates, target
                 )

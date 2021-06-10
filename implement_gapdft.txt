@@ -95,6 +95,52 @@ Calculation of nuclear-nuclear repulsion energy
    -> physics.analyse_general
    -> physics.predict_all_targets_general
 
+Perturbed electron densities
+   commandline.mode_energies_geometries
+   -> physics.analyse_general
+   -> physics.predict_all_targets_general
+   -> physics._get_stencil_coefficients(self, deltaZ, shift):
+         shift is used to increase the order of factorial of the density
+         for the energy.
+         For the property, the order is same with the density.
+      --
+      physics.get_epn_coefficients_general(self, deltaZ):
+         -> self._get_stencil_coefficients(deltaZ, 1)
+         It is used for the energy prediction.
+      or
+      physics.get_linear_density_coefficients_general(self, deltaZ):
+         -> self._get_stencil_coefficients(deltaZ, 0)
+         It is used for the property prediction.
+
+   physics.predict_all_targets_general
+      epn_matrix(the number of QM calculations, the number of atoms)
+      is obtained by iteratively using
+      epn_matrix = self.get_epn_matrix()
+
+   For nuclear charge changes, the dimension of epn_matrix is
+   (the number of QM calculations, the number of atoms)
+   For example, N2 has seven QM calculations and two atoms
+   order-0: 1 directry
+   order-1: 4 directries
+   order-2: 2 directries
+
+Calculation of electronic delta E:
+   --
+   for order in sorted(self._orders):
+                contributions = -np.multiply(
+                    np.outer(alphas[:, order], deltaZ_included), epn_matrix
+                ).sum()
+   --
+   alphas[:, order] has the dimension of QM calculations
+   (all types of the densities).
+   deltaZ_included is the charge changes at each atom and has the dimension
+   of the number of atoms. For example, deltaZ_included of N2 is [-1 1].
+   np.outer(alphas[:, order], deltaZ_included) generates the matrix that has
+   the dimension of (the number of QM calculations, the number of atoms).
+   np.multiply of this matrix and epn_matrix gives the matrix with the elements
+   of multiplying each component.
+
+
 
 Note for implementation of higher-order APDFT (higher than APDFT3)
 The followings need to be modified:
