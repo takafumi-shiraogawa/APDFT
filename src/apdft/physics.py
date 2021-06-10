@@ -747,11 +747,92 @@ class APDFT(object):
 
         return folders
 
+    # For a "energies_geometries" mode
+    def get_folder_order_general(self):
+        """ Returns a static order of calculation folders to build the individual derivative entries.
+
+        To allow for a more efficient evaluation of APDFT, terms are collected and most of the evaluation
+        is done with the combined cofficients of those terms. This requires the terms to be handled in a certain
+        fixed order that is stable in the various parts of the code. Depending on the selected expansion order, this 
+        function builds the list of folders to be included.
+
+        Returns: List of strings, the folder names."""
+
+        folders = []
+
+        # order 0
+        folders.append("%s/QM/order-0/site-all-cc/" % self._basepath)
+
+        # order 1
+        # TODO: generalization to three Cartesian coordinates
+        if 1 in self._orders:
+            # For the atomic charge change
+            for site in self._include_atoms:
+                folders.append("%s/QM/order-1/z-site-%d-up/" %
+                               (self._basepath, site))
+                folders.append("%s/QM/order-1/z-site-%d-dn/" %
+                               (self._basepath, site))
+            # For the atomic position change
+            # TODO: generalization to three Cartesian coordinates
+            for site in self._include_atoms:
+                folders.append("%s/QM/order-1/r-site-%d-up/" %
+                               (self._basepath, site))
+                folders.append("%s/QM/order-1/r-site-%d-dn/" %
+                               (self._basepath, site))
+
+        # order 2
+        if 2 in self._orders:
+            # For the atomic charge changes
+            for site_i in self._include_atoms:
+                for site_j in self._include_atoms:
+                    if site_j <= site_i:
+                        continue
+
+                    folders.append(
+                        "%s/QM/order-2/z-site-%d-%d-up/"
+                        % (self._basepath, site_i, site_j)
+                    )
+                    folders.append(
+                        "%s/QM/order-2/z-site-%d-%d-dn/"
+                        % (self._basepath, site_i, site_j)
+                    )
+
+            # For the atomic position changes
+            for site_i in self._include_atoms:
+                for site_j in self._include_atoms:
+                    if site_j <= site_i:
+                        continue
+
+                    folders.append(
+                        "%s/QM/order-2/r-site-%d-%d-up/"
+                        % (self._basepath, site_i, site_j)
+                    )
+                    folders.append(
+                        "%s/QM/order-2/r-site-%d-%d-dn/"
+                        % (self._basepath, site_i, site_j)
+                    )
+
+            # For both changes of atomic charge and position
+            # Loop for the atomic charge change
+            for site_i in self._include_atoms:
+                # Loop for the atomic position change
+                for site_j in self._include_atoms:
+                    folders.append(
+                        "%s/QM/order-2/zr-site-%d-%d-up/"
+                        % (self._basepath, site_i, site_j)
+                    )
+                    folders.append(
+                        "%s/QM/order-2/zr-site-%d-%d-dn/"
+                        % (self._basepath, site_i, site_j)
+                    )
+
+        return folders
+
     # Used in physics.predict_all_targets(_general) to obtain epn_matrix
     def get_epn_matrix(self):
         """ Collects :math:`\int_Omega rho_i(\mathbf{r}) /|\mathbf{r}-\mathbf{R}_I|`. """
         N = len(self._include_atoms)
-        # folders has the dimension of the number of QM calculations
+        # folders have the dimension of the number of QM calculations
         folders = self.get_folder_order()
 
         # Dimension is (the number of QM calculations, the number of atoms).
@@ -808,6 +889,85 @@ class APDFT(object):
                         continue
 
                     coeff[pos, :] = get_epn(folders[pos], 2, "up", [site_i, site_j])
+                    coeff[pos + 1, :] = get_epn(
+                        folders[pos + 1], 2, "dn", [site_i, site_j]
+                    )
+                    pos += 2
+
+        return coeff
+
+    # For a "energies_geometries" mode
+    # Used in physics.predict_all_targets(_general) to obtain epn_matrix
+    def get_epn_matrix_general(self):
+        """ Collects :math:`\int_Omega rho_i(\mathbf{r}) /|\mathbf{r}-\mathbf{R}_I|`. """
+        N = len(self._include_atoms)
+        # folders have the dimension of the number of the computed densities
+        # (QM calculations)
+        folders = self.get_folder_order_general()
+        os.abort
+
+        # Dimension is (the number of QM calculations, the number of atoms).
+        #              (the types of densities)
+        coeff = np.zeros((len(folders), N))
+
+        # This function is iteratively used in get_epn_matrix.
+        # folder: a specific folder of a QM calculation
+        # order: the order of APDFT - 1
+        # direction: "up" or "down"
+        # combination: atoms whose charges change
+        # In PySCF, only folder is used.
+        def get_epn(folder, order, direction, combination):
+            res = 0.0
+            # This is not used in get_epn of PySCF!
+            charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
+                len(self._nuclear_numbers), order, combination, direction
+            )
+            try:
+                # For PySCF, self._coordinates and charges are not used.
+                # Therefore, direction and combination are also not used.
+                res = self._calculator.get_epn(
+                    folder, self._coordinates, self._include_atoms, charges
+                )
+            except ValueError:
+                apdft.log.log(
+                    "Calculation with incomplete results.",
+                    level="error",
+                    calulation=folder,
+                )
+            except FileNotFoundError:
+                apdft.log.log(
+                    "Calculation is missing a result file.",
+                    level="error",
+                    calculation=folder,
+                )
+            return res
+
+        # order 0
+        pos = 0
+
+        # order 0
+        # "up" is meaningless here.
+        coeff[pos, :] = get_epn(folders[pos], 0, "up", 0)
+        # For next order
+        pos += 1
+
+        # order 1
+        if 1 in self._orders:
+            for site in self._include_atoms:
+                coeff[pos, :] = get_epn(folders[pos], 1, "up", [site])
+                coeff[pos + 1, :] = get_epn(folders[pos + 1], 1, "dn", [site])
+                # For next order
+                pos += 2
+
+        # order 2
+        if 2 in self._orders:
+            for site_i in self._include_atoms:
+                for site_j in self._include_atoms:
+                    if site_j <= site_i:
+                        continue
+
+                    coeff[pos, :] = get_epn(
+                        folders[pos], 2, "up", [site_i, site_j])
                     coeff[pos + 1, :] = get_epn(
                         folders[pos + 1], 2, "dn", [site_i, site_j]
                     )
@@ -1020,9 +1180,12 @@ class APDFT(object):
         return targets, energies, dipoles
 
     # For a "energies_geometries" mode
+    # target_coordinate is in angstrom.
     def predict_all_targets_general(self, target_coordinate):
         # assert one order of targets
         targets = self.enumerate_all_targets()
+        # calculate the nuclear-nuclear repulsion energy of
+        # the reference molecule
         own_nuc_nuc = Coulomb.nuclei_nuclei(
             self._coordinates, self._nuclear_numbers)
 
@@ -1037,7 +1200,7 @@ class APDFT(object):
         # Dimension of epn_matrix is
         # (the number of QM calculations, the number of atoms).
         # TODO: need to be generalized
-        epn_matrix = self.get_epn_matrix()
+        epn_matrix = self.get_epn_matrix_general()
         # TODO: need to be generalized
         dipole_matrix = self.get_linear_density_matrix("ELECTRONIC_DIPOLE")
 
