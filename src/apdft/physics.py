@@ -915,7 +915,7 @@ class APDFT(object):
         # because it is assumed that the molecular geometry is determined by the nuclear
         # charges of atoms.
         # self.enumerate_all_targets() is the list of all the target systems.
-        coverage = len(self.enumerate_all_targets_general())
+        coverage = len(self.enumerate_all_targets())
         return cost, coverage
 
     def get_energy_from_reference(self, nuclear_charges, is_reference_molecule=False):
