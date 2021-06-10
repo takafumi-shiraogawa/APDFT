@@ -34,7 +34,7 @@ Cost estimation:
    commandline.mode_energies_geometries
    -> derivatives.estimate_cost_and_coverage_general()
    -> physics.estimate_cost_and_coverage_general(self)
-   -> physics.enumerate_all_targets_general(self)
+   -> physics.enumerate_all_targets(self)
    -> apdft.math.IntegerPartitions.partition
 
 Make directories and commands.sh of QM calculations:
@@ -48,7 +48,7 @@ APDFT
    -> derivatives.analyse_general(conf.debug_validation)
    -> physics.analyse_general
    -> physics.predict_all_targets_general
-      -> physics.enumerate_all_targets_general
+      -> physics.enumerate_all_targets
 
 
 To use new molecular geometry:

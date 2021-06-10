@@ -851,54 +851,7 @@ class APDFT(object):
         for shift in range(-self._max_charge, self._max_charge + 1):
             if nprotons + shift < 1:
                 continue
-            res += apdft.math.IntegerPartitions.partition(
-                nprotons + shift, nsites, around, limit
-            )
-
-        # filter for included atoms
-        ignore_atoms = list(
-            set(range(len(self._nuclear_numbers))) - set(self._include_atoms)
-        )
-        if len(self._include_atoms) != len(self._nuclear_numbers):
-            res = [
-                _
-                for _ in res
-                if [_[idx] for idx in ignore_atoms]
-                == [self._nuclear_numbers[idx] for idx in ignore_atoms]
-            ]
-        return res
-
-
-    # For a "energies_geometries" mode
-    def enumerate_all_targets_general(self):
-        """ Builds a list of all possible targets.
-
-		Note that the order is not guaranteed to be stable.
-
-		Args:
-			self:		Class instance from which the total charge and number of sites is determined.
-		Returns:
-			A list of lists with the integer nuclear charges."""
-        # there might be a user-specified explicit list
-        if self._targetlist is not None:
-            return self._targetlist
-
-        # Generate targets
-        if self._max_deltaz is None:
-            around = None
-            limit = None
-        else:
-            around = np.array(self._nuclear_numbers)
-            limit = self._max_deltaz
-
-        res = []
-        nsites = len(self._nuclear_numbers)
-        nprotons = sum(self._nuclear_numbers)
-        # shift changes from -max_charge to max_charge
-        for shift in range(-self._max_charge, self._max_charge + 1):
             # If the number of protons of the system is lower than 0
-            if nprotons + shift < 1:
-                continue
             res += apdft.math.IntegerPartitions.partition(
                 nprotons + shift, nsites, around, limit
             )
@@ -1069,7 +1022,7 @@ class APDFT(object):
     # For a "energies_geometries" mode
     def predict_all_targets_general(self, target_coordinate):
         # assert one order of targets
-        targets = self.enumerate_all_targets_general()
+        targets = self.enumerate_all_targets()
         own_nuc_nuc = Coulomb.nuclei_nuclei(
             self._coordinates, self._nuclear_numbers)
 
