@@ -141,6 +141,14 @@ Calculation of electronic delta E:
    of multiplying each component.
 
 
+   physics.get_epn_matrix_general uses folders.
+   folders is obtained by physics.get_folder_order_general.
+
+   The order of folders and eps is given in physics.get_epn_matrix_general
+   and physics.get_folder_order_general, respectively.
+   These are in the same order.
+
+
 
 Note for implementation of higher-order APDFT (higher than APDFT3)
 The followings need to be modified:

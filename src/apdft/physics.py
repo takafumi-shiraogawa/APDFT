@@ -904,7 +904,6 @@ class APDFT(object):
         # folders have the dimension of the number of the computed densities
         # (QM calculations)
         folders = self.get_folder_order_general()
-        os.abort
 
         # Dimension is (the number of QM calculations, the number of atoms).
         #              (the types of densities)
@@ -948,19 +947,28 @@ class APDFT(object):
         # order 0
         # "up" is meaningless here.
         coeff[pos, :] = get_epn(folders[pos], 0, "up", 0)
-        # For next order
+        # For the next order
         pos += 1
 
         # order 1
         if 1 in self._orders:
+            # For the atomic charge change
             for site in self._include_atoms:
                 coeff[pos, :] = get_epn(folders[pos], 1, "up", [site])
                 coeff[pos + 1, :] = get_epn(folders[pos + 1], 1, "dn", [site])
-                # For next order
+                # For the next site
+                pos += 2
+            # For the atomic position change
+            # TODO: generalization to three Cartesian coordinates
+            for site in self._include_atoms:
+                coeff[pos, :] = get_epn(folders[pos], 1, "up", [site])
+                coeff[pos + 1, :] = get_epn(folders[pos + 1], 1, "dn", [site])
+                # For the next site
                 pos += 2
 
         # order 2
         if 2 in self._orders:
+            # For the atomic charge changes
             for site_i in self._include_atoms:
                 for site_j in self._include_atoms:
                     if site_j <= site_i:
@@ -971,7 +979,43 @@ class APDFT(object):
                     coeff[pos + 1, :] = get_epn(
                         folders[pos + 1], 2, "dn", [site_i, site_j]
                     )
+                    # For the next site
                     pos += 2
+
+            # For the atomic position changes
+            for site_i in self._include_atoms:
+                for site_j in self._include_atoms:
+                    if site_j <= site_i:
+                        continue
+
+                    coeff[pos, :] = get_epn(
+                        folders[pos], 2, "up", [site_i, site_j])
+                    coeff[pos + 1, :] = get_epn(
+                        folders[pos + 1], 2, "dn", [site_i, site_j]
+                    )
+                    # For the next site
+                    pos += 2
+
+            # For both changes of atomic charge and position
+            # Loop for the atomic charge change
+            for site_i in self._include_atoms:
+                # Loop for the atomic position change
+                for site_j in self._include_atoms:
+
+                    coeff[pos, :] = get_epn(
+                        folders[pos], 2, "up", [site_i, site_j])
+                    coeff[pos + 1, :] = get_epn(
+                        folders[pos + 1], 2, "dn", [site_i, site_j]
+                    )
+                    # For the next site
+                    pos += 2
+
+        # # For check
+        # print("epn")
+        # print(coeff)
+        # print("folders")
+        # [print(i) for i in folders]
+        # print('')
 
         return coeff
 
