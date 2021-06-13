@@ -1171,6 +1171,44 @@ class APDFT(object):
         if len(results) == len(folders):
             return np.array(results)
 
+    # For a "energies_geometries" mode
+    def get_linear_density_matrix_general(self, propertyname):
+        """ Retrieves the value matrix for properties linear in density.
+
+        Valid properties are: ELECTRONIC_DIPOLE, IONIC_FORCE, ELECTRONIC_QUADRUPOLE.
+        Args:
+            self:           APDFT instance.
+            propertyname:   String. One of the choices above.
+        Returns:
+            (N, m) array for an m-dimensional property over N QM calculations or None if the property is not implemented with this QM code."""
+
+        functionname = "get_%s" % propertyname.lower()
+        try:
+            # For functionname, "ELECTRONIC_DIPOLE" can be used.
+            # If self._calculator is pyscf,
+            # pyscf.get_electronic_dipole is function.
+            function = getattr(self._calculator, functionname)
+        except AttributeError:
+            return None
+
+        # Obtain folders corresponding to "energies_geometries"
+        folders = self.get_folder_order_general()
+        results = []
+        for folder in folders:
+            try:
+                # Properties are obtained.
+                results.append(function(folder))
+            except ValueError:
+                apdft.log.log(
+                    "Calculation with incomplete results.",
+                    level="error",
+                    calulation=folder,
+                )
+
+        # Only meaningful if all calculations are present.
+        if len(results) == len(folders):
+            return np.array(results)
+
     def predict_all_targets(self):
         # assert one order of targets
         targets = self.enumerate_all_targets()
@@ -1243,10 +1281,10 @@ class APDFT(object):
         )
         # Dimension of epn_matrix is
         # (the number of QM calculations, the number of atoms).
-        # TODO: need to be generalized
+        # TODO: need to be generalized to three Cartesian coordinates
         epn_matrix = self.get_epn_matrix_general()
-        # TODO: need to be generalized
-        dipole_matrix = self.get_linear_density_matrix("ELECTRONIC_DIPOLE")
+        # TODO: need to be generalized to three Cartesian coordinates
+        dipole_matrix = self.get_linear_density_matrix_general("ELECTRONIC_DIPOLE")
 
         # get difference between reference and target geometries
         deltaR = target_coordinate - self._coordinates
