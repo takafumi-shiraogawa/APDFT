@@ -528,7 +528,7 @@ class APDFT(object):
         return alphas
 
     # For a "energies_geometries" mode
-    def _get_stencil_coefficients_general(self, deltaZ, shift):
+    def _get_stencil_coefficients_general(self, deltaZ, deltaR, shift):
         """ Calculates the prefactors of the density terms outlined in the documentation of the implementation, e.g. alpha and beta.
 
         In general, this collects all terms of the taylor expansion for one particular target and returns their coefficients.
@@ -556,6 +556,14 @@ class APDFT(object):
                 % (len(deltaZ), N)
             )
 
+        # This function can not specify included atoms.
+        # TODO: generalization to specify atoms.
+        if N != len(self._nuclear_numbers):
+            raise ValueError(
+                "Cannot specify atoms in the energies_geometries mode: %d included atoms for %d atoms."
+                % (N, len(self._nuclear_numbers))
+            )
+
         # order 0
         # APDFT(0 + 1) = APDFT1
         # For energy, APDFT1 uses the raw density of the reference molecule.
@@ -569,6 +577,9 @@ class APDFT(object):
         if 1 in self._orders:
             # self._delta is 0.05, a small fraction for the finite difference
             prefactor = 1 / (2 * self._delta) / np.math.factorial(1 + shift)
+            # Set the position for the loop for an atomic geometry change
+            pos = 0
+            # Loop for an atomic charge change
             for siteidx in range(N):
                 # For "up" change of the charge,
                 # alphas[n, 1] (n = 1, 3, ..., 2N - 1).
@@ -577,6 +588,14 @@ class APDFT(object):
                 # deltaZ arises from the chain rule of the derivative.
                 alphas[1 + siteidx * 2, 1] += prefactor * deltaZ[siteidx]
                 alphas[1 + siteidx * 2 + 1, 1] -= prefactor * deltaZ[siteidx]
+
+            # Loop for an atomic geometry change
+            for siteidx in range(N):
+                # Current implementation only can deal with one Cartesian
+                # coordinate change (Z vector here).
+                # TODO: generalization to three Cartesian coordinates
+                alphas[1 + 2 * N + siteidx * 2, 1] += prefactor * deltaR[siteidx, 2]
+                alphas[1 + 2 * N + siteidx * 2 + 1, 1] -= prefactor * deltaR[siteidx, 2]
 
         # order 2
         # APDFT(2 + 1) = APDFT3
@@ -594,6 +613,8 @@ class APDFT(object):
             #                           even number is for "dn".
             # pos is used to specify the position in alphas
             pos = 1 + N * 2 - 2
+
+            # For atomic charge changes
             # Loops for the combination of two atoms
             # (duplication is allowed)
             for siteidx_i in range(N):
@@ -638,8 +659,6 @@ class APDFT(object):
                             2 + shift
                         )
                         prefactor *= deltaZ[siteidx_i] * deltaZ[siteidx_j]
-                        # In
-                        # alphas
                         # For the raw electron density
                         alphas[0, 2] -= 2 * prefactor
                         # For the double changes at the same atom
@@ -647,13 +666,105 @@ class APDFT(object):
                         alphas[1 + siteidx_i * 2, 2] += prefactor
                         alphas[1 + siteidx_j * 2 + 1, 2] += prefactor
 
+            # For atomic coordinate changes
+            # Loops for the combination of two atoms
+            # (duplication is allowed)
+            # TODO: generalization to three Cartesian coordinates
+            for siteidx_i in range(N):
+                for siteidx_j in range(siteidx_i, N):
+                    if siteidx_i != siteidx_j:
+                        pos += 2
+                    # If there is no coordinate change in selected atoms of
+                    # target and reference molecules, the contribution to
+                    # the target energy (or property) becomes zero.
+                    # Note that the derivative of the density with respect to
+                    # the coordinate is not zero.
+                    if deltaR[siteidx_j, 2] == 0 or deltaR[siteidx_i, 2] == 0:
+                        continue
+                    # If selected atoms with the coordinate change are different
+                    # (It is same as siteidx_j > siteidx_i if all atoms are targeted.)
+                    if self._include_atoms[siteidx_j] > self._include_atoms[siteidx_i]:
+                        #                 2 * (delta ** 2) = 2 * (0.05 ** 2)
+                        #                                  = 2 * 0.025
+                        #                                  = 0.005
+                        prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
+                            2 + shift
+                        )
+                        prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
+                        # Following alphas are for the seven terms in the mixed derivatives
+                        # with respect to the two different coordinates
+                        alphas[pos, 2] += prefactor
+                        alphas[pos + 1, 2] += prefactor
+                        # For the raw reference density
+                        alphas[0, 2] += 2 * prefactor
+                        # For the single change of the atomic coordinate
+                        alphas[1 + 2 * N + siteidx_i * 2, 2] -= prefactor
+                        alphas[1 + 2 * N + siteidx_i * 2 + 1, 2] -= prefactor
+                        alphas[1 + 2 * N + siteidx_j * 2, 2] -= prefactor
+                        alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] -= prefactor
+                    # If selected atoms with the coordinate change are same
+                    # (It is same as siteidx_j == siteidx_i if all atoms are targeted.)
+                    if self._include_atoms[siteidx_j] == self._include_atoms[siteidx_i]:
+                        # To use same perturbed density with the first-order one, 2h -> h
+                        # is used, and therefore in prefactor 1 / ((2 * self._delta) ** 2)
+                        # becomes 1 / (self._delta ** 2).
+                        prefactor = (1 / (self._delta ** 2)) / np.math.factorial(
+                            2 + shift
+                        )
+                        prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
+                        # For the raw electron density
+                        alphas[0, 2] -= 2 * prefactor
+                        # For the double changes at the same atom
+                        # Note that here siteidx_i == siteidx_j.
+                        alphas[1 + 2 * N + siteidx_i * 2, 2] += prefactor
+                        alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] += prefactor
+
+            # For both atomic charge and coordinate changes
+            # TODO: generalization to three Cartesian coordinates
+            # Loop for the atomic charge change
+            for siteidx_i in range(N):
+                # Loop for the atomic coordinate change
+                for siteidx_j in range(N):
+                    pos += 2
+                    # If there is no charge or coordinate change in selected atoms
+                    # of target and reference molecules, the contribution to
+                    # the target energy (or property) becomes zero.
+                    # Note that the derivative of the density with respect to
+                    # the coordinate is not zero.
+                    if deltaR[siteidx_j, 2] == 0 or deltaZ[siteidx_i] == 0:
+                        continue
+                    prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
+                        2 + shift
+                    )
+                    prefactor *= deltaZ[siteidx_i] * deltaR[siteidx_j, 2]
+                    # Following alphas are for the seven terms in the mixed derivatives
+                    # with respect to the two different coordinates
+                    alphas[pos, 2] += prefactor
+                    alphas[pos + 1, 2] += prefactor
+                    # For the raw reference density
+                    alphas[0, 2] += 2 * prefactor
+                    # For the single change of the atomic charge
+                    alphas[1 + siteidx_i * 2, 2] -= prefactor
+                    alphas[1 + siteidx_i * 2 + 1, 2] -= prefactor
+                    # For the single change of the atomic coordinate
+                    alphas[1 + 2 * N + siteidx_j * 2, 2] -= prefactor
+                    alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] -= prefactor
+
         return alphas
 
     def get_epn_coefficients(self, deltaZ):
         """ EPN coefficients are the weighting of the electronic EPN from each of the finite difference calculations.
-        
+
         The weights depend on the change in nuclear charge, i.e. implicitly on reference and target molecule as well as the finite difference stencil employed."""
         return self._get_stencil_coefficients(deltaZ, 1)
+
+    # For an "energies_geometries" mode
+    def get_epn_coefficients_general(self, deltaZ, deltaR):
+        """ EPN coefficients are the weighting of the electronic EPN from each of the finite difference calculations.
+
+        The weights depend on the change in nuclear charge, i.e. implicitly on reference and target molecule as well as the finite difference stencil employed.
+        In the energies_geometries mode, geometries also change."""
+        return self._get_stencil_coefficients_general(deltaZ, deltaR, 1)
 
     def _print_energies(self, targets, energies, comparison_energies):
         for position in range(len(targets)):
@@ -1290,11 +1401,12 @@ class APDFT(object):
         deltaR = target_coordinate - self._coordinates
 
         # get target predictions
+        # target is target nuclear charges of atoms
         for targetidx, target in enumerate(targets):
             deltaZ = target - self._nuclear_numbers
 
             deltaZ_included = deltaZ[self._include_atoms]
-            alphas = self.get_epn_coefficients_general(deltaZ_included)
+            alphas = self.get_epn_coefficients_general(deltaZ_included, deltaR)
 
             # energies
             # Diference of nuclear-nuclear repulsion energies of
