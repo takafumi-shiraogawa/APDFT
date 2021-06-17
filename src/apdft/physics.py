@@ -527,7 +527,7 @@ class APDFT(object):
 
         return alphas
 
-    # For a "energies_geometries" mode
+    # For an "energies_geometries" mode
     def _get_stencil_coefficients_general(self, deltaZ, deltaR, shift):
         """ Calculates the prefactors of the density terms outlined in the documentation of the implementation, e.g. alpha and beta.
 
@@ -858,7 +858,7 @@ class APDFT(object):
 
         return folders
 
-    # For a "energies_geometries" mode
+    # For an "energies_geometries" mode
     def get_folder_order_general(self):
         """ Returns a static order of calculation folders to build the individual derivative entries.
 
@@ -1007,7 +1007,7 @@ class APDFT(object):
 
         return coeff
 
-    # For a "energies_geometries" mode
+    # For an "energies_geometries" mode
     # Used in physics.predict_all_targets(_general) to obtain epn_matrix
     def get_epn_matrix_general(self):
         """ Collects :math:`\int_Omega rho_i(\mathbf{r}) /|\mathbf{r}-\mathbf{R}_I|`. """
@@ -1282,7 +1282,7 @@ class APDFT(object):
         if len(results) == len(folders):
             return np.array(results)
 
-    # For a "energies_geometries" mode
+    # For an "energies_geometries" mode
     def get_linear_density_matrix_general(self, propertyname):
         """ Retrieves the value matrix for properties linear in density.
 
@@ -1372,7 +1372,7 @@ class APDFT(object):
         # return results
         return targets, energies, dipoles
 
-    # For a "energies_geometries" mode
+    # For an "energies_geometries" mode
     # target_coordinate is in angstrom.
     def predict_all_targets_general(self, target_coordinate):
         # assert one order of targets
@@ -1518,7 +1518,7 @@ class APDFT(object):
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
         pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
 
-    # For a "energies_geometries" mode
+    # For an "energies_geometries" mode
     def analyse_general(self, target_coordinate=None, explicit_reference=False):
         """ Performs actual analysis and integration. Prints results"""
         # If the target coordinate is not given, the error message is displayed.
