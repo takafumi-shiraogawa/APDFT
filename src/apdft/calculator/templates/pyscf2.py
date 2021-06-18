@@ -89,8 +89,15 @@ print("TARGET_NucNuc_ENERGY", target_Enn)
 
 # Electronic EPN from electron density
 for site in includeonly:
+    # For the reference molecule
+    # Update origin for operator `\frac{1}{|r-R_O|}`.
     mol.set_rinv_orig_(mol.atom_coords()[site])
     print("ELECTRONIC_EPN", site, np.matmul(dm1_ao, mol.intor("int1e_rinv")).trace())
+
+    # For the target molecule
+    # Update origin for operator `\frac{1}{|r-R_O|}`
+    mol.set_rinv_orig_(target_mol.atom_coords()[site])
+    print("ELECTRONIC_EPN2", site, np.matmul(dm1_ao, mol.intor("int1e_rinv")).trace())
 
 # Electronic Dipole w.r.t to center of geometry
 with mol.with_common_orig(mol.atom_coords().mean(axis=0)):
