@@ -1424,12 +1424,20 @@ class APDFT(object):
             deltaEnn = Coulomb.nuclei_nuclei(
                 target_coordinate, target) - own_nuc_nuc
             for order in sorted(self._orders):
-                contributions = -np.multiply(
-                    np.outer(alphas[:, order], deltaZ_included), epn_matrix
+                # Contributions from the target
+                contributions_target = -np.multiply(
+                    np.outer(alphas[:, order], target), epn_matrix
                 ).sum()
-                energies[targetidx, order] = contributions
+
+                # Contributions from the reference
+                contributions_reference = np.multiply(
+                    np.outer(alphas[:, order], self._nuclear_numbers), epn_matrix
+                ).sum()
+
+                energies[targetidx, order] = contributions_target + contributions_reference
                 if order > 0:
                     energies[targetidx, order] += energies[targetidx, order - 1]
+
             energies[targetidx, :] += deltaEnn + refenergy
 
             # dipoles

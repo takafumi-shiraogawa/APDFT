@@ -148,6 +148,10 @@ Calculation of electronic delta E:
    and physics.get_folder_order_general, respectively.
    These are in the same order.
 
+   In physics.predict_all_targets_general
+   deltaZ -> target and reference Z
+             target and self._nuclear_numbers
+
 
 
 Note for implementation of higher-order APDFT (higher than APDFT3)
