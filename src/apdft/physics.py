@@ -1139,6 +1139,16 @@ class APDFT(object):
             Vector of coefficients."""
         return self._get_stencil_coefficients(deltaZ, 0)
 
+    # For an "energies_geometries" mode
+    def get_linear_density_coefficients_general(self, deltaZ, deltaR):
+        """ Obtains the finite difference coefficients for a property linear in the density.
+
+        Args:
+            deltaZ:     Array of integers of length N. Target system expressed in the change in nuclear and coordinate charges from the reference system. [e]
+        Returns:
+            Vector of coefficients."""
+        return self._get_stencil_coefficients_general(deltaZ, deltaR, 0)
+
     def enumerate_all_targets(self):
         """ Builds a list of all possible targets.
 
@@ -1424,7 +1434,9 @@ class APDFT(object):
 
             # dipoles
             if dipole_matrix is not None:
-                betas = self.get_linear_density_coefficients_general(deltaZ_included)
+                betas = self.get_linear_density_coefficients_general(
+                    deltaZ_included, deltaR
+                )
                 nuc_dipole = Dipoles.point_charges(
                     self._coordinates.mean(axis=0), self._coordinates, target
                 )
