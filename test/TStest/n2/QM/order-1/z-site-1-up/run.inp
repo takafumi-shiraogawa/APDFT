@@ -28,7 +28,7 @@ method = "CCSD"
 if method not in ["CCSD", "HF"]:
     raise NotImplementedError("Method %s not supported." % method)
 
-deltaZ = np.array((0.0,0.0))
+deltaZ = np.array((0.0,0.04999999999999982))
 includeonly = np.array((0,1))
 
 
