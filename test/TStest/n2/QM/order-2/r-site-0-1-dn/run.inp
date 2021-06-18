@@ -85,7 +85,7 @@ if method == "CCSD":
 
 print("TOTAL_ENERGY", total_energy)
 print("NN_ENERGY", Enn)
-print("TARGET_NucNuc_ENERGY", target_Enn)
+print("NN_ENERGY2", target_Enn)
 
 # Electronic EPN from electron density
 for site in includeonly:
