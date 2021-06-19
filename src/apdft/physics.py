@@ -1018,7 +1018,10 @@ class APDFT(object):
 
         # Dimension is (the number of QM calculations, the number of atoms).
         #              (the types of densities)
+        # EPNs at the reference geometry
         coeff = np.zeros((len(folders), N))
+        # EPNs for the target geometry
+        coeff2 = np.zeros((len(folders), N))
 
         # This function is iteratively used in get_epn_matrix.
         # folder: a specific folder of a QM calculation
@@ -1027,7 +1030,10 @@ class APDFT(object):
         # combination: atoms whose charges change
         # In PySCF, only folder is used.
         def get_epn(folder, order, direction, combination):
+            # For EPNs of the reference
             res = 0.0
+            # For EPNs of the target
+            res2 = 0.0
             # This is not used in get_epn of PySCF!
             charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
                 len(self._nuclear_numbers), order, combination, direction
@@ -1035,7 +1041,12 @@ class APDFT(object):
             try:
                 # For PySCF, self._coordinates and charges are not used.
                 # Therefore, direction and combination are also not used.
+                # For EPNs of the reference
                 res = self._calculator.get_epn(
+                    folder, self._coordinates, self._include_atoms, charges
+                )
+                # For EPNs of the reference
+                res2 = self._calculator.get_epn2(
                     folder, self._coordinates, self._include_atoms, charges
                 )
             except ValueError:
@@ -1050,14 +1061,14 @@ class APDFT(object):
                     level="error",
                     calculation=folder,
                 )
-            return res
+            return res, res2
 
         # order 0
         pos = 0
 
         # order 0
         # "up" is meaningless here.
-        coeff[pos, :] = get_epn(folders[pos], 0, "up", 0)
+        coeff[pos, :], coeff2[pos, :] = get_epn(folders[pos], 0, "up", 0)
         # For the next order
         pos += 1
 
@@ -1065,15 +1076,15 @@ class APDFT(object):
         if 1 in self._orders:
             # For the atomic charge change
             for site in self._include_atoms:
-                coeff[pos, :] = get_epn(folders[pos], 1, "up", [site])
-                coeff[pos + 1, :] = get_epn(folders[pos + 1], 1, "dn", [site])
+                coeff[pos, :], coeff2[pos, :] = get_epn(folders[pos], 1, "up", [site])
+                coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(folders[pos + 1], 1, "dn", [site])
                 # For the next site
                 pos += 2
             # For the atomic position change
             # TODO: generalization to three Cartesian coordinates
             for site in self._include_atoms:
-                coeff[pos, :] = get_epn(folders[pos], 1, "up", [site])
-                coeff[pos + 1, :] = get_epn(folders[pos + 1], 1, "dn", [site])
+                coeff[pos, :], coeff2[pos, :] = get_epn(folders[pos], 1, "up", [site])
+                coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(folders[pos + 1], 1, "dn", [site])
                 # For the next site
                 pos += 2
 
@@ -1085,9 +1096,9 @@ class APDFT(object):
                     if site_j <= site_i:
                         continue
 
-                    coeff[pos, :] = get_epn(
+                    coeff[pos, :], coeff2[pos, :] = get_epn(
                         folders[pos], 2, "up", [site_i, site_j])
-                    coeff[pos + 1, :] = get_epn(
+                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
                         folders[pos + 1], 2, "dn", [site_i, site_j]
                     )
                     # For the next site
@@ -1099,9 +1110,9 @@ class APDFT(object):
                     if site_j <= site_i:
                         continue
 
-                    coeff[pos, :] = get_epn(
+                    coeff[pos, :], coeff2[pos, :] = get_epn(
                         folders[pos], 2, "up", [site_i, site_j])
-                    coeff[pos + 1, :] = get_epn(
+                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
                         folders[pos + 1], 2, "dn", [site_i, site_j]
                     )
                     # For the next site
@@ -1113,9 +1124,9 @@ class APDFT(object):
                 # Loop for the atomic position change
                 for site_j in self._include_atoms:
 
-                    coeff[pos, :] = get_epn(
+                    coeff[pos, :], coeff2[pos, :] = get_epn(
                         folders[pos], 2, "up", [site_i, site_j])
-                    coeff[pos + 1, :] = get_epn(
+                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
                         folders[pos + 1], 2, "dn", [site_i, site_j]
                     )
                     # For the next site
@@ -1128,7 +1139,14 @@ class APDFT(object):
         # [print(i) for i in folders]
         # print('')
 
-        return coeff
+        # For check
+        # print("epn2")
+        # print(coeff2)
+        # print("folders")
+        # [print(i) for i in folders]
+        # print('')
+
+        return coeff, coeff2
 
     def get_linear_density_coefficients(self, deltaZ):
         """ Obtains the finite difference coefficients for a property linear in the density. 
@@ -1403,7 +1421,7 @@ class APDFT(object):
         # Dimension of epn_matrix is
         # (the number of QM calculations, the number of atoms).
         # TODO: need to be generalized to three Cartesian coordinates
-        epn_matrix = self.get_epn_matrix_general()
+        epn_matrix, epn_matrix_target = self.get_epn_matrix_general()
         # TODO: need to be generalized to three Cartesian coordinates
         dipole_matrix = self.get_linear_density_matrix_general("ELECTRONIC_DIPOLE")
 

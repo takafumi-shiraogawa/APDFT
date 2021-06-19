@@ -88,13 +88,14 @@ print("NN_ENERGY", Enn)
 print("NN_ENERGY2", target_Enn)
 
 # Electronic EPN from electron density
+# For the reference molecule
 for site in includeonly:
-    # For the reference molecule
     # Update origin for operator `\frac{1}{|r-R_O|}`.
     mol.set_rinv_orig_(mol.atom_coords()[site])
     print("ELECTRONIC_EPN", site, np.matmul(dm1_ao, mol.intor("int1e_rinv")).trace())
 
-    # For the target molecule
+# For the target molecule
+for site in includeonly:
     # Update origin for operator `\frac{1}{|r-R_O|}`
     mol.set_rinv_orig_(target_mol.atom_coords()[site])
     print("ELECTRONIC_EPN2", site, np.matmul(dm1_ao, mol.intor("int1e_rinv")).trace())

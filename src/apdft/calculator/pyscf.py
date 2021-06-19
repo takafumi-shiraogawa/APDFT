@@ -147,6 +147,25 @@ class PyscfCalculator(apc.Calculator):
         included_results = list(included_results)
         return epns[[included_results.index(_) for _ in includeatoms], 1]
 
+    # For an "energies_geometries" mode
+    # Obtain EPNs for the reference and target geometries
+    @staticmethod
+    def get_epn2(folder, coordinates, includeatoms, nuclear_charges):
+        epns = PyscfCalculator._read_value(folder, "ELECTRONIC_EPN2", True)
+        if len(epns.flatten()) == 0:
+            raise ValueError("Incomplete calculation.")
+
+        # check that all included sites are in fact present
+        included_results = epns[:, 0].astype(np.int)
+        if not set(included_results) == set(includeatoms):
+            log.log(
+                "Atom selections do not match. Likely the configuration has changed in the meantime.",
+                level="error",
+            )
+
+        included_results = list(included_results)
+        return epns[[included_results.index(_) for _ in includeatoms], 1]
+
     @staticmethod
     def get_electronic_dipole(folder):
         dipoles = PyscfCalculator._read_value(folder, "ELECTRONIC_DIPOLE", True)
