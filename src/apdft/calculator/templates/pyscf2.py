@@ -17,6 +17,11 @@ mol.basis = {{basisset}}
 mol.verbose = 0
 mol.build()
 
+# Set information on a original reference molecule
+original_mol = pyscf.gto.Mole()
+original_mol.atom = "{{ original_atoms }}"
+original_mol.build()
+
 # Set information on a target molecule
 target_mol = pyscf.gto.Mole()
 target_mol.atom = "{{ target_atoms }}"
@@ -61,9 +66,9 @@ if method == "HF":
     total_energy = calc.e_tot
     # Calculate nuclear-nuclear repulsion energy of
     # of the reference molecule and
-    Enn = calc.energy_nuc()
+    # Enn = calc.energy_nuc()
     # of the target molecular geometry
-    target_Enn = target_mol.energy_nuc()
+    # target_Enn = target_mol.energy_nuc()
 
 if method == "CCSD":
     calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
@@ -76,22 +81,22 @@ if method == "CCSD":
     total_energy = mycc.e_tot
     # Calculate nuclear-nuclear repulsion energy of
     # of the reference molecule and
-    Enn = calc.energy_nuc()
+    # Enn = calc.energy_nuc()
     # of the target molecular geometry
-    target_Enn = target_mol.energy_nuc()
+    # target_Enn = target_mol.energy_nuc()
 
 # GRIDLESS, as things should be ############################
 # Total energy of SCF run
 
 print("TOTAL_ENERGY", total_energy)
-print("NN_ENERGY", Enn)
-print("NN_ENERGY2", target_Enn)
+# print("NN_ENERGY", Enn)
+# print("NN_ENERGY2", target_Enn)
 
 # Electronic EPN from electron density
 # For the reference molecule
 for site in includeonly:
     # Update origin for operator `\frac{1}{|r-R_O|}`.
-    mol.set_rinv_orig_(mol.atom_coords()[site])
+    mol.set_rinv_orig_(original_mol.atom_coords()[site])
     print("ELECTRONIC_EPN", site, np.matmul(dm1_ao, mol.intor("int1e_rinv")).trace())
 
 # For the target molecule

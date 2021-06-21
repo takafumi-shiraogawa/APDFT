@@ -66,6 +66,7 @@ class PyscfCalculator(apc.Calculator):
     def get_input_general(
         self,
         coordinates,
+        original_coordinates,
         target_coordinates,
         nuclear_numbers,
         nuclear_charges,
@@ -80,6 +81,9 @@ class PyscfCalculator(apc.Calculator):
         env = {}
         env["atoms"] = PyscfCalculator._format_coordinates(
             nuclear_numbers, coordinates)
+        # Original atoms with a original coordinate
+        env["original_atoms"] = PyscfCalculator._format_coordinates(
+            nuclear_numbers, original_coordinates)
         # Target atoms
         # The atom types are identical with the reference ("atoms").
         env["target_atoms"] = PyscfCalculator._format_coordinates(

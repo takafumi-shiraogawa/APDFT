@@ -307,6 +307,7 @@ class APDFT(object):
                     )
                     inputfile = self._calculator.get_input_general(
                         self._coordinates,
+                        self._coordinates,
                         target_coordinate,
                         self._nuclear_numbers,
                         charges,
@@ -358,6 +359,7 @@ class APDFT(object):
                     )
                     inputfile = self._calculator.get_input_general(
                         nuclear_positions,
+                        self._coordinates,
                         target_coordinate,
                         self._nuclear_numbers,
                         self._nuclear_numbers,
@@ -415,6 +417,7 @@ class APDFT(object):
                     )
                     inputfile = self._calculator.get_input_general(
                         nuclear_positions,
+                        self._coordinates,
                         target_coordinate,
                         self._nuclear_numbers,
                         charges,
