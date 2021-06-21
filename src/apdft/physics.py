@@ -1444,7 +1444,7 @@ class APDFT(object):
             for order in sorted(self._orders):
                 # Contributions from the target
                 contributions_target = -np.multiply(
-                    np.outer(alphas[:, order], target), epn_matrix
+                    np.outer(alphas[:, order], target), epn_matrix_target
                 ).sum()
 
                 # Contributions from the reference
