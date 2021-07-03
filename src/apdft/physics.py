@@ -737,10 +737,17 @@ class APDFT(object):
                     # the coordinate is not zero.
                     if deltaR[siteidx_j, 2] == 0 or deltaZ[siteidx_i] == 0:
                         continue
-                    prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
+
+                    prefactor = (1 / ((2 * self._delta) ** 2)) / np.math.factorial(
                         2 + shift
                     )
-                    prefactor *= deltaZ[siteidx_i] * deltaR[siteidx_j, 2]
+                    # prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
+                    #     2 + shift
+                    # )
+                    # Here 2 comes from the duplication of Z and R.
+                    prefactor *= 2 * deltaZ[siteidx_i] * deltaR[siteidx_j, 2]
+                    # prefactor *= deltaZ[siteidx_i] * deltaR[siteidx_j, 2]
+
                     # Following alphas are for the seven terms in the mixed derivatives
                     # with respect to the two different coordinates
                     alphas[pos, 2] += prefactor
