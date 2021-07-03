@@ -615,7 +615,8 @@ class APDFT(object):
             #                           odd number is for "up".
             #                           even number is for "dn".
             # pos is used to specify the position in alphas
-            pos = 1 + N * 2 - 2
+            # Position of double changes of nuclear charges is set.
+            pos = 1 + 2 * (N * 2) - 2
 
             # For atomic charge changes
             # Loops for the combination of two atoms
@@ -1455,7 +1456,14 @@ class APDFT(object):
                     np.outer(alphas[:, order], self._nuclear_numbers), epn_matrix
                 ).sum()
 
+                # For check by vertical charge changes
+                # contributions = -np.multiply(
+                #     np.outer(alphas[:, order], deltaZ_included), epn_matrix
+                # ).sum()
+
                 energies[targetidx, order] = contributions_target + contributions_reference
+                # For check by vertical charge changes
+                # energies[targetidx, order] = contributions
                 if order > 0:
                     energies[targetidx, order] += energies[targetidx, order - 1]
 
