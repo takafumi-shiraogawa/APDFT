@@ -131,6 +131,7 @@ class APDFT(object):
         self._nuclear_numbers = np.array(nuclear_numbers)
         self._coordinates = coordinates
         self._delta = 0.05
+        self._R_delta = 0.005
         self._basepath = basepath
         self._calculator = calculator
         self._max_charge = max_charge
@@ -165,7 +166,7 @@ class APDFT(object):
         baseline = np.zeros((numatoms, 3))
 
         if order > 0:
-            sign = {"up": 1, "dn": -1}[direction] * self._delta
+            sign = {"up": 1, "dn": -1}[direction] * (self._R_delta)
             # It is assumed that only Z coordinate changes
             # TODO: generalize to three Cartesian components
             baseline[list(sites), 2] += sign
@@ -579,6 +580,7 @@ class APDFT(object):
         # the effects of individual changes of atomic charges.
         if 1 in self._orders:
             # self._delta is 0.05, a small fraction for the finite difference
+            # with respect to atomic charge changes
             prefactor = 1 / (2 * self._delta) / np.math.factorial(1 + shift)
             # Set the position for the loop for an atomic geometry change
             pos = 0
@@ -592,6 +594,9 @@ class APDFT(object):
                 alphas[1 + siteidx * 2, 1] += prefactor * deltaZ[siteidx]
                 alphas[1 + siteidx * 2 + 1, 1] -= prefactor * deltaZ[siteidx]
 
+            # self._delta is 0.005, a small fraction for the finite difference
+            # with respect to atomic coordinate changes
+            prefactor = 1 / (2 * self._R_delta) / np.math.factorial(1 + shift)
             # Loop for an atomic geometry change
             for siteidx in range(N):
                 # Current implementation only can deal with one Cartesian
@@ -691,7 +696,7 @@ class APDFT(object):
                         #                 2 * (delta ** 2) = 2 * (0.05 ** 2)
                         #                                  = 2 * 0.025
                         #                                  = 0.005
-                        prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
+                        prefactor = (1 / (2 * (self._R_delta ** 2))) / np.math.factorial(
                             2 + shift
                         )
                         prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
@@ -712,7 +717,7 @@ class APDFT(object):
                         # To use same perturbed density with the first-order one, 2h -> h
                         # is used, and therefore in prefactor 1 / ((2 * self._delta) ** 2)
                         # becomes 1 / (self._delta ** 2).
-                        prefactor = (1 / (self._delta ** 2)) / np.math.factorial(
+                        prefactor = (1 / (self._R_delta ** 2)) / np.math.factorial(
                             2 + shift
                         )
                         prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
@@ -738,7 +743,7 @@ class APDFT(object):
                     if deltaR[siteidx_j, 2] == 0 or deltaZ[siteidx_i] == 0:
                         continue
 
-                    prefactor = (1 / ((2 * self._delta) ** 2)) / np.math.factorial(
+                    prefactor = (1 / (4 * self._delta * self._R_delta)) / np.math.factorial(
                         2 + shift
                     )
                     # prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
