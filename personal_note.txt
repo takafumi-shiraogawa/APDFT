@@ -59,7 +59,7 @@ or
 $ cli.py energies n2.xyz
 command.sh, apdft.conf, and QM/ were generated.
 
-After changing apdft.conf and running
+After changing apdft.conf and removing QM/, by running
 $ apdft energies n2.xyz
 again, new inputs for a specific condition can be obtained.
 
