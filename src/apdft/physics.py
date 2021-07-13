@@ -124,14 +124,16 @@ class APDFT(object):
         max_deltaz=3,
         include_atoms=None,
         targetlist=None,
+        small_deltaZ = 0.05,
+        small_deltaR = 0.005
     ):
         if highest_order > 2:
             raise NotImplementedError()
         self._orders = list(range(0, highest_order + 1))
         self._nuclear_numbers = np.array(nuclear_numbers)
         self._coordinates = coordinates
-        self._delta = 0.05
-        self._R_delta = 0.005
+        self._delta = small_deltaZ
+        self._R_delta = small_deltaR
         self._basepath = basepath
         self._calculator = calculator
         self._max_charge = max_charge

@@ -170,6 +170,20 @@ class Configuration:
                 "",
                 "List of targets to be evaluated (one target per line, comma separated nuclear charges).",
             ),
+            Option(
+                "apdft",
+                "deltaz",
+                float,
+                0.05,
+                "Small difference of nuclear charge in finite differential for perturbed density.",
+            ),
+            Option(
+                "apdft",
+                "deltar",
+                float,
+                0.005,
+                "Small difference of nuclear position in finite differential for perturbed density.",
+            ),
         ]
         self.__dict__["_options"] = {}
         for option in options:
