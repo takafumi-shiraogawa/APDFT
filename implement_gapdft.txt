@@ -124,6 +124,19 @@ Perturbed electron densities
    order-1: 4 directries
    order-2: 2 directries
 
+
+   ** For checking dependence of perturbed electron density
+   ** on fraction numbers for finite differential
+      Because it is difficult to compare the perturbed density and APDFT
+      energies which depend on the external potential and molecular symmetry,
+      it is natural that the energy derivatives are compared.
+
+      1. apdft.conf can be utilized to specify the fraction numbers.
+      2. Prepare templates for apdft.conf like pyscf2.py (apdft.conf.template).
+      3. apdft.conf.template has {{deltaZ}} and {{deltaR}}.
+      4. commands.sh is copied.
+
+
 Calculation of electronic delta E:
    --
    for order in sorted(self._orders):
