@@ -32,7 +32,6 @@ def gener_inputs(deltaZ, deltaR):
 
 def copy_commands(order1, order2):
   # basedir = os.path.dirname(os.path.abspath(__file__))
-  basedir = "/Users/takafumishiraogawa/Program/APDFT/test/TStest/num_stab_n2/develop_code"
   # copyfile = "%s/template/commands.sh" % basedir
   copyfile = "template/commands.sh"
   copy_directry = "QM/delta-%s-%s" % (str(order1), str(order2))
