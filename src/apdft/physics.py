@@ -1429,6 +1429,9 @@ class APDFT(object):
             self._coordinates, self._nuclear_numbers)
 
         energies = np.zeros((len(targets), len(self._orders)))
+        reference_energy_contributions = np.zeros((len(targets), len(self._orders)))
+        target_energy_contributions = np.zeros((len(targets), len(self._orders)))
+        total_energy_contributions = np.zeros((len(targets), len(self._orders)))
         dipoles = np.zeros((len(targets), 3, len(self._orders)))
 
         # get base information
@@ -1476,6 +1479,12 @@ class APDFT(object):
                 # ).sum()
 
                 energies[targetidx, order] = contributions_target + contributions_reference
+                # Save energy contributions
+                reference_energy_contributions[targetidx, order] = contributions_reference
+                target_energy_contributions[targetidx, order] = contributions_target
+                total_energy_contributions[targetidx, order] = contributions_target + \
+                    contributions_reference
+
                 # For check by vertical charge changes
                 # energies[targetidx, order] = contributions
                 if order > 0:
@@ -1502,7 +1511,8 @@ class APDFT(object):
                 dipoles[targetidx] += nuc_dipole[:, np.newaxis]
 
         # return results
-        return targets, energies, dipoles
+        return targets, energies, dipoles, reference_energy_contributions, \
+               target_energy_contributions, total_energy_contributions
 
     def analyse(self, explicit_reference=False):
         """ Performs actual analysis and integration. Prints results"""
@@ -1591,7 +1601,9 @@ class APDFT(object):
             )
 
         try:
-            targets, energies, dipoles = self.predict_all_targets_general(target_coordinate)
+            targets, energies, dipoles, reference_energy_contributions, \
+                target_energy_contributions, total_energy_contributions, \
+                    = self.predict_all_targets_general(target_coordinate)
         except (FileNotFoundError, AttributeError):
             apdft.log.log(
                 "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.",
@@ -1645,9 +1657,27 @@ class APDFT(object):
         targetnames = [APDFT._get_target_name(_) for _ in targets]
         result_energies = {"targets": targetnames,
                            "total_energy": energies[:, -1]}
+        result_reference_contributions = {"targets": targetnames,
+                                          "reference_contributions":
+                                              reference_energy_contributions[:, -1]}
+        result_target_contributions = {"targets": targetnames,
+                                       "target_contributions":
+                                       target_energy_contributions[:, -1]}
+        result_total_contributions = {"targets": targetnames,
+                                      "total_contributions":
+                                      total_energy_contributions[:, -1]}
         for order in self._orders:
             result_energies["total_energy_order%d" %
                             order] = energies[:, order]
+            result_reference_contributions["reference_contributions_order%d" %
+                                           order] = \
+                                               reference_energy_contributions[:, order]
+            result_target_contributions["target_contributions_order%d" %
+                                        order] = \
+                                            target_energy_contributions[:, order]
+            result_total_contributions["total_contributions_order%d" %
+                                       order] = \
+                                           total_energy_contributions[:, order]
         result_dipoles = {
             "targets": targetnames,
             "dipole_moment_x": dipoles[:, 0, -1],
@@ -1665,6 +1695,12 @@ class APDFT(object):
             result_dipoles["reference_dipole_y"] = comparison_dipoles[:, 1]
             result_dipoles["reference_dipole_z"] = comparison_dipoles[:, 2]
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
+        pd.DataFrame(result_reference_contributions).to_csv(
+            "reference_contributions.csv", index=False)
+        pd.DataFrame(result_target_contributions).to_csv(
+            "target_contributions.csv", index=False)
+        pd.DataFrame(result_total_contributions).to_csv(
+            "total_contributions.csv", index=False)
         pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
 
         return targets, energies, comparison_energies
