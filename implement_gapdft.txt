@@ -135,6 +135,11 @@ Perturbed electron densities
       2. Prepare templates for apdft.conf like pyscf2.py (apdft.conf.template).
       3. apdft.conf.template has {{deltaZ}} and {{deltaR}}.
       4. commands.sh is copied.
+      5. implementation files are copied.
+      6. Make implementation files for all calculations.
+         6.1. For running all imp_mod_cli1.sh -> all_imp_mod_cli1.sh
+         6.2. For running all commands.sh -> all_commands.sh
+         6.3. For running all imp_mod_cli2.sh -> all_imp_mod_cli2.sh
 
 
 Calculation of electronic delta E:
