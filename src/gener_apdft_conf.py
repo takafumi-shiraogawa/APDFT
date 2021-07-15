@@ -84,7 +84,6 @@ if os.path.isfile("all_imp_mod_cli2.sh"):
 # Read specified variables dR or dZ
 order_inp = open('order.inp', 'r')
 specified_var = order_inp.read()
-print(len(specified_var))
 if specified_var != "Z" and specified_var != "R":
   raise ValueError("Error! order.inp should be Z or R!")
 
