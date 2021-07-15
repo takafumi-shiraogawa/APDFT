@@ -5,9 +5,14 @@
 
 # Requirements:
 # In the curent directry,
-# template/
+# ./order.inp
+# ./template/
 #   apdft.conf.template
 #   commands.sh
+#   imp_mod_cli1.sh
+#   imp_mod_cli2.sh
+#   n2.xyz
+#   n2_mod.xyz
 
 import os
 import shutil
@@ -76,6 +81,13 @@ if os.path.isfile("all_imp_mod_cli1.sh"):
 if os.path.isfile("all_imp_mod_cli2.sh"):
   os.remove("all_imp_mod_cli2.sh")
 
+# Read specified variables dR or dZ
+order_inp = open('order.inp', 'r')
+specified_var = order_inp.read()
+print(len(specified_var))
+if specified_var != "Z" and specified_var != "R":
+  raise ValueError("Error! order.inp should be Z or R!")
+
 # Set parameters.
 change_frac_num = 5.0 * (10.0 ** (-8))
 eval_num = 7
@@ -91,6 +103,7 @@ all_imp1 = []
 all_imp2 = []
 
 print('')
+print(specified_var)
 
 for i in range(eval_num):
   effect_change_frac_num = change_frac_num * (10.0 ** i)
@@ -107,7 +120,11 @@ for i in range(eval_num):
     os.makedirs(path)
 
     # Make an input file
-    inputfile = gener_inputs(delta, delta)
+    if specified_var == "Z":
+      inputfile = gener_inputs(delta, 0.005)
+    elif specified_var == "R":
+      inputfile = gener_inputs(0.05, delta)
+
     with open("%s/apdft.conf" % path, "w") as inp:
       inp.write(inputfile)
 

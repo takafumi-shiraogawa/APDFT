@@ -140,6 +140,8 @@ Perturbed electron densities
          6.1. For running all imp_mod_cli1.sh -> all_imp_mod_cli1.sh
          6.2. For running all commands.sh -> all_commands.sh
          6.3. For running all imp_mod_cli2.sh -> all_imp_mod_cli2.sh
+      7. Copy *.xyz and *_mod.xyz (e.g., n2.xyz and n2_mod.xyz).
+      8. Prepare order.inp for specifying dZ or dR.
 
 
 Calculation of electronic delta E:
