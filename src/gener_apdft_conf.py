@@ -93,7 +93,6 @@ eval_num = 7
 # That is, the number of evaluations is 140, and
 # the range is from 10 ** (-7) to 10 ** 0.
 
-delta = 0.0
 count = 0
 
 # For all_commands.sh, all_imp_mod_cli1.sh, and all_imp_mod_cli2.sh
@@ -122,7 +121,8 @@ for i in range(eval_num):
     if specified_var == "Z":
       inputfile = gener_inputs(delta, 0.005)
     elif specified_var == "R":
-      inputfile = gener_inputs(0.05, delta)
+      # 0.1 is a factor for preventing overlap of atoms.
+      inputfile = gener_inputs(0.05, delta * 0.1)
 
     with open("%s/apdft.conf" % path, "w") as inp:
       inp.write(inputfile)
