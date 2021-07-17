@@ -83,10 +83,12 @@ for i in range(eval_num):
 
   # Avoid duplications
   for j in range(div_num):
+
     if i > 0:
       # It is an ad hoc treatment for eval_num.
       if j == 0 or j == 1:
         continue
+
     count += 1
     delta = effect_change_frac_num * (j + 1)
     print(count, delta)
@@ -100,13 +102,54 @@ for i in range(eval_num):
       target_contributions_data[count, k] = target_contributions[i, j, k]
       total_contributions_data[count, k] = total_contributions[i, j, k]
 
+
+# Get deviations from the standard value
+devi_reference_contributions_data = np.zeros(
+    (div_num + (eval_num - 1) * (div_num - 2), apdft_order))
+devi_target_contributions_data = np.zeros(
+    (div_num + (eval_num - 1) * (div_num - 2), apdft_order))
+devi_total_contributions_data = np.zeros(
+    (div_num + (eval_num - 1) * (div_num - 2), apdft_order))
+count = -1
+for i in range(eval_num):
+  for j in range(div_num):
+
+    if i > 0:
+      # It is an ad hoc treatment for eval_num.
+      if j == 0 or j == 1:
+        continue
+
+    count += 1
+
+    for k in range(apdft_order):
+
+      # Here 99 specifies contributions of 0,05 for dZ and.0.005 for dR.
+      devi_reference_contributions_data[count, k] = \
+          abs(reference_contributions_data[count, k] -
+              reference_contributions_data[99, k])
+      devi_target_contributions_data[count, k] = \
+          abs(target_contributions_data[count, k] -
+              target_contributions_data[99, k])
+      devi_total_contributions_data[count, k] = \
+          abs(total_contributions_data[count, k] -
+              total_contributions_data[99, k])
+
+
 # Save CSV files
+np.savetxt('frac_num.dat.csv', frac_num)
 np.savetxt('reference_contributions.dat.csv',
            reference_contributions_data, delimiter=',')
 np.savetxt('target_contributions.dat.csv',
            target_contributions_data, delimiter=',')
 np.savetxt('total_contributions.dat.csv',
            total_contributions_data, delimiter=',')
+# Deviations
+np.savetxt('devi_reference_contributions.dat.csv',
+           devi_reference_contributions_data, delimiter=',')
+np.savetxt('devi_target_contributions.dat.csv',
+           devi_target_contributions_data, delimiter=',')
+np.savetxt('devi_total_contributions.dat.csv',
+           devi_total_contributions_data, delimiter=',')
 
 # Plot data
 for i in range(apdft_order):
@@ -123,4 +166,19 @@ for i in range(apdft_order):
   plt.plot(frac_num[:], total_contributions_data[:, k])
   plt.xscale("log")
   plt.savefig("total_contributions_%s.png" % str(i + 1))
+  plt.close('all')
+
+  plt.plot(frac_num[:], devi_reference_contributions_data[:, k])
+  plt.xscale("log")
+  plt.savefig("devi_reference_contributions_%s.png" % str(i + 1))
+  plt.close('all')
+
+  plt.plot(frac_num[:], devi_target_contributions_data[:, k])
+  plt.xscale("log")
+  plt.savefig("devi_target_contributions_%s.png" % str(i + 1))
+  plt.close('all')
+
+  plt.plot(frac_num[:], devi_total_contributions_data[:, k])
+  plt.xscale("log")
+  plt.savefig("devi_total_contributions_%s.png" % str(i + 1))
   plt.close('all')

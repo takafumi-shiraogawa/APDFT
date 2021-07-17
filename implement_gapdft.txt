@@ -143,6 +143,10 @@ Perturbed electron densities
       7. Copy *.xyz and *_mod.xyz (e.g., n2.xyz and n2_mod.xyz).
       8. Prepare order.inp for specifying dZ or dR.
 
+      Standard values
+         dZ: 0.05, count = 99
+         dR: 0.005, count = 99
+
 
 Calculation of electronic delta E:
    --
