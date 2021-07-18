@@ -164,37 +164,34 @@ np.savetxt('devi_total_contributions.dat.csv',
 
 # Plot data
 for i in range(apdft_order):
-  plt.plot(frac_num[:], reference_contributions_data[:, k])
+  plt.plot(frac_num[:], reference_contributions_data[:, i])
   plt.xscale("log")
-  plt.yscale("log")
   plt.savefig("reference_contributions_%s.png" % str(i + 1))
   plt.close('all')
 
-  plt.plot(frac_num[:], target_contributions_data[:, k])
+  plt.plot(frac_num[:], target_contributions_data[:, i])
   plt.xscale("log")
-  plt.yscale("log")
   plt.savefig("target_contributions_%s.png" % str(i + 1))
   plt.close('all')
 
-  plt.plot(frac_num[:], total_contributions_data[:, k])
+  plt.plot(frac_num[:], total_contributions_data[:, i])
   plt.xscale("log")
-  plt.yscale("log")
   plt.savefig("total_contributions_%s.png" % str(i + 1))
   plt.close('all')
 
-  plt.plot(frac_num[:], devi_reference_contributions_data[:, k])
+  plt.plot(frac_num[:], devi_reference_contributions_data[:, i])
   plt.xscale("log")
   plt.yscale("log")
   plt.savefig("devi_reference_contributions_%s.png" % str(i + 1))
   plt.close('all')
 
-  plt.plot(frac_num[:], devi_target_contributions_data[:, k])
+  plt.plot(frac_num[:], devi_target_contributions_data[:, i])
   plt.xscale("log")
   plt.yscale("log")
   plt.savefig("devi_target_contributions_%s.png" % str(i + 1))
   plt.close('all')
 
-  plt.plot(frac_num[:], devi_total_contributions_data[:, k])
+  plt.plot(frac_num[:], devi_total_contributions_data[:, i])
   plt.xscale("log")
   plt.yscale("log")
   plt.savefig("devi_total_contributions_%s.png" % str(i + 1))
