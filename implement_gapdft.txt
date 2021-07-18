@@ -147,6 +147,21 @@ Perturbed electron densities
          dZ: 0.05, count = 99
          dR: 0.005, count = 99
 
+Notice that in total/, contributions from order1 and order3 are zero
+because of the symmetry of the N2 molecule.
+
+n2_1.0/
+total_contributions
+"C,O",4.595785867422819e-07,0.0,-3.1398006888848613,4.595785867422819e-07
+"N,N",0.0,0.0,0.0,0.0
+"O,C",-4.5960769057273865e-07,0.0,-3.1398006888844066,-4.5960769057273865e-07
+
+delta-6-9/
+"C,O",-1.133877958636731e-06,5.684341886080802e-14,-3.1398098404129087,-1.133877958636731e-06
+"N,N",0.0,0.0,0.0,0.0
+"O,C",1.1338634067215025e-06,-5.684341886080802e-14,-3.139809840412454,1.1338634067215025e-06
+
+order1 and order3 have numerical errors since they are zero.
 
 Calculation of electronic delta E:
    --
