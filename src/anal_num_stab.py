@@ -43,25 +43,36 @@ for i in range(eval_num):
 
     path = "QM/delta-%s-%s" % (i + 1, j + 1)
 
-    inp_reference = open("%s/reference_contributions.csv" % path, "r")
-    inp_target = open("%s/target_contributions.csv" % path, "r")
-    inp_total = open("%s/total_contributions.csv" % path, "r")
+    # inp_reference = open("%s/reference_contributions.csv" % path, "r")
+    # inp_target = open("%s/target_contributions.csv" % path, "r")
+    # inp_total = open("%s/total_contributions.csv" % path, "r")
 
-    dict_inp_reference = csv.DictReader(inp_reference)
-    dict_inp_target = csv.DictReader(inp_target)
-    dict_inp_total = csv.DictReader(inp_total)
+    # dict_inp_reference = csv.DictReader(inp_reference)
+    # dict_inp_target = csv.DictReader(inp_target)
+    # dict_inp_total = csv.DictReader(inp_total)
 
     for k in range(apdft_order):
+      inp_reference = open("%s/reference_contributions.csv" % path, "r")
+      inp_target = open("%s/target_contributions.csv" % path, "r")
+      inp_total = open("%s/total_contributions.csv" % path, "r")
+
+      dict_inp_reference = csv.DictReader(inp_reference)
+      dict_inp_target = csv.DictReader(inp_target)
+      dict_inp_total = csv.DictReader(inp_total)
       reference_contributions[i, j, k] = get_target_value(specified_var,
         "reference_contributions_order", dict_inp_reference, k)
       target_contributions[i, j, k] = get_target_value(specified_var,
         "target_contributions_order", dict_inp_target, k)
       total_contributions[i, j, k] = get_target_value(specified_var,
         "total_contributions_order", dict_inp_total, k)
+      # inp_reference.see
+      inp_reference.close()
+      inp_target.close()
+      inp_total.close()
 
-    inp_reference.close()
-    inp_target.close()
-    inp_total.close()
+    # inp_reference.close()
+    # inp_target.close()
+    # inp_total.close()
 
 
 # Prepare one-dimensional data for plot
