@@ -81,13 +81,13 @@ count = -1
 change_frac_num = 5.0 * (10.0 ** (-8))
 
 # frac_num = np.zeros(eval_num * div_num)
-frac_num = np.zeros(div_num + (eval_num - 1) * (div_num - 2))
+frac_num = np.zeros(div_num + (eval_num - 1) * (div_num - 2) - 1)
 reference_contributions_data = np.zeros(
-    (div_num + (eval_num - 1) * (div_num - 2), apdft_order))
+    (div_num + (eval_num - 1) * (div_num - 2) - 1, apdft_order))
 target_contributions_data = np.zeros(
-    (div_num + (eval_num - 1) * (div_num - 2), apdft_order))
+    (div_num + (eval_num - 1) * (div_num - 2) - 1, apdft_order))
 total_contributions_data = np.zeros(
-    (div_num + (eval_num - 1) * (div_num - 2), apdft_order))
+    (div_num + (eval_num - 1) * (div_num - 2) - 1, apdft_order))
 
 for i in range(eval_num):
   effect_change_frac_num = change_frac_num * (10.0 ** i)
@@ -99,6 +99,9 @@ for i in range(eval_num):
       # It is an ad hoc treatment for eval_num.
       if j == 0 or j == 1:
         continue
+
+    if i == 5 and j == 9:
+      continue
 
     count += 1
     delta = effect_change_frac_num * (j + 1)
@@ -116,11 +119,11 @@ for i in range(eval_num):
 
 # Get deviations from the standard value
 devi_reference_contributions_data = np.zeros(
-    (div_num + (eval_num - 1) * (div_num - 2), apdft_order))
+    (div_num + (eval_num - 1) * (div_num - 2) - 1, apdft_order))
 devi_target_contributions_data = np.zeros(
-    (div_num + (eval_num - 1) * (div_num - 2), apdft_order))
+    (div_num + (eval_num - 1) * (div_num - 2) - 1, apdft_order))
 devi_total_contributions_data = np.zeros(
-    (div_num + (eval_num - 1) * (div_num - 2), apdft_order))
+    (div_num + (eval_num - 1) * (div_num - 2) - 1, apdft_order))
 count = -1
 for i in range(eval_num):
   for j in range(div_num):
@@ -130,20 +133,23 @@ for i in range(eval_num):
       if j == 0 or j == 1:
         continue
 
+    if i == 5 and j == 9:
+      continue
+
     count += 1
 
     for k in range(apdft_order):
 
-      # Here 99 specifies contributions of 0,05 for dZ and.0.005 for dR.
+      # Here 5, 9 specifies contributions of 0,05 for dZ and.0.005 for dR.
       devi_reference_contributions_data[count, k] = \
           abs(reference_contributions_data[count, k] -
-              reference_contributions_data[99, k])
+              reference_contributions[5, 9, k])
       devi_target_contributions_data[count, k] = \
           abs(target_contributions_data[count, k] -
-              target_contributions_data[99, k])
+              target_contributions[5, 9, k])
       devi_total_contributions_data[count, k] = \
           abs(total_contributions_data[count, k] -
-              total_contributions_data[99, k])
+              total_contributions[5, 9, k])
 
 
 # Save CSV files
@@ -196,3 +202,65 @@ for i in range(apdft_order):
   plt.yscale("log")
   plt.savefig("devi_total_contributions_%s.png" % str(i + 1))
   plt.close('all')
+
+
+# Plot data for a paper
+# Set parameters for the figure
+if specified_var == "Z":
+  xaxis_name = "δZ"
+  yaxis_name = "E(δZ) - E(0.05)"
+else:
+  xaxis_name = "δR"
+  yaxis_name = "E(δR) - E(0.005)"
+
+fig, ax = plt.subplots(figsize=(5, 4), tight_layout=True)
+
+ax.plot(frac_num[:], devi_total_contributions_data[:, 1], label='APDFT2')
+ax.plot(frac_num[:], devi_total_contributions_data[:, 2], label='APDFT3')
+
+fig.show()
+
+xticklabels = ax.get_xticklabels()
+yticklabels = ax.get_yticklabels()
+xlabel = xaxis_name
+ylabel = yaxis_name
+
+ax.set_xticklabels(xticklabels, fontsize=18, fontname='Arial')
+ax.set_yticklabels(yticklabels, fontsize=18, fontname='Arial')
+# ax.set_xlabel('$\it{xlabel}$', fontsize=22, fontname='Arial')
+# ax.set_ylabel('$\it{ylabel}$', fontsize=22, fontname='Arial')
+if specified_var == "Z":
+  ax.set_xlabel('$\it{δZ}$', fontsize=22, fontname='Arial')
+  ax.set_ylabel('$\it{|E(δZ) - E(0.05)|}$', fontsize=22, fontname='Arial')
+else:
+  ax.set_xlabel('$\it{δR}$', fontsize=22, fontname='Arial')
+  ax.set_ylabel('$\it{|E(δR) - E(0.005)|}$', fontsize=22, fontname='Arial')
+
+ax.legend(loc='upper right', fontsize=18)
+# ax.grid()
+
+plt.xscale("log")
+plt.yscale("log")
+
+if specified_var == "Z":
+  plt.xlim(10 ** (-7), 10)
+  plt.xticks([10 ** (-7), 10 ** (-5), 10 ** (-3), 10 ** (-1), 10])
+
+  ymin = 10 ** (-10)
+  ymax = 10 ** 2
+  plt.ylim(ymin, ymax)
+  plt.yticks([ymin, 10 ** (-6), 10 ** (-4), 10 ** (-2), 10 ** (0), ymax])
+  plt.plot([0.05, 0.05], [ymin, ymax], "grey")
+
+else:
+  plt.xlim(10 ** (-8), 0.1)
+  plt.xticks([10 ** (-8), 10 ** (-6), 10 ** (-4), 10 ** (-2), 1])
+
+  ymin = 10 ** (-4)
+  ymax = 10 ** 8
+  plt.ylim(ymin, ymax)
+  plt.yticks([ymin, 10 ** (-2), 10 ** (0), 10 ** 2, 10 ** 4, 10 ** 6, ymax])
+  plt.plot([0.005, 0.005], [ymin, ymax], "grey")
+
+plt.savefig("devi_target_contributions_%s_N2.tiff" % specified_var, dpi=600)
+plt.close('all')
