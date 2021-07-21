@@ -213,6 +213,12 @@ else:
   xaxis_name = "δR"
   yaxis_name = "E(δR) - E(0.005)"
 
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+
+plt.rcParams["xtick.major.size"] = 8
+plt.rcParams["ytick.major.size"] = 8
+
 fig, ax = plt.subplots(figsize=(5, 4), tight_layout=True)
 
 ax.plot(frac_num[:], devi_total_contributions_data[:, 1], label='APDFT2')
@@ -227,14 +233,16 @@ ylabel = yaxis_name
 
 ax.set_xticklabels(xticklabels, fontsize=18, fontname='Arial')
 ax.set_yticklabels(yticklabels, fontsize=18, fontname='Arial')
+ax.tick_params(pad=7)
 # ax.set_xlabel('$\it{xlabel}$', fontsize=22, fontname='Arial')
 # ax.set_ylabel('$\it{ylabel}$', fontsize=22, fontname='Arial')
 if specified_var == "Z":
-  ax.set_xlabel('$\it{δZ}$', fontsize=22, fontname='Arial')
-  ax.set_ylabel('$\it{|E(δZ) - E(0.05)|}$', fontsize=22, fontname='Arial')
+  ax.set_xlabel('$\it{δZ}$', fontsize=20, fontname='Arial')
+  ax.set_ylabel('$\it{|E(δZ) - E(0.05)|}$', fontsize=20, fontname='Arial')
 else:
-  ax.set_xlabel('$\it{δR}$', fontsize=22, fontname='Arial')
-  ax.set_ylabel('$\it{|E(δR) - E(0.005)|}$', fontsize=22, fontname='Arial')
+  ax.set_xlabel('$\it{δR}$', fontsize=20, fontname='Arial')
+  ax.set_ylabel('$\it{|E(δR) - E(0.005)|}$', fontsize=20,
+                fontname='Arial')
 
 ax.legend(loc='upper right', fontsize=18)
 # ax.grid()
