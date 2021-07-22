@@ -22,7 +22,7 @@ class Coulomb(object):
 		Sign convention assumes positive charges for nuclei.
 
 		Args:
-			coordinates:		A (3,N) array of nuclear coordinates :math:`\\mathbf{r_i}`. [Angstrom]
+			coordinates:		A (N, 3) array of nuclear coordinates :math:`\\mathbf{r_i}`. [Angstrom]
 			charges:			A N array of point charges :math:`q_i`. [e]
 		Returns:
 			Coulombic interaction energy. [Hartree]
@@ -44,6 +44,43 @@ class Coulomb(object):
                 continue
             d = np.linalg.norm((coordinates[i] - coordinates[at]) * angstrom)
             ret += charges[i] / d
+        return ret
+
+    @staticmethod
+    def nuclei_atom_force(coordinates, charges):
+        """ Calculates the nuclear part of atomic forces.
+
+		Sign convention assumes positive charges for nuclei.
+
+		Args:
+			coordinates:		A (N, 3) array of nuclear coordinates :math:`\\mathbf{r_i}`. [Angstrom]
+			charges:			A N array of point charges :math:`q_i`. [e]
+		Returns:
+			Nuclear part of atomic forces. [Hartree]
+		"""
+        natoms = len(coordinates)
+        ret = 0.0
+
+        # Set atomic force vectors for all atoms of the molecule
+        ret = np.zeros((natoms, 3))
+
+        # Roops for all combinations between atoms
+        # Roop for specifying a target atom for the atomic force
+        for i in range(natoms):
+            # Roop for specifying the other atoms
+            for j in range(natoms):
+                if j == i:
+                    continue
+                # Roop for specifying three Cartesian coordinates
+                for k in range(3):
+
+                    # Distance between two atoms in the absolute value
+                    abs_d = np.linalg.norm(
+                        (coordinates[i] - coordinates[j]) * angstrom)
+                    vec_d = (coordinates[i, k] - coordinates[j, k]) * angstrom
+
+                    # ret += charges[i] * charges[j] / (abs_d ** 3.0)
+                    ret[i, k] += -charges[i] * charges[j] * vec_d / (abs_d ** 3.0)
         return ret
 
 
