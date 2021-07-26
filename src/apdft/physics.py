@@ -1203,6 +1203,230 @@ class APDFT(object):
 
         return coeff, coeff2
 
+    # For an "energies_geometries" mode
+    # Used in physics.predict_all_targets(_general) to obtain epn_matrix
+    # and hf_ionic_force_matrix
+    def get_property_matrix_general(self):
+        """ Collects :math:`\int_Omega rho_i(\mathbf{r}) /|\mathbf{r}-\mathbf{R}_I|`. """
+        N = len(self._include_atoms)
+        # folders have the dimension of the number of the computed densities
+        # (QM calculations)
+        folders = self.get_folder_order_general()
+
+        # Dimension is (the number of QM calculations, the number of atoms).
+        #              (the types of densities)
+        # EPNs at the reference geometry
+        coeff = np.zeros((len(folders), N))
+        # EPNs for the target geometry
+        coeff2 = np.zeros((len(folders), N))
+
+        # Hellmann-Feynman atomic forces
+        # The dimension is (the types of densities, the number of atoms,
+        #                   three Cartesian coordinates)
+        force_coeff = np.zeros((len(folders), N, 3))
+
+        # This function is iteratively used in get_epn_matrix.
+        # folder: a specific folder of a QM calculation
+        # order: the order of APDFT - 1
+        # direction: "up" or "down"
+        # combination: atoms whose charges change
+        # In PySCF, only folder is used.
+        def get_epn(folder, order, direction, combination):
+            # For EPNs of the reference
+            res = 0.0
+            # For EPNs of the target
+            res2 = 0.0
+            # This is not used in get_epn of PySCF!
+            charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
+                len(self._nuclear_numbers), order, combination, direction
+            )
+            try:
+                # For PySCF, self._coordinates and charges are not used.
+                # Therefore, direction and combination are also not used.
+                # For EPNs of the reference
+                res = self._calculator.get_epn(
+                    folder, self._coordinates, self._include_atoms, charges
+                )
+                # For EPNs of the reference
+                res2 = self._calculator.get_epn2(
+                    folder, self._coordinates, self._include_atoms, charges
+                )
+            except ValueError:
+                apdft.log.log(
+                    "Calculation with incomplete results.",
+                    level="error",
+                    calulation=folder,
+                )
+            except FileNotFoundError:
+                apdft.log.log(
+                    "Calculation is missing a result file.",
+                    level="error",
+                    calculation=folder,
+                )
+            return res, res2
+
+        # This function is iteratively used in get_hf_ionic_force_matrix.
+        # folder: a specific folder of a QM calculation
+        # order: the order of APDFT - 1
+        # direction: "up" or "down"
+        # combination: atoms whose charges change
+        # In PySCF, only folder is used.
+        def get_ionic_force(folder, order, direction, combination):
+            res = 0.0
+            # This is not used in get_epn of PySCF!
+            charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
+                len(self._nuclear_numbers), order, combination, direction
+            )
+
+            try:
+                res = self._calculator.get_ionic_force(
+                    folder, self._coordinates, self._include_atoms, charges
+                )
+            except ValueError:
+                apdft.log.log(
+                    "Calculation with incomplete results.",
+                    level="error",
+                    calulation=folder,
+                )
+            except FileNotFoundError:
+                apdft.log.log(
+                    "Calculation is missing a result file.",
+                    level="error",
+                    calculation=folder,
+                )
+            return res
+
+        # order 0
+        pos = 0
+
+        # order 0
+        # "up" is meaningless here.
+        # Read EPN
+        coeff[pos, :], coeff2[pos, :] = get_epn(folders[pos], 0, "up", 0)
+        # Read ionic force
+        force_coeff[pos, :, :] = get_ionic_force(folders[pos], 0, "up", 0)
+
+        # For the next order
+        pos += 1
+
+        # order 1
+        if 1 in self._orders:
+            # For the atomic charge change
+            for site in self._include_atoms:
+                # Read EPNs
+                coeff[pos, :], coeff2[pos, :] = get_epn(
+                    folders[pos], 1, "up", [site])
+                coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                    folders[pos + 1], 1, "dn", [site])
+
+                # Read ionic forces
+                force_coeff[pos, :, :] = get_ionic_force(
+                    folders[pos], 1, "up", [site])
+                force_coeff[pos + 1, :, :] = get_ionic_force(
+                    folders[pos + 1], 1, "dn", [site])
+
+                # For the next site
+                pos += 2
+
+            # For the atomic position change
+            # TODO: generalization to three Cartesian coordinates
+            for site in self._include_atoms:
+                # Read EPNs
+                coeff[pos, :], coeff2[pos, :] = get_epn(
+                    folders[pos], 1, "up", [site])
+                coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                    folders[pos + 1], 1, "dn", [site])
+
+                # Read ionic forces
+                force_coeff[pos, :, :] = get_ionic_force(
+                    folders[pos], 1, "up", [site])
+                force_coeff[pos + 1, :, :] = get_ionic_force(
+                    folders[pos + 1], 1, "dn", [site])
+
+                # For the next site
+                pos += 2
+
+        # order 2
+        if 2 in self._orders:
+            # For the atomic charge changes
+            for site_i in self._include_atoms:
+                for site_j in self._include_atoms:
+                    if site_j <= site_i:
+                        continue
+
+                    # Read EPNs
+                    coeff[pos, :], coeff2[pos, :] = get_epn(
+                        folders[pos], 2, "up", [site_i, site_j])
+                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                        folders[pos + 1], 2, "dn", [site_i, site_j])
+
+                    # Read ionic forces
+                    force_coeff[pos, :, :] = get_ionic_force(
+                        folders[pos], 2, "up", [site_i, site_j])
+                    force_coeff[pos + 1, :, :] = get_ionic_force(
+                        folders[pos + 1], 2, "dn", [site_i, site_j])
+
+                    # For the next site
+                    pos += 2
+
+            # For the atomic position changes
+            for site_i in self._include_atoms:
+                for site_j in self._include_atoms:
+                    if site_j <= site_i:
+                        continue
+
+                    # Read EPNs
+                    coeff[pos, :], coeff2[pos, :] = get_epn(
+                        folders[pos], 2, "up", [site_i, site_j])
+                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                        folders[pos + 1], 2, "dn", [site_i, site_j])
+
+                    # Read ionic forces
+                    force_coeff[pos, :, :] = get_ionic_force(
+                        folders[pos], 2, "up", [site_i, site_j])
+                    force_coeff[pos + 1, :, :] = get_ionic_force(
+                        folders[pos + 1], 2, "dn", [site_i, site_j])
+
+                    # For the next site
+                    pos += 2
+
+            # For both changes of atomic charge and position
+            # Loop for the atomic charge change
+            for site_i in self._include_atoms:
+                # Loop for the atomic position change
+                for site_j in self._include_atoms:
+
+                    # Read EPNs
+                    coeff[pos, :], coeff2[pos, :] = get_epn(
+                        folders[pos], 2, "up", [site_i, site_j])
+                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                        folders[pos + 1], 2, "dn", [site_i, site_j])
+
+                    # Read ionic forces
+                    force_coeff[pos, :, :] = get_ionic_force(
+                        folders[pos], 2, "up", [site_i, site_j])
+                    force_coeff[pos + 1, :, :] = get_ionic_force(
+                        folders[pos + 1], 2, "dn", [site_i, site_j])
+
+                    # For the next site
+                    pos += 2
+
+        # # For check
+        # print("epn")
+        # print(coeff)
+        # print("folders")
+        # [print(i) for i in folders]
+        # print('')
+
+        # For check
+        # print("epn2")
+        # print(coeff2)
+        # print("folders")
+        # [print(i) for i in folders]
+        # print('')
+
+        return coeff, coeff2, force_coeff
+
     def get_linear_density_coefficients(self, deltaZ):
         """ Obtains the finite difference coefficients for a property linear in the density. 
         
@@ -1479,7 +1703,8 @@ class APDFT(object):
         # Dimension of epn_matrix is
         # (the number of QM calculations, the number of atoms).
         # TODO: need to be generalized to three Cartesian coordinates
-        epn_matrix, epn_matrix_target = self.get_epn_matrix_general()
+        # epn_matrix, epn_matrix_target = self.get_epn_matrix_general()
+        epn_matrix, epn_matrix_target, ionic_force_matrix = self.get_property_matrix_general()
         # TODO: need to be generalized to three Cartesian coordinates
         dipole_matrix = self.get_linear_density_matrix_general("ELECTRONIC_DIPOLE")
 
