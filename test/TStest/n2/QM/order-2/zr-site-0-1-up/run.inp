@@ -139,6 +139,18 @@ for site in includeonly:
     ]
     print("IONIC_FORCE", site, *force)
 
+# Target ionic Forces
+# TODO: Numerical grids should be small near both reference and
+#       target atoms.
+for site in includeonly:
+    target_rvec = grid.coords - target_mol.atom_coords()[site]
+    target_force = [
+        (rho * grid.weights * target_rvec[:, _] /
+         np.linalg.norm(target_rvec, axis=1) ** 3).sum()
+        for _ in range(3)
+    ]
+    print("TARGET_IONIC_FORCE", site, *force)
+
 # Quadrupole moments
 rs = grid.coords - mol.atom_coords().mean(axis=0)
 ds = np.linalg.norm(rs, axis=1) ** 2
