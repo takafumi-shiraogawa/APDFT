@@ -192,6 +192,38 @@ Calculation of electronic delta E:
              target and self._nuclear_numbers
 
 
+Atomic force calculation:
+   Atomic force has three terms:
+      1, Hellmann-Feynman ionic force;
+      2, changes in the perturbed density;
+      3, nuclear part.
+
+   1, Hellmann-Feynman ionic force:
+      The elements of the Hellmann-Feynman ionic force are presented
+      in log files of PySCF calculations.
+      A function, PyscfCalculator.get_ionic_force can be used to obtain
+      values.
+      For the reference, to calculate the electric dipole moment,
+      get_linear_density_matrix_general of physics.py is used,
+      but this function only reads one-dimensional information.
+      On the other hand, atomic forces have values for each atom.
+      Therefore, get_epn of pyscf.py can be refered.
+         get_epn is called in get_epn_matrix of physics.py to
+         construct the EPN matrix.
+
+      ELECTRONIC_DIPOLE_MOMENT
+         Constructed in get_linear_density_matrix_general
+
+
+   3, nuclear part:
+      The nuclear part is calculated by Coulomb.nuclei_atom_force
+      of physics.py.
+      This function is called in predict_all_targets_general of
+      physics.py.
+
+
+
+
 
 Note for implementation of higher-order APDFT (higher than APDFT3)
 The followings need to be modified:
