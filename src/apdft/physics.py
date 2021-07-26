@@ -1600,6 +1600,13 @@ class APDFT(object):
         Returns:
             (N, m) array for an m-dimensional property over N QM calculations or None if the property is not implemented with this QM code."""
 
+        # if the target property is not calculated, raise error.
+        if not propertyname in ['ELECTRONIC_DIPOLE', 'ELECTRONIC_QUADRUPOLE']:
+            raise ValueError(
+                "Calculation routine of the target property %s of molecules has not been implemented yet."
+                % propertyname
+                )
+
         functionname = "get_%s" % propertyname.lower()
         try:
             # For functionname, "ELECTRONIC_DIPOLE" can be used.
