@@ -168,11 +168,37 @@ class PyscfCalculator(apc.Calculator):
             )
 
         included_results = list(included_results)
+        # Return only EPNs of each atom
         return epns[[included_results.index(_) for _ in includeatoms], 1]
+
+    @staticmethod
+    # Get the electronic part of Hellmann-Feynman atomic forces
+    # from log files of PySCF calculations.
+    def get_ionic_force(folder, coordinates, includeatoms, nuclear_charges):
+        ionic_forces = PyscfCalculator._read_value(
+            folder, "TARGET_IONIC_FORCE", True)
+        # If no data are read, raise error.
+        if len(ionic_forces.flatten()) == 0:
+            raise ValueError("Incomplete calculation.")
+
+        # check that all included sites are in fact present
+        included_results = ionic_forces[:, 0].astype(np.int)
+        if not set(included_results) == set(includeatoms):
+            log.log(
+                "Atom selections do not match. Likely the configuration has changed in the meantime.",
+                level="error",
+            )
+
+        included_results = list(included_results)
+        # Return only ionic forces of each atom
+        return ionic_forces[[included_results.index(_) for _ in includeatoms], 1:4]
 
     @staticmethod
     def get_electronic_dipole(folder):
         dipoles = PyscfCalculator._read_value(folder, "ELECTRONIC_DIPOLE", True)
+        # If no data are read, raise error.
         if len(dipoles.flatten()) == 0:
             raise ValueError("Incomplete calculation.")
+        # Since dipoles has (1, 3) np.array, the first element [0, :]
+        # is returned
         return dipoles[0]
