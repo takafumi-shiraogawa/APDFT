@@ -1742,6 +1742,14 @@ class APDFT(object):
                     np.outer(alphas[:, order], self._nuclear_numbers), epn_matrix
                 ).sum()
 
+                # Hellmann-Feynman ionic force
+                hf_ionic_force = 0.0
+                # Roop for three Cartesian coordinates
+                for i in range(3):
+                    hf_ionic_force += np.multiply(
+                        np.outer(alphas[:, order], target), ionic_force_matrix[:, :, i]
+                    ).sum()
+
                 # For check by vertical charge changes
                 # contributions = -np.multiply(
                 #     np.outer(alphas[:, order], deltaZ_included), epn_matrix
