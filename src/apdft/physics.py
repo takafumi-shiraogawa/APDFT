@@ -1735,6 +1735,13 @@ class APDFT(object):
             # target and reference molecules.
             deltaEnn = Coulomb.nuclei_nuclei(
                 target_coordinate, target) - own_nuc_nuc
+
+            # Atomic force which originates from the nuclei repulsion term
+            # targetFnn = np.zeros((len(self._nuclear_numbers), 3))
+            targetFnn = Coulomb.nuclei_atom_force(
+                target_coordinate, target
+            )
+
             for order in sorted(self._orders):
                 # Contributions from the target
                 contributions_target = -np.multiply(
