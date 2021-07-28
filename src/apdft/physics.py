@@ -1702,6 +1702,10 @@ class APDFT(object):
         total_energy_contributions = np.zeros((len(targets), len(self._orders)))
         dipoles = np.zeros((len(targets), 3, len(self._orders)))
 
+        # Hellmann-Feynman ionic force
+        hf_ionic_force = np.zeros((len(targets), len(self._orders),
+            len(self._nuclear_numbers), 3))
+
         # get base information
         # refenergy is the total energy
         refenergy = self.get_energy_from_reference(
@@ -1742,18 +1746,13 @@ class APDFT(object):
                     np.outer(alphas[:, order], self._nuclear_numbers), epn_matrix
                 ).sum()
 
-                # Hellmann-Feynman ionic force
-                hf_ionic_force = 0.0
+                # Contributions from the Hellmann-Feynman ionic force
+                contributions_hf_ionic_force = np.zeros((len(self._nuclear_numbers), 3))
                 # Roop for three Cartesian coordinates
                 for i in range(3):
-                    hf_ionic_force += np.multiply(
+                    contributions_hf_ionic_force[:, i] = np.multiply(
                         np.outer(alphas[:, order], target), ionic_force_matrix[:, :, i]
-                    ).sum()
-
-                # For check by vertical charge changes
-                # contributions = -np.multiply(
-                #     np.outer(alphas[:, order], deltaZ_included), epn_matrix
-                # ).sum()
+                    ).sum(axis=0)
 
                 energies[targetidx, order] = contributions_target + contributions_reference
                 # Save energy contributions
