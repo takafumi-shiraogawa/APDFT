@@ -585,12 +585,19 @@ class APDFT(object):
             shift:  Integer. Shift of the factorial term in the energy expansion or density expansion.
         """
 
-        # build alphas
+        # build alphas and betas
+        # alphas: coefficients for EPNs (epn_matrix in predict_all_targets)
+        # betas: coefficients for atomic forces which originates from
+        #        the derivative of the perturbed density (deriv_rho_force
+        #        in predict_all_targets)
         N = len(self._include_atoms)
         nvals = {0: 1, 1: 2 * (N * 2) + 0, 2: (2 * (N * (N - 1))) + (2 * N * N)}
-        # Dimension of alphas is (the number of QM calculations, the order of APDFT).
+        # Dimension of alphas and beta is
+        # (the number of QM calculations, the order of APDFT).
         alphas = np.zeros(
             (sum([nvals[_] for _ in self._orders]), len(self._orders)))
+        betas = np.zeros(
+            (sum([nvals[_] for _ in self._orders]), len(self._orders), N))
 
         # test input
         if N != len(deltaZ):
@@ -612,11 +619,12 @@ class APDFT(object):
         # For energy, APDFT1 uses the raw density of the reference molecule.
         if 0 in self._orders:
             alphas[0, 0] = 1
+        # betas for the force is zero for [0, 0].
 
         # order 1
         # APDFT(1 + 1) = APDFT2
         # For energy, the 1st-order perturbed density of APDFT1 consider
-        # the effects of individual changes of atomic charges.
+        # the effects of individual changes of atomic charges and coordinates.
         if 1 in self._orders:
             # self._delta is 0.05, a small fraction for the finite difference
             # with respect to atomic charge changes
@@ -633,6 +641,8 @@ class APDFT(object):
                 alphas[1 + siteidx * 2, 1] += prefactor * deltaZ[siteidx]
                 alphas[1 + siteidx * 2 + 1, 1] -= prefactor * deltaZ[siteidx]
 
+                # betas for the force are zero for the atomic charge changes.
+
             # self._delta is 0.005, a small fraction for the finite difference
             # with respect to atomic coordinate changes
             prefactor = 1 / (2 * self._R_delta) / np.math.factorial(1 + shift)
@@ -643,6 +653,8 @@ class APDFT(object):
                 # TODO: generalization to three Cartesian coordinates
                 alphas[1 + 2 * N + siteidx * 2, 1] += prefactor * deltaR[siteidx, 2]
                 alphas[1 + 2 * N + siteidx * 2 + 1, 1] -= prefactor * deltaR[siteidx, 2]
+                betas[1 + 2 * N + siteidx * 2, 1, siteidx] = prefactor
+                betas[1 + 2 * N + siteidx * 2 + 1, 1, siteidx] = -prefactor
 
         # order 2
         # APDFT(2 + 1) = APDFT3
@@ -669,6 +681,7 @@ class APDFT(object):
                 for siteidx_j in range(siteidx_i, N):
                     if siteidx_i != siteidx_j:
                         pos += 2
+
                     # If there is no charge change in selected atoms of
                     # target and reference molecules, the contribution to
                     # the target energy (or property) becomes zero.
@@ -676,6 +689,7 @@ class APDFT(object):
                     # the charge is not zero.
                     if deltaZ[siteidx_j] == 0 or deltaZ[siteidx_i] == 0:
                         continue
+
                     # If selected atoms with the charge change are different
                     # (It is same as siteidx_j > siteidx_i if all atoms are targeted.)
                     if self._include_atoms[siteidx_j] > self._include_atoms[siteidx_i]:
@@ -697,6 +711,9 @@ class APDFT(object):
                         alphas[1 + siteidx_i * 2 + 1, 2] -= prefactor
                         alphas[1 + siteidx_j * 2, 2] -= prefactor
                         alphas[1 + siteidx_j * 2 + 1, 2] -= prefactor
+
+                        # betas for the force are zero for the atomic charge changes.
+
                     # If selected atoms with the charge change are same
                     # (It is same as siteidx_j == siteidx_i if all atoms are targeted.)
                     if self._include_atoms[siteidx_j] == self._include_atoms[siteidx_i]:
@@ -714,6 +731,8 @@ class APDFT(object):
                         alphas[1 + siteidx_i * 2, 2] += prefactor
                         alphas[1 + siteidx_j * 2 + 1, 2] += prefactor
 
+                        # betas for the force are zero for the atomic charge changes.
+
             # For atomic coordinate changes
             # Loops for the combination of two atoms
             # (duplication is allowed)
@@ -722,13 +741,16 @@ class APDFT(object):
                 for siteidx_j in range(siteidx_i, N):
                     if siteidx_i != siteidx_j:
                         pos += 2
-                    # If there is no coordinate change in selected atoms of
-                    # target and reference molecules, the contribution to
-                    # the target energy (or property) becomes zero.
-                    # Note that the derivative of the density with respect to
-                    # the coordinate is not zero.
-                    if deltaR[siteidx_j, 2] == 0 or deltaR[siteidx_i, 2] == 0:
-                        continue
+
+                    # Commented out for betas
+                    # # If there is no coordinate change in selected atoms of
+                    # # target and reference molecules, the contribution to
+                    # # the target energy (or property) becomes zero.
+                    # # Note that the derivative of the density with respect to
+                    # # the coordinate is not zero.
+                    # if deltaR[siteidx_j, 2] == 0 or deltaR[siteidx_i, 2] == 0:
+                    #     continue
+
                     # If selected atoms with the coordinate change are different
                     # (It is same as siteidx_j > siteidx_i if all atoms are targeted.)
                     if self._include_atoms[siteidx_j] > self._include_atoms[siteidx_i]:
@@ -738,7 +760,13 @@ class APDFT(object):
                         prefactor = (1 / (2 * (self._R_delta ** 2))) / np.math.factorial(
                             2 + shift
                         )
+                        # Set a prefactor for betas.
+                        # betas's prefactor 2 is included in prefactor.
+                        prefactor_betas = prefactor * deltaR[siteidx_j, 2]
+                        prefactor_betas_rev = prefactor * deltaR[siteidx_i, 2]
+                        # Set a prefactor for alphas.
                         prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
+
                         # Following alphas are for the seven terms in the mixed derivatives
                         # with respect to the two different coordinates
                         alphas[pos, 2] += prefactor
@@ -750,6 +778,30 @@ class APDFT(object):
                         alphas[1 + 2 * N + siteidx_i * 2 + 1, 2] -= prefactor
                         alphas[1 + 2 * N + siteidx_j * 2, 2] -= prefactor
                         alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] -= prefactor
+
+                        # Following betas are for the seven terms in the mixed derivatives
+                        # with respect to the two different coordinates
+                        betas[pos, 2, siteidx_i] += prefactor_betas
+                        betas[pos + 1, 2, siteidx_i] += prefactor_betas
+                        # For the raw reference density
+                        betas[0, 2, siteidx_i] += 2 * prefactor_betas
+                        # For the single change of the atomic coordinate
+                        betas[1 + 2 * N + siteidx_i * 2, 2, siteidx_i] -= prefactor_betas
+                        betas[1 + 2 * N + siteidx_i * 2 + 1, 2, siteidx_i] -= prefactor_betas
+                        betas[1 + 2 * N + siteidx_j * 2, 2, siteidx_i] -= prefactor_betas
+                        betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_i] -= prefactor_betas
+
+                        # Reverse indexes for betas
+                        betas[pos, 2, siteidx_j] += prefactor_betas_rev
+                        betas[pos + 1, 2, siteidx_j] += prefactor_betas_rev
+                        # For the raw reference density
+                        betas[0, 2, siteidx_j] += 2 * prefactor_betas_rev
+                        # For the single change of the atomic coordinate
+                        betas[1 + 2 * N + siteidx_j * 2, 2, siteidx_j] -= prefactor_betas_rev
+                        betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_j] -= prefactor_betas_rev
+                        betas[1 + 2 * N + siteidx_i * 2, 2, siteidx_j] -= prefactor_betas_rev
+                        betas[1 + 2 * N + siteidx_i * 2 + 1, 2, siteidx_j] -= prefactor_betas_rev
+
                     # If selected atoms with the coordinate change are same
                     # (It is same as siteidx_j == siteidx_i if all atoms are targeted.)
                     if self._include_atoms[siteidx_j] == self._include_atoms[siteidx_i]:
@@ -759,6 +811,9 @@ class APDFT(object):
                         prefactor = (1 / (self._R_delta ** 2)) / np.math.factorial(
                             2 + shift
                         )
+                        # Set a prefactor for betas
+                        prefactor_betas = prefactor * deltaR[siteidx_i, 2]
+                        # Set a prefactor for alphas
                         prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
                         # For the raw electron density
                         alphas[0, 2] -= 2 * prefactor
@@ -766,6 +821,8 @@ class APDFT(object):
                         # Note that here siteidx_i == siteidx_j.
                         alphas[1 + 2 * N + siteidx_i * 2, 2] += prefactor
                         alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] += prefactor
+                        betas[1 + 2 * N + siteidx_i * 2, 2, siteidx_i] += prefactor_betas
+                        betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_j] += prefactor_betas
 
             # For both atomic charge and coordinate changes
             # TODO: generalization to three Cartesian coordinates
@@ -774,13 +831,15 @@ class APDFT(object):
                 # Loop for the atomic coordinate change
                 for siteidx_j in range(N):
                     pos += 2
-                    # If there is no charge or coordinate change in selected atoms
-                    # of target and reference molecules, the contribution to
-                    # the target energy (or property) becomes zero.
-                    # Note that the derivative of the density with respect to
-                    # the coordinate is not zero.
-                    if deltaR[siteidx_j, 2] == 0 or deltaZ[siteidx_i] == 0:
-                        continue
+
+                    # Commented out for betas
+                    # # If there is no charge or coordinate change in selected atoms
+                    # # of target and reference molecules, the contribution to
+                    # # the target energy (or property) becomes zero.
+                    # # Note that the derivative of the density with respect to
+                    # # the coordinate is not zero.
+                    # if deltaR[siteidx_j, 2] == 0 or deltaZ[siteidx_i] == 0:
+                    #     continue
 
                     prefactor = (1 / (4 * self._delta * self._R_delta)) / np.math.factorial(
                         2 + shift
@@ -788,12 +847,16 @@ class APDFT(object):
                     # prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
                     #     2 + shift
                     # )
+                    # Set a prefactor for betas
+                    # betas's prefactor 2 is included in prefactor.
+                    prefactor_betas = 2.0 * prefactor * deltaZ[siteidx_i]
+                    # Set a prefactor for alphas
                     # Here 2 comes from the duplication of Z and R.
                     prefactor *= 2 * deltaZ[siteidx_i] * deltaR[siteidx_j, 2]
                     # prefactor *= deltaZ[siteidx_i] * deltaR[siteidx_j, 2]
 
                     # Following alphas are for the seven terms in the mixed derivatives
-                    # with respect to the two different coordinates
+                    # with respect to atomic charge and coordinate.
                     alphas[pos, 2] += prefactor
                     alphas[pos + 1, 2] += prefactor
                     # For the raw reference density
@@ -805,7 +868,23 @@ class APDFT(object):
                     alphas[1 + 2 * N + siteidx_j * 2, 2] -= prefactor
                     alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] -= prefactor
 
-        return alphas
+                    # Following betas are for the seven terms in the mixed derivatives
+                    # with respect to atomic charge and coordinate.
+                    betas[pos, 2, siteidx_j] += prefactor_betas
+                    betas[pos + 1, 2, siteidx_j] += prefactor_betas
+                    # For the raw reference density
+                    betas[0, 2, siteidx_j] += 2 * prefactor_betas
+                    # For the single change of the atomic charge
+                    betas[1 + siteidx_i * 2, 2, siteidx_j] -= prefactor_betas
+                    betas[1 + siteidx_i * 2 + 1, 2, siteidx_j] -= prefactor_betas
+                    # For the single change of the atomic coordinate
+                    betas[1 + 2 * N + siteidx_j * 2, 2, siteidx_j] -= prefactor_betas
+                    betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_j] -= prefactor_betas
+
+        if shift == 1:
+            return alphas, betas
+        elif shift == 0:
+            return alphas
 
     def get_epn_coefficients(self, deltaZ):
         """ EPN coefficients are the weighting of the electronic EPN from each of the finite difference calculations.
@@ -1706,6 +1785,11 @@ class APDFT(object):
         hf_ionic_force = np.zeros((len(targets), len(self._orders),
             len(self._nuclear_numbers), 3))
 
+        # Atomic force originates from the derivative of
+        # the perturbed density
+        deriv_rho_force = np.zeros((len(targets), len(self._orders),
+                                    len(self._nuclear_numbers), 3))
+
         # get base information
         # refenergy is the total energy
         refenergy = self.get_energy_from_reference(
@@ -1728,7 +1812,7 @@ class APDFT(object):
             deltaZ = target - self._nuclear_numbers
 
             deltaZ_included = deltaZ[self._include_atoms]
-            alphas = self.get_epn_coefficients_general(deltaZ_included, deltaR)
+            alphas, force_alphas = self.get_epn_coefficients_general(deltaZ_included, deltaR)
 
             # energies
             # Diference of nuclear-nuclear repulsion energies of
@@ -1760,6 +1844,34 @@ class APDFT(object):
                     contributions_hf_ionic_force[:, i] = np.multiply(
                         np.outer(alphas[:, order], target), ionic_force_matrix[:, :, i]
                     ).sum(axis=0)
+
+                # Contributions from the force of derivatives of
+                # the perturbed density
+                contributions_target_deriv_rho = np.zeros(
+                    (len(self._nuclear_numbers), 3))
+                contributions_reference_deriv_rho = np.zeros(
+                    (len(self._nuclear_numbers), 3))
+
+                # Contributions from the target
+                for i in range(len(self._nuclear_numbers)):
+                    for j in range(3):
+                        # Z axis
+                        if j == 2:
+                            contributions_target_deriv_rho[i, j] = np.multiply(
+                                np.outer(force_alphas[:, order, i], target),
+                                         epn_matrix_target
+                                ).sum()
+
+                # Contributions from the reference
+                for i in range(len(self._nuclear_numbers)):
+                    for j in range(3):
+                        # Z axis
+                        if j == 2:
+                            contributions_reference_deriv_rho[i, j] = -np.multiply(
+                                np.outer(force_alphas[:, order, i],
+                                         self._nuclear_numbers),
+                                         epn_matrix
+                                ).sum()
 
                 energies[targetidx, order] = contributions_target + contributions_reference
                 # Save energy contributions
