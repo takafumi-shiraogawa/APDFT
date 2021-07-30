@@ -1827,17 +1827,17 @@ class APDFT(object):
             )
 
             for order in sorted(self._orders):
-                # Contributions from the target
+                # Energy contributions from the target
                 contributions_target = -np.multiply(
                     np.outer(alphas[:, order], target), epn_matrix_target
                 ).sum()
 
-                # Contributions from the reference
+                # Energy contributions from the reference
                 contributions_reference = np.multiply(
                     np.outer(alphas[:, order], self._nuclear_numbers), epn_matrix
                 ).sum()
 
-                # Contributions from the Hellmann-Feynman ionic force
+                # Force contributions from the Hellmann-Feynman ionic force
                 contributions_hf_ionic_force = np.zeros((len(self._nuclear_numbers), 3))
                 # Roop for three Cartesian coordinates
                 for i in range(3):
@@ -1845,14 +1845,14 @@ class APDFT(object):
                         np.outer(alphas[:, order], target), ionic_force_matrix[:, :, i]
                     ).sum(axis=0)
 
-                # Contributions from the force of derivatives of
+                # Force contributions from the force of derivatives of
                 # the perturbed density
                 contributions_target_deriv_rho = np.zeros(
                     (len(self._nuclear_numbers), 3))
                 contributions_reference_deriv_rho = np.zeros(
                     (len(self._nuclear_numbers), 3))
 
-                # Contributions from the target
+                # Force contributions from the target
                 for i in range(len(self._nuclear_numbers)):
                     for j in range(3):
                         # Z axis
@@ -1862,7 +1862,7 @@ class APDFT(object):
                                          epn_matrix_target
                                 ).sum()
 
-                # Contributions from the reference
+                # Force contributions from the reference
                 for i in range(len(self._nuclear_numbers)):
                     for j in range(3):
                         # Z axis
