@@ -1775,11 +1775,19 @@ class APDFT(object):
         own_nuc_nuc = Coulomb.nuclei_nuclei(
             self._coordinates, self._nuclear_numbers)
 
+        # Energy
         energies = np.zeros((len(targets), len(self._orders)))
         reference_energy_contributions = np.zeros((len(targets), len(self._orders)))
         target_energy_contributions = np.zeros((len(targets), len(self._orders)))
         total_energy_contributions = np.zeros((len(targets), len(self._orders)))
-        dipoles = np.zeros((len(targets), 3, len(self._orders)))
+
+        # Atomic force
+        atomic_forces = np.zeros((
+            len(targets), len(self._orders), len(self._nuclear_numbers), 3))
+        hf_ionic_force_contributions = np.zeros((
+            len(targets), len(self._orders), len(self._nuclear_numbers), 3))
+        deriv_rho_contributions = np.zeros((
+            len(targets), len(self._orders), len(self._nuclear_numbers), 3))
 
         # Hellmann-Feynman ionic force
         hf_ionic_force = np.zeros((len(targets), len(self._orders),
@@ -1789,6 +1797,9 @@ class APDFT(object):
         # the perturbed density
         deriv_rho_force = np.zeros((len(targets), len(self._orders),
                                     len(self._nuclear_numbers), 3))
+
+        # Electric dipole moment
+        dipoles = np.zeros((len(targets), 3, len(self._orders)))
 
         # get base information
         # refenergy is the total energy
@@ -1873,7 +1884,27 @@ class APDFT(object):
                                          epn_matrix
                                 ).sum()
 
+                # Energy
                 energies[targetidx, order] = contributions_target + contributions_reference
+
+                # Atomic forces
+                # Sum of the target and reference contributions to
+                # the Hellmann-Feynman term of the atomic force
+                hf_ionic_force_contributions[targetidx, order, :, :] = \
+                    contributions_hf_ionic_force[:, :]
+
+                # Sum of the target and reference contributions to
+                # the atromic force originates from  derivatives of
+                # the perturbed density
+                deriv_rho_contributions[targetidx, order, :, :] = \
+                    contributions_target_deriv_rho[:, :] + \
+                    contributions_reference_deriv_rho[:, :]
+
+                # Sum of the electronic contributions to atomic forces
+                atomic_forces[targetidx, order, :, :] = \
+                    hf_ionic_force_contributions[targetidx, order, :, :] + \
+                    deriv_rho_contributions[targetidx, order, :, :]
+
                 # Save energy contributions
                 reference_energy_contributions[targetidx, order] = contributions_reference
                 target_energy_contributions[targetidx, order] = contributions_target
@@ -1885,7 +1916,12 @@ class APDFT(object):
                 if order > 0:
                     energies[targetidx, order] += energies[targetidx, order - 1]
 
+                if order > 0:
+                    atomic_forces[targetidx, order] += atomic_forces[targetidx, order - 1]
+
             energies[targetidx, :] += deltaEnn + refenergy
+
+            atomic_forces[targetidx, :] += targetFnn
 
             # dipoles
             if dipole_matrix is not None:
