@@ -1943,7 +1943,8 @@ class APDFT(object):
 
         # return results
         return targets, energies, dipoles, reference_energy_contributions, \
-               target_energy_contributions, total_energy_contributions
+               target_energy_contributions, total_energy_contributions, \
+               atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions
 
     def analyse(self, explicit_reference=False):
         """ Performs actual analysis and integration. Prints results"""
@@ -2033,8 +2034,10 @@ class APDFT(object):
 
         try:
             targets, energies, dipoles, reference_energy_contributions, \
-                target_energy_contributions, total_energy_contributions, \
-                    = self.predict_all_targets_general(target_coordinate)
+            target_energy_contributions, total_energy_contributions, \
+            atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions \
+                = self.predict_all_targets_general(target_coordinate)
+
         except (FileNotFoundError, AttributeError):
             apdft.log.log(
                 "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.",
@@ -2115,6 +2118,28 @@ class APDFT(object):
             "dipole_moment_y": dipoles[:, 1, -1],
             "dipole_moment_z": dipoles[:, 2, -1],
         }
+
+        # Set results of atomic forces
+        result_atomic_forces = {}
+        result_atomic_forces["targets"] = targetnames
+        result_hf_ionic_force_contributions = {}
+        result_hf_ionic_force_contributions["targets"] = targetnames
+        result_deriv_rho_contributions = {}
+        result_deriv_rho_contributions["targets"] = targetnames
+
+        # TODO: generalization to specify target atoms
+        natoms = len(self._coordinates)
+        for order in self._orders:
+            for atom_pos in range(natoms):
+                # Only Z component is presented.
+                # TODO: generalization to three Cartesian coordinatesh
+                result_atomic_forces["atomic_force_%s_order%d" % (atom_pos, order)] = \
+                    atomic_forces[:, order, atom_pos, 2]
+                result_hf_ionic_force_contributions["atomic_force_%s_order%d" % (atom_pos, order)] = \
+                    hf_ionic_force_contributions[:, order, atom_pos, 2]
+                result_deriv_rho_contributions["atomic_force_%s_order%d" % (atom_pos, order)] = \
+                    deriv_rho_contributions[:, order, atom_pos, 2]
+
         for order in self._orders:
             for didx, dim in enumerate("xyz"):
                 result_dipoles["dipole_moment_%s_order%d" % (dim, order)] = dipoles[
@@ -2133,5 +2158,12 @@ class APDFT(object):
         pd.DataFrame(result_total_contributions).to_csv(
             "total_contributions.csv", index=False)
         pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
+
+        pd.DataFrame(result_atomic_forces).to_csv(
+            "atomic_forces.csv", index=False)
+        pd.DataFrame(result_hf_ionic_force_contributions).to_csv(
+            "hf_ionic_force_contributions.csv", index=False)
+        pd.DataFrame(result_deriv_rho_contributions).to_csv(
+            "deriv_rho_contributions.csv", index=False)
 
         return targets, energies, comparison_energies
