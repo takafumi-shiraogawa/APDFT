@@ -817,6 +817,7 @@ class APDFT(object):
                         prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
                         # For the raw electron density
                         alphas[0, 2] -= 2 * prefactor
+                        betas[0, 2] -= 2 * prefactor_betas
                         # For the double changes at the same atom
                         # Note that here siteidx_i == siteidx_j.
                         alphas[1 + 2 * N + siteidx_i * 2, 2] += prefactor
@@ -1793,11 +1794,6 @@ class APDFT(object):
         hf_ionic_force = np.zeros((len(targets), len(self._orders),
             len(self._nuclear_numbers), 3))
 
-        # Atomic force originates from the derivative of
-        # the perturbed density
-        deriv_rho_force = np.zeros((len(targets), len(self._orders),
-                                    len(self._nuclear_numbers), 3))
-
         # Electric dipole moment
         dipoles = np.zeros((len(targets), 3, len(self._orders)))
 
@@ -1883,6 +1879,15 @@ class APDFT(object):
                                          self._nuclear_numbers),
                                          epn_matrix
                                 ).sum()
+
+                # For check
+                for i in range(len(self._nuclear_numbers)):
+                    print("order", order)
+                    print("target", target)
+                    print("atom", i)
+                    print(contributions_target_deriv_rho[i, 2])
+                    print(contributions_reference_deriv_rho[i, 2])
+                    print('')
 
                 # Energy
                 energies[targetidx, order] = contributions_target + contributions_reference
