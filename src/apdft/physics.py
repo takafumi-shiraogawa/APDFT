@@ -1882,14 +1882,14 @@ class APDFT(object):
                                          epn_matrix
                                 ).sum()
 
-                # For check
-                for i in range(len(self._nuclear_numbers)):
-                    print("order", order)
-                    print("target", target)
-                    print("atom", i)
-                    print(contributions_target_deriv_rho[i, 2])
-                    print(contributions_reference_deriv_rho[i, 2])
-                    print('')
+                # # For check
+                # for i in range(len(self._nuclear_numbers)):
+                #     print("order", order)
+                #     print("target", target)
+                #     print("atom", i)
+                #     print(contributions_target_deriv_rho[i, 2])
+                #     print(contributions_reference_deriv_rho[i, 2])
+                #     print('')
 
                 # Energy
                 energies[targetidx, order] = contributions_target + contributions_reference
