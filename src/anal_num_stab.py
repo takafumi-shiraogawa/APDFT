@@ -240,7 +240,7 @@ if specified_var == "Z":
   ax.set_xlabel('$\it{δZ}$', fontsize=20, fontname='Arial')
   ax.set_ylabel('$\it{|E(δZ) - E(0.05)|}$', fontsize=20, fontname='Arial')
 else:
-  ax.set_xlabel('$\it{δR}$', fontsize=20, fontname='Arial')
+  ax.set_xlabel('$\it{δR}$ / Å', fontsize=20, fontname='Arial')
   ax.set_ylabel('$\it{|E(δR) - E(0.005)|}$', fontsize=20,
                 fontname='Arial')
 
