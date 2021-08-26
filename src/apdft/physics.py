@@ -1359,7 +1359,7 @@ class APDFT(object):
             )
 
             try:
-                res = self._calculator.get_ionic_force(
+                res = self._calculator.get_target_ionic_force(
                     folder, self._coordinates, self._include_atoms, charges
                 )
             except ValueError:

@@ -174,7 +174,7 @@ class PyscfCalculator(apc.Calculator):
     @staticmethod
     # Get the electronic part of Hellmann-Feynman atomic forces
     # from log files of PySCF calculations.
-    def get_ionic_force(folder, coordinates, includeatoms, nuclear_charges):
+    def get_target_ionic_force(folder, coordinates, includeatoms, nuclear_charges):
         ionic_forces = PyscfCalculator._read_value(
             folder, "TARGET_IONIC_FORCE", True)
         # If no data are read, raise error.
