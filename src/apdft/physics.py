@@ -1657,7 +1657,10 @@ class APDFT(object):
         results = []
         for folder in folders:
             try:
-                results.append(function(folder))
+                if functionname == "get_ionic_force":
+                    results.append(function(folder, self._include_atoms))
+                else:
+                    results.append(function(folder))
             except ValueError:
                 apdft.log.log(
                     "Calculation with incomplete results.",
@@ -1721,6 +1724,7 @@ class APDFT(object):
 
         energies = np.zeros((len(targets), len(self._orders)))
         dipoles = np.zeros((len(targets), 3, len(self._orders)))
+        forces = np.zeros((len(targets), len(self._nuclear_numbers), 3, len(self._orders)))
 
         # get base information
         refenergy = self.get_energy_from_reference(
@@ -1728,6 +1732,7 @@ class APDFT(object):
         )
         epn_matrix = self.get_epn_matrix()
         dipole_matrix = self.get_linear_density_matrix("ELECTRONIC_DIPOLE")
+        force_matrix = self.get_linear_density_matrix("IONIC_FORCE")
 
         # get target predictions
         for targetidx, target in enumerate(targets):
@@ -1763,8 +1768,22 @@ class APDFT(object):
                     )
                 dipoles[targetidx] += nuc_dipole[:, np.newaxis]
 
+            # forces
+            if force_matrix is not None:
+                for order in sorted(self._orders):
+                    for atomidx in range(len(self._include_atoms)):
+                        # Electronic part of the atomic force
+                        electron_force = np.multiply(
+                            force_matrix[:, atomidx, :], betas[:, order, np.newaxis]).sum(
+                            axis=0
+                        )
+                        forces[targetidx, atomidx, :, order] = electron_force
+                        forces[targetidx, atomidx, :, order] += np.sum(
+                            forces[targetidx, atomidx, :, :order]
+                        )
+
         # return results
-        return targets, energies, dipoles
+        return targets, energies, dipoles, forces
 
     # For an "energies_geometries" mode
     # target_coordinate is in angstrom.
@@ -1956,7 +1975,7 @@ class APDFT(object):
     def analyse(self, explicit_reference=False):
         """ Performs actual analysis and integration. Prints results"""
         try:
-            targets, energies, dipoles = self.predict_all_targets()
+            targets, energies, dipoles, forces = self.predict_all_targets()
         except (FileNotFoundError, AttributeError):
             apdft.log.log(
                 "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.",
