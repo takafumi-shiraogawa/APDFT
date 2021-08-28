@@ -2063,9 +2063,11 @@ class APDFT(object):
 
         # persist results to disk
         targetnames = [APDFT._get_target_name(_) for _ in targets]
+        # Energy
         result_energies = {"targets": targetnames, "total_energy": energies[:, -1]}
         for order in self._orders:
             result_energies["total_energy_order%d" % order] = energies[:, order]
+        # Dipole
         result_dipoles = {
             "targets": targetnames,
             "dipole_moment_x": dipoles[:, 0, -1],
@@ -2077,13 +2079,35 @@ class APDFT(object):
                 result_dipoles["dipole_moment_%s_order%d" % (dim, order)] = dipoles[
                     :, didx, order
                 ]
+        # Force
+        result_forces = {
+            "targets": targetnames,
+        }
+        # The best results with the highest APDFT order
+        for atomidx in range(len(self._nuclear_numbers)):
+            for didx, dim in enumerate("xyz"):
+                result_forces["force_atom%d_%s" % (atomidx, dim)] = forces[
+                    :, atomidx, didx, -1
+                ]
+        # All the results
+        for order in self._orders:
+            for atomidx in range(len(self._nuclear_numbers)):
+                for didx, dim in enumerate("xyz"):
+                    result_forces["force_atom%d_%s_order%d" % (atomidx, dim, order)] = forces[
+                        :, atomidx, didx, order
+                    ]
         if explicit_reference:
             result_energies["reference_energy"] = comparison_energies
             result_dipoles["reference_dipole_x"] = comparison_dipoles[:, 0]
             result_dipoles["reference_dipole_y"] = comparison_dipoles[:, 1]
             result_dipoles["reference_dipole_z"] = comparison_dipoles[:, 2]
+            for atomidx in range(len(self._nuclear_numbers)):
+                result_forces["reference_force_x"] = comparison_forces[:, atomidx, 0]
+                result_forces["reference_force_y"] = comparison_forces[:, atomidx, 1]
+                result_forces["reference_force_z"] = comparison_forces[:, atomidx, 2]
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
         pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
+        pd.DataFrame(result_forces).to_csv("forces.csv", index=False)
 
     # For an "energies_geometries" mode
     def analyse_general(self, target_coordinate=None, explicit_reference=False):
