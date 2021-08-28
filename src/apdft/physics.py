@@ -950,6 +950,37 @@ class APDFT(object):
                     targetname=targetname,
                 )
 
+    def _print_forces(self, targets, forces, comparison_forces):
+        if comparison_forces is None:
+            for target, force in zip(targets, forces):
+                targetname = APDFT._get_target_name(target)
+                kwargs = dict()
+                for order in self._orders:
+                    for atomidx in range(len(self._nuclear_numbers)):
+                        kwargs["order%d-atom%d" % (order, atomidx)] = list(
+                            force[:, atomidx, order])
+                apdft.log.log(
+                    "Force calculated",
+                    level="RESULT",
+                    kind="total_force",
+                    value=list(force[:, :, -1]),
+                    target=target,
+                    targetname=targetname,
+                    **kwargs
+                )
+        else:
+            for target, force, comparison in zip(targets, forces, comparison_forces):
+                targetname = APDFT._get_target_name(target)
+                apdft.log.log(
+                    "Force calculated",
+                    level="RESULT",
+                    kind="total_force",
+                    reference=list(comparison),
+                    value=list(force),
+                    target=target,
+                    targetname=targetname,
+                )
+
     @staticmethod
     def _get_target_name(target):
         return ",".join([apdft.physics.charge_to_label(_) for _ in target])
@@ -1986,6 +2017,7 @@ class APDFT(object):
         if explicit_reference:
             comparison_energies = np.zeros(len(targets))
             comparison_dipoles = np.zeros((len(targets), 3))
+            comparison_forces = np.zeros((len(targets), 3))
             for targetidx, target in enumerate(targets):
                 path = "QM/comparison-%s" % "-".join(map(str, target))
                 try:
@@ -2001,6 +2033,7 @@ class APDFT(object):
                     )
                     comparison_energies[targetidx] = np.nan
                     comparison_dipoles[targetidx] = np.nan
+                    comparison_forces[targetidx] = np.nan
                     continue
                 except ValueError:
                     apdft.log.log(
@@ -2011,6 +2044,7 @@ class APDFT(object):
                     )
                     comparison_energies[targetidx] = np.nan
                     comparison_dipoles[targetidx] = np.nan
+                    comparison_forces[targetidx] = np.nan
                     continue
 
                 nd = apdft.physics.Dipoles.point_charges(
@@ -2021,9 +2055,11 @@ class APDFT(object):
         else:
             comparison_energies = None
             comparison_dipoles = None
+            comparison_forces = None
 
         self._print_energies(targets, energies, comparison_energies)
         self._print_dipoles(targets, dipoles, comparison_dipoles)
+        self._print_forces(targets, forces, comparison_forces)
 
         # persist results to disk
         targetnames = [APDFT._get_target_name(_) for _ in targets]
