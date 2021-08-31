@@ -108,6 +108,29 @@ class Dipoles(object):
         shift = coordinates - reference_point
         return np.sum(shift.T * charges, axis=1) * debye
 
+    # Compute point charges in the atomic unit
+    @staticmethod
+    def point_charges_au(reference_point, coordinates, charges):
+        """ Calculates the dipole moment of point charges.
+
+		Note that for sets of point charges of a net charge, the resulting dipole moment depends on the chosen reference point. A common choice in the molecular context is the center of mass.
+		Sign convention is such that nuclei should be given as positive charges.
+
+		.. math::
+
+			\\mathbf{p}(\\mathbf{r}) = \\sum_I q_i(\\mathbf{r_i}-\\mathbf{r})
+
+		Args:
+			reference_point:	A 3 array of the reference point :math:`\\mathbf{r}`. [Angstrom]
+			coordinates: 		A (3,N) array of point charge coordinates :math:`\\mathbf{r_i}`. [Angstrom]
+			charges:			A N array of point charges :math:`q_i`. [e]
+		Returns:
+			Dipole moment :math:`\\mathbf{p}`. [Debye]
+		"""
+        shift = coordinates - reference_point
+        shift *= angstrom
+        return np.sum(shift.T * charges, axis=1)
+
     @staticmethod
     def electron_density(reference_point, coordinates, electron_density):
         """ Calculates the dipole moment of a charge distribution.
@@ -1755,6 +1778,8 @@ class APDFT(object):
 
         energies = np.zeros((len(targets), len(self._orders)))
         dipoles = np.zeros((len(targets), 3, len(self._orders)))
+        nuc_dipoles = np.zeros((len(targets), 3, len(self._orders)))
+        ele_dipoles = np.zeros((len(targets), 3, len(self._orders)))
         forces = np.zeros((len(targets), len(self._nuclear_numbers), 3, len(self._orders)))
 
         # get base information
@@ -1786,17 +1811,19 @@ class APDFT(object):
             # dipoles
             if dipole_matrix is not None:
                 betas = self.get_linear_density_coefficients(deltaZ_included)
-                nuc_dipole = Dipoles.point_charges(
+                # Compute nuclear dipole moment centered at the geometrical center
+                nuc_dipole = Dipoles.point_charges_au(
                     self._coordinates.mean(axis=0), self._coordinates, target
                 )
                 for order in sorted(self._orders):
                     ed = np.multiply(dipole_matrix, betas[:, order, np.newaxis]).sum(
                         axis=0
                     )
-                    dipoles[targetidx, :, order] = ed
-                    dipoles[targetidx, :, order] += np.sum(
-                        dipoles[targetidx, :, :order]
-                    )
+                    dipoles[targetidx, :, order] = -ed
+                    if order > 0:
+                        dipoles[targetidx, :, order] += dipoles[targetidx, :, order - 1]
+                    ele_dipoles[targetidx, :, order] = dipoles[targetidx, :, order]
+                    nuc_dipoles[targetidx, :, order] = nuc_dipole
                 dipoles[targetidx] += nuc_dipole[:, np.newaxis]
 
             # forces
@@ -1814,7 +1841,7 @@ class APDFT(object):
                         )
 
         # return results
-        return targets, energies, dipoles, forces
+        return targets, energies, dipoles, ele_dipoles, nuc_dipoles, forces
 
     # For an "energies_geometries" mode
     # target_coordinate is in angstrom.
@@ -2006,7 +2033,7 @@ class APDFT(object):
     def analyse(self, explicit_reference=False):
         """ Performs actual analysis and integration. Prints results"""
         try:
-            targets, energies, dipoles, forces = self.predict_all_targets()
+            targets, energies, dipoles, ele_dipoles, nuc_dipoles, forces = self.predict_all_targets()
         except (FileNotFoundError, AttributeError):
             apdft.log.log(
                 "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.",
@@ -2079,6 +2106,30 @@ class APDFT(object):
                 result_dipoles["dipole_moment_%s_order%d" % (dim, order)] = dipoles[
                     :, didx, order
                 ]
+        # Electronic dipole
+        ele_result_dipoles = {
+            "targets": targetnames,
+            "ele_dipole_moment_x": ele_dipoles[:, 0, -1],
+            "ele_dipole_moment_y": ele_dipoles[:, 1, -1],
+            "ele_dipole_moment_z": ele_dipoles[:, 2, -1],
+        }
+        for order in self._orders:
+            for didx, dim in enumerate("xyz"):
+                ele_result_dipoles["ele_dipole_moment_%s_order%d" % (dim, order)] = ele_dipoles[
+                    :, didx, order
+                ]
+        # Nuclear dipole
+        nuc_result_dipoles = {
+            "targets": targetnames,
+            "nuc_dipole_moment_x": nuc_dipoles[:, 0, -1],
+            "nuc_dipole_moment_y": nuc_dipoles[:, 1, -1],
+            "nuc_dipole_moment_z": nuc_dipoles[:, 2, -1],
+        }
+        for order in self._orders:
+            for didx, dim in enumerate("xyz"):
+                nuc_result_dipoles["nuc_dipole_moment_%s_order%d" % (dim, order)] = nuc_dipoles[
+                    :, didx, order
+                ]
         # Force
         result_forces = {
             "targets": targetnames,
@@ -2107,6 +2158,8 @@ class APDFT(object):
                 result_forces["reference_force_z"] = comparison_forces[:, atomidx, 2]
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
         pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
+        pd.DataFrame(ele_result_dipoles).to_csv("ele_dipoles.csv", index=False)
+        pd.DataFrame(nuc_result_dipoles).to_csv("nuc_dipoles.csv", index=False)
         pd.DataFrame(result_forces).to_csv("forces.csv", index=False)
 
     # For an "energies_geometries" mode

@@ -105,7 +105,7 @@ for site in includeonly:
     mol.set_rinv_orig_(target_mol.atom_coords()[site])
     print("ELECTRONIC_EPN2", site, np.matmul(dm1_ao, mol.intor("int1e_rinv")).trace())
 
-# Electronic Dipole w.r.t to center of geometry
+# Electronic Dipole w.r.t to center of geometry (geometrical center)
 with mol.with_common_orig(mol.atom_coords().mean(axis=0)):
     ao_dip = mol.intor_symmetric("int1e_r", comp=3)
 dipole = numpy.einsum("xij,ji->x", ao_dip, dm1_ao).real
