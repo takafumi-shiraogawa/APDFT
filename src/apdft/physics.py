@@ -2257,12 +2257,47 @@ class APDFT(object):
             result_total_contributions["total_contributions_order%d" %
                                        order] = \
                                            total_energy_contributions[:, order]
+        # Dipole
         result_dipoles = {
             "targets": targetnames,
             "dipole_moment_x": dipoles[:, 0, -1],
             "dipole_moment_y": dipoles[:, 1, -1],
             "dipole_moment_z": dipoles[:, 2, -1],
         }
+        for order in self._orders:
+            for didx, dim in enumerate("xyz"):
+                result_dipoles["dipole_moment_%s_order%d" % (dim, order)] = dipoles[
+                    :, didx, order
+                ]
+        # Electronic dipole
+        ele_result_dipoles = {
+            "targets": targetnames,
+            "ele_dipole_moment_x": ele_dipoles[:, 0, -1],
+            "ele_dipole_moment_y": ele_dipoles[:, 1, -1],
+            "ele_dipole_moment_z": ele_dipoles[:, 2, -1],
+        }
+        for order in self._orders:
+            for didx, dim in enumerate("xyz"):
+                ele_result_dipoles["ele_dipole_moment_%s_order%d" % (dim, order)] = ele_dipoles[
+                    :, didx, order
+                ]
+        # Nuclear dipole
+        nuc_result_dipoles = {
+            "targets": targetnames,
+            "nuc_dipole_moment_x": nuc_dipoles[:, 0, -1],
+            "nuc_dipole_moment_y": nuc_dipoles[:, 1, -1],
+            "nuc_dipole_moment_z": nuc_dipoles[:, 2, -1],
+        }
+        for order in self._orders:
+            for didx, dim in enumerate("xyz"):
+                nuc_result_dipoles["nuc_dipole_moment_%s_order%d" % (dim, order)] = nuc_dipoles[
+                    :, didx, order
+                ]
+        if explicit_reference:
+            result_energies["reference_energy"] = comparison_energies
+            result_dipoles["reference_dipole_x"] = comparison_dipoles[:, 0]
+            result_dipoles["reference_dipole_y"] = comparison_dipoles[:, 1]
+            result_dipoles["reference_dipole_z"] = comparison_dipoles[:, 2]
 
         # Set results of atomic forces
         result_atomic_forces = {}
@@ -2285,16 +2320,6 @@ class APDFT(object):
                 result_deriv_rho_contributions["atomic_force_%s_order%d" % (atom_pos, order)] = \
                     deriv_rho_contributions[:, order, atom_pos, 2]
 
-        for order in self._orders:
-            for didx, dim in enumerate("xyz"):
-                result_dipoles["dipole_moment_%s_order%d" % (dim, order)] = dipoles[
-                    :, didx, order
-                ]
-        if explicit_reference:
-            result_energies["reference_energy"] = comparison_energies
-            result_dipoles["reference_dipole_x"] = comparison_dipoles[:, 0]
-            result_dipoles["reference_dipole_y"] = comparison_dipoles[:, 1]
-            result_dipoles["reference_dipole_z"] = comparison_dipoles[:, 2]
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
         pd.DataFrame(result_reference_contributions).to_csv(
             "reference_contributions.csv", index=False)
@@ -2303,6 +2328,8 @@ class APDFT(object):
         pd.DataFrame(result_total_contributions).to_csv(
             "total_contributions.csv", index=False)
         pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
+        pd.DataFrame(ele_result_dipoles).to_csv("ele_dipoles.csv", index=False)
+        pd.DataFrame(nuc_result_dipoles).to_csv("nuc_dipoles.csv", index=False)
 
         pd.DataFrame(result_atomic_forces).to_csv(
             "atomic_forces.csv", index=False)
