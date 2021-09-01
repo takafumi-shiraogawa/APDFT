@@ -66,7 +66,7 @@ for site in includeonly:
 # Electronic Dipole w.r.t to center of geometry
 with mol.with_common_orig(mol.atom_coords().mean(axis=0)):
     ao_dip = mol.intor_symmetric("int1e_r", comp=3)
-dipole = numpy.einsum("xij,ji->x", ao_dip, dm1_ao).real
+dipole = -numpy.einsum("xij,ji->x", ao_dip, dm1_ao).real
 print("ELECTRONIC_DIPOLE", *dipole)
 
 # GRID, as things were #####################################

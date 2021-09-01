@@ -1819,7 +1819,7 @@ class APDFT(object):
                     ed = np.multiply(dipole_matrix, betas[:, order, np.newaxis]).sum(
                         axis=0
                     )
-                    dipoles[targetidx, :, order] = -ed
+                    dipoles[targetidx, :, order] = ed
                     if order > 0:
                         dipoles[targetidx, :, order] += dipoles[targetidx, :, order - 1]
                     ele_dipoles[targetidx, :, order] = dipoles[targetidx, :, order]
