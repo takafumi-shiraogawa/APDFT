@@ -225,3 +225,14 @@ class PyscfCalculator(apc.Calculator):
         # Since dipoles has (1, 3) np.array, the first element [0, :]
         # is returned
         return dipoles[0]
+
+    @staticmethod
+    def get_target_electronic_dipole(folder):
+        dipoles = PyscfCalculator._read_value(
+            folder, "TARGET_ELECTRONIC_DIPOLE", True)
+        # If no data are read, raise error.
+        if len(dipoles.flatten()) == 0:
+            raise ValueError("Incomplete calculation.")
+        # Since dipoles has (1, 3) np.array, the first element [0, :]
+        # is returned
+        return dipoles[0]

@@ -111,6 +111,13 @@ with mol.with_common_orig(mol.atom_coords().mean(axis=0)):
 dipole = numpy.einsum("xij,ji->x", ao_dip, dm1_ao).real
 print("ELECTRONIC_DIPOLE", *dipole)
 
+# Target electronic Dipole w.r.t to center of geometry (geometrical center)
+# of the target molecule
+with mol.with_common_orig(target_mol.atom_coords().mean(axis=0)):
+    target_ao_dip = mol.intor_symmetric("int1e_r", comp=3)
+target_dipole = numpy.einsum("xij,ji->x", target_ao_dip, dm1_ao).real
+print("TARGET_ELECTRONIC_DIPOLE", *target_dipole)
+
 # GRID, as things were #####################################
 grid = pyscf.dft.gen_grid.Grids(mol)
 # level = 3 is a standard condition of PySCF

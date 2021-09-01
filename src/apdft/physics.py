@@ -1738,7 +1738,7 @@ class APDFT(object):
             (N, m) array for an m-dimensional property over N QM calculations or None if the property is not implemented with this QM code."""
 
         # if the target property is not calculated, raise error.
-        if not propertyname in ['ELECTRONIC_DIPOLE', 'ELECTRONIC_QUADRUPOLE']:
+        if not propertyname in ['TARGET_ELECTRONIC_DIPOLE', 'ELECTRONIC_QUADRUPOLE']:
             raise ValueError(
                 "Calculation routine of the target property %s of molecules has not been implemented yet."
                 % propertyname
@@ -1748,7 +1748,7 @@ class APDFT(object):
         try:
             # For functionname, "ELECTRONIC_DIPOLE" can be used.
             # If self._calculator is pyscf,
-            # pyscf.get_electronic_dipole is function.
+            # pyscf.get_target_electronic_dipole is function.
             function = getattr(self._calculator, functionname)
         except AttributeError:
             return None
@@ -1873,6 +1873,8 @@ class APDFT(object):
 
         # Electric dipole moment
         dipoles = np.zeros((len(targets), 3, len(self._orders)))
+        nuc_dipoles = np.zeros((len(targets), 3, len(self._orders)))
+        ele_dipoles = np.zeros((len(targets), 3, len(self._orders)))
 
         # get base information
         # refenergy is the total energy
@@ -1884,8 +1886,9 @@ class APDFT(object):
         # TODO: need to be generalized to three Cartesian coordinates
         # epn_matrix, epn_matrix_target = self.get_epn_matrix_general()
         epn_matrix, epn_matrix_target, ionic_force_matrix = self.get_property_matrix_general()
+        # Dipole matrix
         # TODO: need to be generalized to three Cartesian coordinates
-        dipole_matrix = self.get_linear_density_matrix_general("ELECTRONIC_DIPOLE")
+        dipole_matrix = self.get_linear_density_matrix_general("TARGET_ELECTRONIC_DIPOLE")
 
         # get difference between reference and target geometries
         deltaR = target_coordinate - self._coordinates
@@ -2012,21 +2015,24 @@ class APDFT(object):
                 betas = self.get_linear_density_coefficients_general(
                     deltaZ_included, deltaR
                 )
-                nuc_dipole = Dipoles.point_charges(
-                    self._coordinates.mean(axis=0), self._coordinates, target
+                # Compute nuclear dipole moment centered at the geometrical center
+                # for the target coordinated
+                nuc_dipole = Dipoles.point_charges_au(
+                    target_coordinate.mean(axis=0), target_coordinate, target
                 )
                 for order in sorted(self._orders):
                     ed = np.multiply(dipole_matrix, betas[:, order, np.newaxis]).sum(
                         axis=0
                     )
-                    dipoles[targetidx, :, order] = ed
-                    dipoles[targetidx, :, order] += np.sum(
-                        dipoles[targetidx, :, :order]
-                    )
+                    dipoles[targetidx, :, order] = -ed
+                    if order > 0:
+                        dipoles[targetidx, :, order] += dipoles[targetidx, :, order - 1]
+                    ele_dipoles[targetidx, :, order] = dipoles[targetidx, :, order]
+                    nuc_dipoles[targetidx, :, order] = nuc_dipole
                 dipoles[targetidx] += nuc_dipole[:, np.newaxis]
 
         # return results
-        return targets, energies, dipoles, reference_energy_contributions, \
+        return targets, energies, dipoles, ele_dipoles, nuc_dipoles, reference_energy_contributions, \
                target_energy_contributions, total_energy_contributions, \
                atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions
 
@@ -2172,7 +2178,7 @@ class APDFT(object):
             )
 
         try:
-            targets, energies, dipoles, reference_energy_contributions, \
+            targets, energies, dipoles, ele_dipoles, nuc_dipoles, reference_energy_contributions, \
             target_energy_contributions, total_energy_contributions, \
             atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions \
                 = self.predict_all_targets_general(target_coordinate)
