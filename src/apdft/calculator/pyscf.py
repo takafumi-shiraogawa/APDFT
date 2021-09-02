@@ -214,6 +214,7 @@ class PyscfCalculator(apc.Calculator):
 
         included_results = list(included_results)
         # Return only ionic forces of each atom
+        # ionic_forces[, 0] is the site number and ionic_forces[, 1:3] is the forces.
         return ionic_forces[[included_results.index(_) for _ in includeatoms], 1:4]
 
     @staticmethod

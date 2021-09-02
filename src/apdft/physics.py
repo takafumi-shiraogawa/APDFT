@@ -1781,6 +1781,8 @@ class APDFT(object):
         nuc_dipoles = np.zeros((len(targets), 3, len(self._orders)))
         ele_dipoles = np.zeros((len(targets), 3, len(self._orders)))
         forces = np.zeros((len(targets), len(self._nuclear_numbers), 3, len(self._orders)))
+        ele_forces = np.zeros((len(targets), len(self._nuclear_numbers), 3, len(self._orders)))
+        nuc_forces = np.zeros((len(targets), len(self._nuclear_numbers), 3, len(self._orders)))
 
         # get base information
         refenergy = self.get_energy_from_reference(
@@ -1827,18 +1829,29 @@ class APDFT(object):
                 dipoles[targetidx] += nuc_dipole[:, np.newaxis]
 
             # forces
+            # Atomic force which originates from the nuclei repulsion term
+            # nuc_Fnn(len(self._nuclear_numbers), 3)
+            nuc_Fnn = Coulomb.nuclei_atom_force(
+                self._coordinates, target
+            )
             if force_matrix is not None:
                 for order in sorted(self._orders):
                     for atomidx in range(len(self._include_atoms)):
                         # Electronic part of the atomic force
                         electron_force = np.multiply(
-                            force_matrix[:, atomidx, :], betas[:, order, np.newaxis]).sum(
+                            target[atomidx] * force_matrix[:, atomidx, :], betas[:, order, np.newaxis]).sum(
                             axis=0
                         )
                         forces[targetidx, atomidx, :, order] = electron_force
-                        forces[targetidx, atomidx, :, order] += np.sum(
-                            forces[targetidx, atomidx, :, :order]
-                        )
+                        if order > 0:
+                            forces[targetidx, atomidx, :, order] += forces[
+                                targetidx, atomidx, :, order - 1
+                                ]
+                        ele_forces[targetidx, atomidx, :, order] = forces[targetidx, atomidx, :, order]
+                        nuc_forces[targetidx, atomidx, :, order] = nuc_Fnn[atomidx, :]
+                for order in sorted(self._orders):
+                    for atomidx in range(len(self._include_atoms)):
+                        forces[targetidx, atomidx, :, order] += nuc_forces[targetidx, atomidx, :, order]
 
         # return results
         return targets, energies, dipoles, ele_dipoles, nuc_dipoles, forces
