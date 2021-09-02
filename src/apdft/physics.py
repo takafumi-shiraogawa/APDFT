@@ -1854,7 +1854,7 @@ class APDFT(object):
                         forces[targetidx, atomidx, :, order] += nuc_forces[targetidx, atomidx, :, order]
 
         # return results
-        return targets, energies, dipoles, ele_dipoles, nuc_dipoles, forces
+        return targets, energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
 
     # For an "energies_geometries" mode
     # target_coordinate is in angstrom.
@@ -2052,7 +2052,8 @@ class APDFT(object):
     def analyse(self, explicit_reference=False):
         """ Performs actual analysis and integration. Prints results"""
         try:
-            targets, energies, dipoles, ele_dipoles, nuc_dipoles, forces = self.predict_all_targets()
+            targets, energies, dipoles, ele_dipoles, nuc_dipoles, \
+                forces, ele_forces, nuc_forces = self.predict_all_targets()
         except (FileNotFoundError, AttributeError):
             apdft.log.log(
                 "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.",
@@ -2149,6 +2150,7 @@ class APDFT(object):
                 nuc_result_dipoles["nuc_dipole_moment_%s_order%d" % (dim, order)] = nuc_dipoles[
                     :, didx, order
                 ]
+
         # Force
         result_forces = {
             "targets": targetnames,
@@ -2166,6 +2168,43 @@ class APDFT(object):
                     result_forces["force_atom%d_%s_order%d" % (atomidx, dim, order)] = forces[
                         :, atomidx, didx, order
                     ]
+
+        # Electronic force
+        ele_result_forces = {
+            "targets": targetnames,
+        }
+        # The best results with the highest APDFT order
+        for atomidx in range(len(self._nuclear_numbers)):
+            for didx, dim in enumerate("xyz"):
+                ele_result_forces["ele_force_atom%d_%s" % (atomidx, dim)] = ele_forces[
+                    :, atomidx, didx, -1
+                ]
+        # All the results
+        for order in self._orders:
+            for atomidx in range(len(self._nuclear_numbers)):
+                for didx, dim in enumerate("xyz"):
+                    ele_result_forces["force_atom%d_%s_order%d" % (atomidx, dim, order)] = ele_forces[
+                        :, atomidx, didx, order
+                    ]
+
+        # Nuclear force
+        nuc_result_forces = {
+            "targets": targetnames,
+        }
+        # The best results with the highest APDFT order
+        for atomidx in range(len(self._nuclear_numbers)):
+            for didx, dim in enumerate("xyz"):
+                nuc_result_forces["force_atom%d_%s" % (atomidx, dim)] = nuc_forces[
+                    :, atomidx, didx, -1
+                ]
+        # All the results
+        for order in self._orders:
+            for atomidx in range(len(self._nuclear_numbers)):
+                for didx, dim in enumerate("xyz"):
+                    nuc_result_forces["force_atom%d_%s_order%d" % (atomidx, dim, order)] = nuc_forces[
+                        :, atomidx, didx, order
+                    ]
+
         if explicit_reference:
             result_energies["reference_energy"] = comparison_energies
             result_dipoles["reference_dipole_x"] = comparison_dipoles[:, 0]
@@ -2175,11 +2214,14 @@ class APDFT(object):
                 result_forces["reference_force_x"] = comparison_forces[:, atomidx, 0]
                 result_forces["reference_force_y"] = comparison_forces[:, atomidx, 1]
                 result_forces["reference_force_z"] = comparison_forces[:, atomidx, 2]
+
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
         pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
         pd.DataFrame(ele_result_dipoles).to_csv("ele_dipoles.csv", index=False)
         pd.DataFrame(nuc_result_dipoles).to_csv("nuc_dipoles.csv", index=False)
         pd.DataFrame(result_forces).to_csv("forces.csv", index=False)
+        pd.DataFrame(ele_result_forces).to_csv("ele_forces.csv", index=False)
+        pd.DataFrame(nuc_result_forces).to_csv("nuc_forces.csv", index=False)
 
     # For an "energies_geometries" mode
     def analyse_general(self, target_coordinate=None, explicit_reference=False):
