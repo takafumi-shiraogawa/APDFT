@@ -2075,10 +2075,8 @@ class APDFT(object):
                                             order] = hf_ionic_forces[targetidx, atomidx, :, order]
                         nuc_hf_ionic_forces[targetidx, atomidx,
                                             :, order] = targetFnn[atomidx, :]
-                for order in sorted(self._orders):
-                    for atomidx in range(len(self._include_atoms)):
-                        hf_ionic_forces[targetidx, atomidx, :,
-                                        order] += nuc_hf_ionic_forces[targetidx, atomidx, :, order]
+                hf_ionic_forces[targetidx, :, :,
+                                :] += nuc_hf_ionic_forces[targetidx, :, :, :]
 
         # return results
         return targets, energies, dipoles, ele_dipoles, nuc_dipoles, reference_energy_contributions, \
