@@ -59,7 +59,6 @@ class Coulomb(object):
 			Nuclear part of atomic forces. [Hartree]
 		"""
         natoms = len(coordinates)
-        ret = 0.0
 
         # Set atomic force vectors for all atoms of the molecule
         ret = np.zeros((natoms, 3))
@@ -80,7 +79,7 @@ class Coulomb(object):
                     vec_d = (coordinates[i, k] - coordinates[j, k]) * angstrom
 
                     # ret += charges[i] * charges[j] / (abs_d ** 3.0)
-                    ret[i, k] += -charges[i] * charges[j] * vec_d / (abs_d ** 3.0)
+                    ret[i, k] += charges[i] * charges[j] * vec_d / (abs_d ** 3.0)
         return ret
 
 
