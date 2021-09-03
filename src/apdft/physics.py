@@ -2083,7 +2083,8 @@ class APDFT(object):
         # return results
         return targets, energies, dipoles, ele_dipoles, nuc_dipoles, reference_energy_contributions, \
                target_energy_contributions, total_energy_contributions, \
-               atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions
+               atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions, \
+               hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces
 
     def analyse(self, explicit_reference=False):
         """ Performs actual analysis and integration. Prints results"""
@@ -2271,7 +2272,8 @@ class APDFT(object):
         try:
             targets, energies, dipoles, ele_dipoles, nuc_dipoles, reference_energy_contributions, \
             target_energy_contributions, total_energy_contributions, \
-            atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions \
+            atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions, \
+            hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces \
                 = self.predict_all_targets_general(target_coordinate)
 
         except (FileNotFoundError, AttributeError):
@@ -2411,6 +2413,60 @@ class APDFT(object):
                 result_deriv_rho_contributions["atomic_force_%s_order%d" % (atom_pos, order)] = \
                     deriv_rho_contributions[:, order, atom_pos, 2]
 
+        # Hellmann-Feynman ionic force
+        result_hf_ionic_forces = {
+            "targets": targetnames,
+        }
+        # The best results with the highest APDFT order
+        for atomidx in range(len(self._nuclear_numbers)):
+            for didx, dim in enumerate("xyz"):
+                result_hf_ionic_forces["hf_ionic_force_atom%d_%s" % (atomidx, dim)] = hf_ionic_forces[
+                    :, atomidx, didx, -1
+                ]
+        # All the results
+        for order in self._orders:
+            for atomidx in range(len(self._nuclear_numbers)):
+                for didx, dim in enumerate("xyz"):
+                    result_hf_ionic_forces["hf_ionic_force_atom%d_%s_order%d" % (atomidx, dim, order)] = hf_ionic_forces[
+                        :, atomidx, didx, order
+                    ]
+
+        # Electronic Hellmann-Feynman ionic force
+        result_ele_hf_ionic_forces = {
+            "targets": targetnames,
+        }
+        # The best results with the highest APDFT order
+        for atomidx in range(len(self._nuclear_numbers)):
+            for didx, dim in enumerate("xyz"):
+                result_ele_hf_ionic_forces["ele_hf_ionic_force_atom%d_%s" % (atomidx, dim)] = ele_hf_ionic_forces[
+                    :, atomidx, didx, -1
+                ]
+        # All the results
+        for order in self._orders:
+            for atomidx in range(len(self._nuclear_numbers)):
+                for didx, dim in enumerate("xyz"):
+                    result_ele_hf_ionic_forces["hf_ionic_force_atom%d_%s_order%d" % (atomidx, dim, order)] = ele_hf_ionic_forces[
+                        :, atomidx, didx, order
+                    ]
+
+        # Nuclear Hellmann-Feynman ionic force
+        result_nuc_hf_ionic_forces = {
+            "targets": targetnames,
+        }
+        # The best results with the highest APDFT order
+        for atomidx in range(len(self._nuclear_numbers)):
+            for didx, dim in enumerate("xyz"):
+                result_nuc_hf_ionic_forces["force_atom%d_%s" % (atomidx, dim)] = nuc_hf_ionic_forces[
+                    :, atomidx, didx, -1
+                ]
+        # All the results
+        for order in self._orders:
+            for atomidx in range(len(self._nuclear_numbers)):
+                for didx, dim in enumerate("xyz"):
+                    result_nuc_hf_ionic_forces["force_atom%d_%s_order%d" % (atomidx, dim, order)] = nuc_hf_ionic_forces[
+                        :, atomidx, didx, order
+                    ]
+
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
         pd.DataFrame(result_reference_contributions).to_csv(
             "reference_contributions.csv", index=False)
@@ -2428,5 +2484,12 @@ class APDFT(object):
             "hf_ionic_force_contributions.csv", index=False)
         pd.DataFrame(result_deriv_rho_contributions).to_csv(
             "deriv_rho_contributions.csv", index=False)
+
+        pd.DataFrame(result_hf_ionic_forces).to_csv(
+            "hf_ionic_forces.csv", index=False)
+        pd.DataFrame(result_ele_hf_ionic_forces).to_csv(
+            "ele_hf_ionic_forces.csv", index=False)
+        pd.DataFrame(result_nuc_hf_ionic_forces).to_csv(
+            "nuc_hf_ionic_forces.csv", index=False)
 
         return targets, energies, comparison_energies
