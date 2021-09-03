@@ -237,3 +237,27 @@ class PyscfCalculator(apc.Calculator):
         # Since dipoles has (1, 3) np.array, the first element [0, :]
         # is returned
         return dipoles[0]
+
+    @staticmethod
+    # Get the electronic part of Hellmann-Feynman atomic forces
+    # from log files of PySCF calculations.
+    # For only "energies" mode.
+    def get_target_hf_ionic_force(folder, includeatoms):
+        ionic_forces = PyscfCalculator._read_value(
+            folder, "TARGET_IONIC_FORCE", True)
+        # If no data are read, raise error.
+        if len(ionic_forces.flatten()) == 0:
+            raise ValueError("Incomplete calculation.")
+
+        # check that all included sites are in fact present
+        included_results = ionic_forces[:, 0].astype(np.int)
+        if not set(included_results) == set(includeatoms):
+            log.log(
+                "Atom selections do not match. Likely the configuration has changed in the meantime.",
+                level="error",
+            )
+
+        included_results = list(included_results)
+        # Return only ionic forces of each atom
+        # ionic_forces[, 0] is the site number and ionic_forces[, 1:3] is the forces.
+        return ionic_forces[[included_results.index(_) for _ in includeatoms], 1:4]

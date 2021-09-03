@@ -1738,7 +1738,8 @@ class APDFT(object):
             (N, m) array for an m-dimensional property over N QM calculations or None if the property is not implemented with this QM code."""
 
         # if the target property is not calculated, raise error.
-        if not propertyname in ['TARGET_ELECTRONIC_DIPOLE', 'ELECTRONIC_QUADRUPOLE']:
+        if not propertyname in [
+            'TARGET_ELECTRONIC_DIPOLE', 'TARGET_HF_IONIC_FORCE', 'ELECTRONIC_QUADRUPOLE']:
             raise ValueError(
                 "Calculation routine of the target property %s of molecules has not been implemented yet."
                 % propertyname
@@ -1759,7 +1760,11 @@ class APDFT(object):
         for folder in folders:
             try:
                 # Properties are obtained.
-                results.append(function(folder))
+                if functionname == "get_target_hf_ionic_force":
+                    # For "TARGET_IONIC_FORCE"
+                    results.append(function(folder, self._include_atoms))
+                else:
+                    results.append(function(folder))
             except ValueError:
                 apdft.log.log(
                     "Calculation with incomplete results.",
@@ -1881,8 +1886,12 @@ class APDFT(object):
             len(targets), len(self._orders), len(self._nuclear_numbers), 3))
 
         # Hellmann-Feynman ionic force
-        hf_ionic_force = np.zeros((len(targets), len(self._orders),
-            len(self._nuclear_numbers), 3))
+        hf_ionic_forces = np.zeros((len(targets), len(self._nuclear_numbers),
+                                    3, len(self._orders)))
+        ele_hf_ionic_forces = np.zeros((len(targets), len(self._nuclear_numbers),
+                                        3, len(self._orders)))
+        nuc_hf_ionic_forces = np.zeros((len(targets), len(self._nuclear_numbers),
+                                        3, len(self._orders)))
 
         # Electric dipole moment
         dipoles = np.zeros((len(targets), 3, len(self._orders)))
@@ -1902,6 +1911,9 @@ class APDFT(object):
         # Dipole matrix
         # TODO: need to be generalized to three Cartesian coordinates
         dipole_matrix = self.get_linear_density_matrix_general("TARGET_ELECTRONIC_DIPOLE")
+        # Hellmann-Feynmann force matrix
+        hf_ionic_force_matrix = self.get_linear_density_matrix_general(
+            "TARGET_HF_IONIC_FORCE")
 
         # get difference between reference and target geometries
         deltaR = target_coordinate - self._coordinates
@@ -2043,6 +2055,30 @@ class APDFT(object):
                     ele_dipoles[targetidx, :, order] = dipoles[targetidx, :, order]
                     nuc_dipoles[targetidx, :, order] = nuc_dipole
                 dipoles[targetidx] += nuc_dipole[:, np.newaxis]
+
+            # Hellmann-Feynmann forces
+            if hf_ionic_force_matrix is not None:
+                for order in sorted(self._orders):
+                    for atomidx in range(len(self._include_atoms)):
+                        # Electronic part of the atomic force
+                        electron_force = np.multiply(
+                            target[atomidx] * hf_ionic_force_matrix[:, atomidx, :], betas[:, order, np.newaxis]).sum(
+                            axis=0
+                        )
+                        hf_ionic_forces[targetidx, atomidx,
+                                        :, order] = electron_force
+                        if order > 0:
+                            hf_ionic_forces[targetidx, atomidx, :, order] += hf_ionic_forces[
+                                targetidx, atomidx, :, order - 1
+                            ]
+                        ele_hf_ionic_forces[targetidx, atomidx, :,
+                                            order] = hf_ionic_forces[targetidx, atomidx, :, order]
+                        nuc_hf_ionic_forces[targetidx, atomidx,
+                                            :, order] = targetFnn[atomidx, :]
+                for order in sorted(self._orders):
+                    for atomidx in range(len(self._include_atoms)):
+                        hf_ionic_forces[targetidx, atomidx, :,
+                                        order] += nuc_hf_ionic_forces[targetidx, atomidx, :, order]
 
         # return results
         return targets, energies, dipoles, ele_dipoles, nuc_dipoles, reference_energy_contributions, \
