@@ -43,7 +43,7 @@ def add_qmmm(calc, mol, deltaZ):
     mf = pyscf.qmmm.mm_charge(calc, mol.atom_coords()[includeonly]/ angstrom, deltaZ)
 
     def energy_nuc(self):
-        q = mol.atom_charges().astype(np.float)
+        q = mol.atom_charges().astype(float)
         q[includeonly] += deltaZ
         return mol.energy_nuc(q)
 
