@@ -1879,6 +1879,8 @@ class APDFT(object):
         # Atomic force
         atomic_forces = np.zeros((
             len(targets), len(self._orders), len(self._nuclear_numbers), 3))
+        nuc_atomic_forces = np.zeros((
+            len(targets), len(self._orders), len(self._nuclear_numbers), 3))
         hf_ionic_force_contributions = np.zeros((
             len(targets), len(self._orders), len(self._nuclear_numbers), 3))
         deriv_rho_contributions = np.zeros((
@@ -2034,6 +2036,9 @@ class APDFT(object):
 
             atomic_forces[targetidx, :] += targetFnn
 
+            # Save the nuclear term of atomic forces
+            nuc_atomic_forces[targetidx, :] = targetFnn
+
             # dipoles
             if dipole_matrix is not None:
                 betas = self.get_linear_density_coefficients_general(
@@ -2080,7 +2085,7 @@ class APDFT(object):
         # return results
         return targets, energies, dipoles, ele_dipoles, nuc_dipoles, reference_energy_contributions, \
                target_energy_contributions, total_energy_contributions, \
-               atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions, \
+               atomic_forces, nuc_atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions, \
                hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces
 
     def analyse(self, explicit_reference=False):
@@ -2269,7 +2274,7 @@ class APDFT(object):
         try:
             targets, energies, dipoles, ele_dipoles, nuc_dipoles, reference_energy_contributions, \
             target_energy_contributions, total_energy_contributions, \
-            atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions, \
+            atomic_forces, nuc_atomic_forces, hf_ionic_force_contributions, deriv_rho_contributions, \
             hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces \
                 = self.predict_all_targets_general(target_coordinate)
 
@@ -2392,6 +2397,9 @@ class APDFT(object):
         # Set results of atomic forces
         result_atomic_forces = {}
         result_atomic_forces["targets"] = targetnames
+        # Results of the nuclear term of atomic forces
+        result_nuc_atomic_forces = {}
+        result_nuc_atomic_forces["targets"] = targetnames
         result_hf_ionic_force_contributions = {}
         result_hf_ionic_force_contributions["targets"] = targetnames
         result_deriv_rho_contributions = {}
@@ -2405,6 +2413,8 @@ class APDFT(object):
                 # TODO: generalization to three Cartesian coordinatesh
                 result_atomic_forces["atomic_force_%s_order%d" % (atom_pos, order)] = \
                     atomic_forces[:, order, atom_pos, 2]
+                result_nuc_atomic_forces["nuc_atomic_force_%s_order%d" % (atom_pos, order)] = \
+                    nuc_atomic_forces[:, order, atom_pos, 2]
                 result_hf_ionic_force_contributions["atomic_force_%s_order%d" % (atom_pos, order)] = \
                     hf_ionic_force_contributions[:, order, atom_pos, 2]
                 result_deriv_rho_contributions["atomic_force_%s_order%d" % (atom_pos, order)] = \
@@ -2477,6 +2487,8 @@ class APDFT(object):
 
         pd.DataFrame(result_atomic_forces).to_csv(
             "atomic_forces.csv", index=False)
+        pd.DataFrame(result_nuc_atomic_forces).to_csv(
+            "nuc_atomic_forces.csv", index=False)
         pd.DataFrame(result_hf_ionic_force_contributions).to_csv(
             "hf_ionic_force_contributions.csv", index=False)
         pd.DataFrame(result_deriv_rho_contributions).to_csv(
