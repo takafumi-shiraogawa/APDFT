@@ -2327,31 +2327,37 @@ class APDFT(object):
         self._print_energies(targets, energies, comparison_energies)
         self._print_dipoles(targets, dipoles, comparison_dipoles)
 
+        # Calculate a sum of contributions obtained at each APDFT order
+        sum_reference_energy_contributions = np.zeros(len(targets))
+        sum_target_energy_contributions = np.zeros(len(targets))
+        sum_total_energy_contributions = np.zeros(len(targets))
+        for order in self._orders:
+            sum_reference_energy_contributions[:] += reference_energy_contributions[:, order]
+            sum_target_energy_contributions[:] += target_energy_contributions[:, order]
+            sum_total_energy_contributions[:] += total_energy_contributions[:, order]
+
         # persist results to disk
         targetnames = [APDFT._get_target_name(_) for _ in targets]
         result_energies = {"targets": targetnames,
                            "total_energy": energies[:, -1]}
         result_reference_contributions = {"targets": targetnames,
                                           "reference_contributions":
-                                              reference_energy_contributions[:, -1]}
+                                          sum_reference_energy_contributions[:]}
         result_target_contributions = {"targets": targetnames,
                                        "target_contributions":
-                                       target_energy_contributions[:, -1]}
+                                       sum_target_energy_contributions[:]}
         result_total_contributions = {"targets": targetnames,
                                       "total_contributions":
-                                      total_energy_contributions[:, -1]}
+                                      sum_total_energy_contributions[:]}
         for order in self._orders:
             result_energies["total_energy_order%d" %
                             order] = energies[:, order]
             result_reference_contributions["reference_contributions_order%d" %
-                                           order] = \
-                                               reference_energy_contributions[:, order]
+                                           order] = reference_energy_contributions[:, order]
             result_target_contributions["target_contributions_order%d" %
-                                        order] = \
-                                            target_energy_contributions[:, order]
+                                        order] = target_energy_contributions[:, order]
             result_total_contributions["total_contributions_order%d" %
-                                       order] = \
-                                           total_energy_contributions[:, order]
+                                       order] = total_energy_contributions[:, order]
         # Dipole
         result_dipoles = {
             "targets": targetnames,
