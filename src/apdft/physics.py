@@ -2278,8 +2278,8 @@ class APDFT(object):
             )
 
         try:
-            targets, energies, dipoles, ele_dipoles, nuc_dipoles, reference_energy_contributions, \
-            target_energy_contributions, total_energy_contributions, \
+            targets, energies, dipoles, ele_dipoles, nuc_dipoles, energies_reference_contributions, \
+            energies_target_contributions, energies_total_contributions, \
             atomic_forces, ele_atomic_forces, nuc_atomic_forces, hf_ionic_force_contributions, \
             deriv_rho_contributions, hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces \
                 = self.predict_all_targets_general(target_coordinate)
@@ -2333,37 +2333,37 @@ class APDFT(object):
         self._print_energies(targets, energies, comparison_energies)
         self._print_dipoles(targets, dipoles, comparison_dipoles)
 
-        # Calculate a sum of contributions obtained at each APDFT order
-        sum_reference_energy_contributions = np.zeros(len(targets))
-        sum_target_energy_contributions = np.zeros(len(targets))
-        sum_total_energy_contributions = np.zeros(len(targets))
+        # Sum of contributions obtained at each APDFT order
+        sum_energies_reference_contributions = np.zeros(len(targets))
+        sum_energies_target_contributions = np.zeros(len(targets))
+        sum_energies_total_contributions = np.zeros(len(targets))
         for order in self._orders:
-            sum_reference_energy_contributions[:] += reference_energy_contributions[:, order]
-            sum_target_energy_contributions[:] += target_energy_contributions[:, order]
-            sum_total_energy_contributions[:] += total_energy_contributions[:, order]
+            sum_energies_reference_contributions[:] += energies_reference_contributions[:, order]
+            sum_energies_target_contributions[:] += energies_target_contributions[:, order]
+            sum_energies_total_contributions[:] += energies_total_contributions[:, order]
 
         # persist results to disk
         targetnames = [APDFT._get_target_name(_) for _ in targets]
         result_energies = {"targets": targetnames,
                            "total_energy": energies[:, -1]}
-        result_reference_contributions = {"targets": targetnames,
-                                          "reference_contributions":
-                                          sum_reference_energy_contributions[:]}
-        result_target_contributions = {"targets": targetnames,
-                                       "target_contributions":
-                                       sum_target_energy_contributions[:]}
-        result_total_contributions = {"targets": targetnames,
-                                      "total_contributions":
-                                      sum_total_energy_contributions[:]}
+        result_energies_reference_contributions = {"targets": targetnames,
+                                                   "reference_contributions":
+                                                   sum_energies_reference_contributions[:]}
+        result_energies_target_contributions = {"targets": targetnames,
+                                                "target_contributions":
+                                                sum_energies_target_contributions[:]}
+        result_energies_total_contributions = {"targets": targetnames,
+                                               "total_contributions":
+                                               sum_energies_total_contributions[:]}
         for order in self._orders:
             result_energies["total_energy_order%d" %
                             order] = energies[:, order]
-            result_reference_contributions["reference_contributions_order%d" %
-                                           order] = reference_energy_contributions[:, order]
-            result_target_contributions["target_contributions_order%d" %
-                                        order] = target_energy_contributions[:, order]
-            result_total_contributions["total_contributions_order%d" %
-                                       order] = total_energy_contributions[:, order]
+            result_energies_reference_contributions["reference_contributions_order%d" %
+                                           order] = energies_reference_contributions[:, order]
+            result_energies_target_contributions["target_contributions_order%d" %
+                                        order] = energies_target_contributions[:, order]
+            result_energies_total_contributions["total_contributions_order%d" %
+                                       order] = energies_total_contributions[:, order]
         # Dipole
         result_dipoles = {
             "targets": targetnames,
@@ -2492,12 +2492,12 @@ class APDFT(object):
                     ]
 
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
-        pd.DataFrame(result_reference_contributions).to_csv(
-            "reference_contributions.csv", index=False)
-        pd.DataFrame(result_target_contributions).to_csv(
-            "target_contributions.csv", index=False)
-        pd.DataFrame(result_total_contributions).to_csv(
-            "total_contributions.csv", index=False)
+        pd.DataFrame(result_energies_reference_contributions).to_csv(
+            "energies_reference_contributions.csv", index=False)
+        pd.DataFrame(result_energies_target_contributions).to_csv(
+            "energies_target_contributions.csv", index=False)
+        pd.DataFrame(result_energies_total_contributions).to_csv(
+            "energies_total_contributions.csv", index=False)
         pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
         pd.DataFrame(ele_result_dipoles).to_csv("ele_dipoles.csv", index=False)
         pd.DataFrame(nuc_result_dipoles).to_csv("nuc_dipoles.csv", index=False)
