@@ -231,3 +231,38 @@ The followings need to be modified:
     settings.APDFT.estimate_cost_and_coverage_general
     physics.APDFT.prepare
 
+
+Outputs list
+   "energies" mode
+      Energy:
+         energies.csv
+
+      Hellmann-Feynman atomic forces:
+         forces.csv
+         ele_forces.csv
+         nuc_forces.csv
+
+      Electric dipole moments:
+         dipoles.csv
+         ele_dipoles.csv
+         nuc_dipoles.csv
+
+
+   "energies_geometries" mode
+      Energy:
+         energies.csv
+         energies_reference_contributions.csv
+         energies_target_contributions.csv
+         energies_total_contributions.csv
+
+      Atomic forces:
+         atomic_forces.csv
+         ele_atomic_forces.csv
+         nuc_atomic_forces.csv
+         hf_ionic_force_contributions.csv
+         deriv_rho_contributions.csv
+
+      Hellmann-Feynman atomic forces:
+         hf_ionic_forces.csv
+         nuc_hf_ionic_forces.csv
+         ele_hf_ionic_forces.csv
