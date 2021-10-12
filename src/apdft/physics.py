@@ -1781,6 +1781,8 @@ class APDFT(object):
         own_nuc_nuc = Coulomb.nuclei_nuclei(self._coordinates, self._nuclear_numbers)
 
         energies = np.zeros((len(targets), len(self._orders)))
+        ele_energies = np.zeros((len(targets), len(self._orders)))
+        nuc_energies = np.zeros((len(targets), len(self._orders)))
         dipoles = np.zeros((len(targets), 3, len(self._orders)))
         nuc_dipoles = np.zeros((len(targets), 3, len(self._orders)))
         ele_dipoles = np.zeros((len(targets), 3, len(self._orders)))
@@ -1805,14 +1807,17 @@ class APDFT(object):
 
             # energies
             deltaEnn = Coulomb.nuclei_nuclei(self._coordinates, target) - own_nuc_nuc
+            Enn = Coulomb.nuclei_nuclei(self._coordinates, target)
             for order in sorted(self._orders):
                 contributions = -np.multiply(
                     np.outer(alphas[:, order], deltaZ_included), epn_matrix
                 ).sum()
-                energies[targetidx, order] = contributions
+                ele_energies[targetidx, order] = contributions
                 if order > 0:
-                    energies[targetidx, order] += energies[targetidx, order - 1]
-            energies[targetidx, :] += deltaEnn + refenergy
+                    ele_energies[targetidx, order] += ele_energies[targetidx, order - 1]
+            ele_energies[targetidx, :] += refenergy - own_nuc_nuc
+            energies[targetidx, :] += ele_energies[targetidx, :] + Enn
+            nuc_energies[targetidx, :] = Enn
 
             # dipoles
             if dipole_matrix is not None:
@@ -1858,7 +1863,7 @@ class APDFT(object):
                         forces[targetidx, atomidx, :, order] += nuc_forces[targetidx, atomidx, :, order]
 
         # return results
-        return targets, energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
+        return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
 
     # For an "energies_geometries" mode
     # target_coordinate is in angstrom.
@@ -2100,7 +2105,7 @@ class APDFT(object):
     def analyse(self, explicit_reference=False):
         """ Performs actual analysis and integration. Prints results"""
         try:
-            targets, energies, dipoles, ele_dipoles, nuc_dipoles, \
+            targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, \
                 forces, ele_forces, nuc_forces = self.predict_all_targets()
         except (FileNotFoundError, AttributeError):
             apdft.log.log(
@@ -2160,8 +2165,12 @@ class APDFT(object):
         targetnames = [APDFT._get_target_name(_) for _ in targets]
         # Energy
         result_energies = {"targets": targetnames, "total_energy": energies[:, -1]}
+        result_ele_energies = {"targets": targetnames, "ele_energy": ele_energies[:, -1]}
+        result_nuc_energies = {"targets": targetnames, "nuc_energy": nuc_energies[:, -1]}
         for order in self._orders:
             result_energies["total_energy_order%d" % order] = energies[:, order]
+            result_ele_energies["ele_energy_order%d" % order] = ele_energies[:, order]
+            result_nuc_energies["nuc_energy_order%d" % order] = nuc_energies[:, order]
         # Dipole
         result_dipoles = {
             "targets": targetnames,
@@ -2264,6 +2273,8 @@ class APDFT(object):
                 result_forces["reference_force_z"] = comparison_forces[:, atomidx, 2]
 
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
+        pd.DataFrame(result_ele_energies).to_csv("ele_energies.csv", index=False)
+        pd.DataFrame(result_nuc_energies).to_csv("nuc_energies.csv", index=False)
         pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
         pd.DataFrame(ele_result_dipoles).to_csv("ele_dipoles.csv", index=False)
         pd.DataFrame(nuc_result_dipoles).to_csv("nuc_dipoles.csv", index=False)

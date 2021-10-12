@@ -236,6 +236,8 @@ Outputs list
    "energies" mode
       Energy:
          energies.csv
+         ele_energies.csv
+         nuc_energies.csv
 
       Hellmann-Feynman atomic forces:
          forces.csv
