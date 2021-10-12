@@ -251,6 +251,8 @@ Outputs list
    "energies_geometries" mode
       Energy:
          energies.csv
+         ele_energies.csv
+         nuc_energies.csv
          energies_reference_contributions.csv
          energies_target_contributions.csv
          energies_total_contributions.csv

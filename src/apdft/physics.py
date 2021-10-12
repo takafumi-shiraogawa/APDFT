@@ -1872,6 +1872,8 @@ class APDFT(object):
 
         # Energy
         energies = np.zeros((len(targets), len(self._orders)))
+        ele_energies = np.zeros((len(targets), len(self._orders)))
+        nuc_energies = np.zeros((len(targets), len(self._orders)))
         reference_energy_contributions = np.zeros((len(targets), len(self._orders)))
         target_energy_contributions = np.zeros((len(targets), len(self._orders)))
         total_energy_contributions = np.zeros((len(targets), len(self._orders)))
@@ -1934,10 +1936,9 @@ class APDFT(object):
             alphas, force_alphas = self.get_epn_coefficients_general(deltaZ_included, deltaR)
 
             # energies
-            # Diference of nuclear-nuclear repulsion energies of
-            # target and reference molecules.
-            deltaEnn = Coulomb.nuclei_nuclei(
-                target_coordinate, target) - own_nuc_nuc
+            # Calculate nuclear-nuclear repulsion energy of the target
+            Enn = Coulomb.nuclei_nuclei(
+                target_coordinate, target)
 
             # Atomic force which originates from the nuclei repulsion term
             # targetFnn = np.zeros((len(self._nuclear_numbers), 3))
@@ -2002,7 +2003,7 @@ class APDFT(object):
                 #     print('')
 
                 # Energy
-                energies[targetidx, order] = contributions_target + contributions_reference
+                ele_energies[targetidx, order] = contributions_target + contributions_reference
 
                 # Atomic forces
                 # Sum of the target and reference contributions to
@@ -2030,15 +2031,17 @@ class APDFT(object):
                     contributions_reference
 
                 # For check by vertical charge changes
-                # energies[targetidx, order] = contributions
+                # ele_energies[targetidx, order] = contributions
                 if order > 0:
-                    energies[targetidx, order] += energies[targetidx, order - 1]
+                    ele_energies[targetidx, order] += ele_energies[targetidx, order - 1]
 
                 if order > 0:
                     atomic_forces[targetidx, order] += atomic_forces[targetidx, order - 1]
                     ele_atomic_forces[targetidx, order] += atomic_forces[targetidx, order - 1]
 
-            energies[targetidx, :] += deltaEnn + refenergy
+            ele_energies[targetidx, :] += refenergy - own_nuc_nuc
+            energies[targetidx, :] += ele_energies[targetidx, :] + Enn
+            nuc_energies[targetidx, :] += Enn
 
             atomic_forces[targetidx, :] += targetFnn
 
@@ -2089,8 +2092,8 @@ class APDFT(object):
                                 :] += nuc_hf_ionic_forces[targetidx, :, :, :]
 
         # return results
-        return targets, energies, dipoles, ele_dipoles, nuc_dipoles, reference_energy_contributions, \
-               target_energy_contributions, total_energy_contributions, \
+        return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, \
+               reference_energy_contributions, target_energy_contributions, total_energy_contributions, \
                atomic_forces, ele_atomic_forces, nuc_atomic_forces, hf_ionic_force_contributions, \
                deriv_rho_contributions, hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces
 
@@ -2278,8 +2281,8 @@ class APDFT(object):
             )
 
         try:
-            targets, energies, dipoles, ele_dipoles, nuc_dipoles, energies_reference_contributions, \
-            energies_target_contributions, energies_total_contributions, \
+            targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, \
+            energies_reference_contributions, energies_target_contributions, energies_total_contributions, \
             atomic_forces, ele_atomic_forces, nuc_atomic_forces, hf_ionic_force_contributions, \
             deriv_rho_contributions, hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces \
                 = self.predict_all_targets_general(target_coordinate)
@@ -2346,6 +2349,10 @@ class APDFT(object):
         targetnames = [APDFT._get_target_name(_) for _ in targets]
         result_energies = {"targets": targetnames,
                            "total_energy": energies[:, -1]}
+        result_ele_energies = {"targets": targetnames,
+                               "ele_energy": ele_energies[:, -1]}
+        result_nuc_energies = {"targets": targetnames,
+                               "nuc_energy": nuc_energies[:, -1]}
         result_energies_reference_contributions = {"targets": targetnames,
                                                    "reference_contributions":
                                                    sum_energies_reference_contributions[:]}
@@ -2358,6 +2365,10 @@ class APDFT(object):
         for order in self._orders:
             result_energies["total_energy_order%d" %
                             order] = energies[:, order]
+            result_ele_energies["ele_energy_order%d" %
+                                order] = ele_energies[:, order]
+            result_nuc_energies["nuc_energy_order%d" %
+                                order] = nuc_energies[:, order]
             result_energies_reference_contributions["reference_contributions_order%d" %
                                            order] = energies_reference_contributions[:, order]
             result_energies_target_contributions["target_contributions_order%d" %
@@ -2492,6 +2503,8 @@ class APDFT(object):
                     ]
 
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
+        pd.DataFrame(result_ele_energies).to_csv("ele_energies.csv", index=False)
+        pd.DataFrame(result_nuc_energies).to_csv("nuc_energies.csv", index=False)
         pd.DataFrame(result_energies_reference_contributions).to_csv(
             "energies_reference_contributions.csv", index=False)
         pd.DataFrame(result_energies_target_contributions).to_csv(
