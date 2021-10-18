@@ -2106,7 +2106,7 @@ class APDFT(object):
         """ Performs actual analysis and integration. Prints results"""
         try:
             targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, \
-                forces, ele_forces, nuc_forces = self.predict_all_targets()
+                atomic_forces, ele_atomic_forces, nuc_atomic_forces = self.predict_all_targets()
         except (FileNotFoundError, AttributeError):
             apdft.log.log(
                 "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.",
@@ -2117,7 +2117,7 @@ class APDFT(object):
         if explicit_reference:
             comparison_energies = np.zeros(len(targets))
             comparison_dipoles = np.zeros((len(targets), 3))
-            comparison_forces = np.zeros((len(targets), 3))
+            comparison_atomic_forces = np.zeros((len(targets), 3))
             for targetidx, target in enumerate(targets):
                 path = "QM/comparison-%s" % "-".join(map(str, target))
                 try:
@@ -2133,7 +2133,7 @@ class APDFT(object):
                     )
                     comparison_energies[targetidx] = np.nan
                     comparison_dipoles[targetidx] = np.nan
-                    comparison_forces[targetidx] = np.nan
+                    comparison_atomic_forces[targetidx] = np.nan
                     continue
                 except ValueError:
                     apdft.log.log(
@@ -2144,7 +2144,7 @@ class APDFT(object):
                     )
                     comparison_energies[targetidx] = np.nan
                     comparison_dipoles[targetidx] = np.nan
-                    comparison_forces[targetidx] = np.nan
+                    comparison_atomic_forces[targetidx] = np.nan
                     continue
 
                 nd = apdft.physics.Dipoles.point_charges(
@@ -2155,11 +2155,11 @@ class APDFT(object):
         else:
             comparison_energies = None
             comparison_dipoles = None
-            comparison_forces = None
+            comparison_atomic_forces = None
 
         self._print_energies(targets, energies, comparison_energies)
         self._print_dipoles(targets, dipoles, comparison_dipoles)
-        self._print_forces(targets, forces, comparison_forces)
+        self._print_forces(targets, atomic_forces, comparison_atomic_forces)
 
         # persist results to disk
         targetnames = [APDFT._get_target_name(_) for _ in targets]
@@ -2209,56 +2209,56 @@ class APDFT(object):
                 ]
 
         # Force
-        result_forces = {
+        result_atomic_forces = {
             "targets": targetnames,
         }
         # The best results with the highest APDFT order
         for atomidx in range(len(self._nuclear_numbers)):
             for didx, dim in enumerate("xyz"):
-                result_forces["force_atom%d_%s" % (atomidx, dim)] = forces[
+                result_atomic_forces["force_atom%d_%s" % (atomidx, dim)] = atomic_forces[
                     :, atomidx, didx, -1
                 ]
         # All the results
         for order in self._orders:
             for atomidx in range(len(self._nuclear_numbers)):
                 for didx, dim in enumerate("xyz"):
-                    result_forces["force_atom%d_%s_order%d" % (atomidx, dim, order)] = forces[
+                    result_atomic_forces["force_atom%d_%s_order%d" % (atomidx, dim, order)] = atomic_forces[
                         :, atomidx, didx, order
                     ]
 
         # Electronic force
-        ele_result_forces = {
+        ele_result_atomic_forces = {
             "targets": targetnames,
         }
         # The best results with the highest APDFT order
         for atomidx in range(len(self._nuclear_numbers)):
             for didx, dim in enumerate("xyz"):
-                ele_result_forces["ele_force_atom%d_%s" % (atomidx, dim)] = ele_forces[
+                ele_result_atomic_forces["ele_force_atom%d_%s" % (atomidx, dim)] = ele_atomic_forces[
                     :, atomidx, didx, -1
                 ]
         # All the results
         for order in self._orders:
             for atomidx in range(len(self._nuclear_numbers)):
                 for didx, dim in enumerate("xyz"):
-                    ele_result_forces["force_atom%d_%s_order%d" % (atomidx, dim, order)] = ele_forces[
+                    ele_result_atomic_forces["force_atom%d_%s_order%d" % (atomidx, dim, order)] = ele_atomic_forces[
                         :, atomidx, didx, order
                     ]
 
         # Nuclear force
-        nuc_result_forces = {
+        nuc_result_atomic_forces = {
             "targets": targetnames,
         }
         # The best results with the highest APDFT order
         for atomidx in range(len(self._nuclear_numbers)):
             for didx, dim in enumerate("xyz"):
-                nuc_result_forces["force_atom%d_%s" % (atomidx, dim)] = nuc_forces[
+                nuc_result_atomic_forces["force_atom%d_%s" % (atomidx, dim)] = nuc_atomic_forces[
                     :, atomidx, didx, -1
                 ]
         # All the results
         for order in self._orders:
             for atomidx in range(len(self._nuclear_numbers)):
                 for didx, dim in enumerate("xyz"):
-                    nuc_result_forces["force_atom%d_%s_order%d" % (atomidx, dim, order)] = nuc_forces[
+                    nuc_result_atomic_forces["force_atom%d_%s_order%d" % (atomidx, dim, order)] = nuc_atomic_forces[
                         :, atomidx, didx, order
                     ]
 
@@ -2268,9 +2268,9 @@ class APDFT(object):
             result_dipoles["reference_dipole_y"] = comparison_dipoles[:, 1]
             result_dipoles["reference_dipole_z"] = comparison_dipoles[:, 2]
             for atomidx in range(len(self._nuclear_numbers)):
-                result_forces["reference_force_x"] = comparison_forces[:, atomidx, 0]
-                result_forces["reference_force_y"] = comparison_forces[:, atomidx, 1]
-                result_forces["reference_force_z"] = comparison_forces[:, atomidx, 2]
+                result_atomic_forces["reference_force_x"] = comparison_atomic_forces[:, atomidx, 0]
+                result_atomic_forces["reference_force_y"] = comparison_atomic_forces[:, atomidx, 1]
+                result_atomic_forces["reference_force_z"] = comparison_atomic_forces[:, atomidx, 2]
 
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
         pd.DataFrame(result_ele_energies).to_csv("ele_energies.csv", index=False)
@@ -2278,9 +2278,10 @@ class APDFT(object):
         pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
         pd.DataFrame(ele_result_dipoles).to_csv("ele_dipoles.csv", index=False)
         pd.DataFrame(nuc_result_dipoles).to_csv("nuc_dipoles.csv", index=False)
-        pd.DataFrame(result_forces).to_csv("forces.csv", index=False)
-        pd.DataFrame(ele_result_forces).to_csv("ele_forces.csv", index=False)
-        pd.DataFrame(nuc_result_forces).to_csv("nuc_forces.csv", index=False)
+        pd.DataFrame(result_atomic_forces).to_csv("atomic_forces.csv", index=False)
+        pd.DataFrame(ele_result_atomic_forces).to_csv("ele_atomic_forces.csv", index=False)
+        pd.DataFrame(nuc_result_atomic_forces).to_csv(
+            "nuc_atomic_forces.csv", index=False)
 
     # For an "energies_geometries" mode
     def analyse_general(self, target_coordinate=None, explicit_reference=False):
