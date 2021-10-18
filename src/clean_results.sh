@@ -11,21 +11,16 @@ rm nuc_energies.csv
 rm dipoles.csv
 rm ele_dipoles.csv
 rm nuc_dipoles.csv
-
-# "energies" mode
-rm forces.csv
-rm ele_forces.csv
-rm nuc_forces.csv
+rm atomic_forces.csv
+rm ele_atomic_forces.csv
+rm nuc_atomic_forces.csv
 
 # "energies_geometries" mode
 rm energies_total_contributions.csv
 rm energies_reference_contributions.csv
 rm energies_target_contributions.csv
-rm atomic_forces.csv
 rm deriv_rho_contributions.csv
 rm hf_ionic_force_contributions.csv
-rm ele_atomic_forces.csv
-rm nuc_atomic_forces.csv
 rm hf_ionic_forces.csv
 rm ele_hf_ionic_forces.csv
 rm nuc_hf_ionic_forces.csv
