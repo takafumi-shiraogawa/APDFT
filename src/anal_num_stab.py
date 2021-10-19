@@ -270,5 +270,8 @@ else:
   plt.yticks([ymin, 10 ** (-2), 10 ** (0), 10 ** 2, 10 ** 4, 10 ** 6, ymax])
   plt.plot([0.005, 0.005], [ymin, ymax], "grey")
 
-plt.savefig("devi_total_contributions_%s_N2.tiff" % specified_var, dpi=600)
+if specified_var == "Z":
+  plt.savefig("devi_total_contributions_%s_CO.tiff" % specified_var, dpi=600)
+else:
+  plt.savefig("devi_total_contributions_%s_N2.tiff" % specified_var, dpi=600)
 plt.close('all')
