@@ -240,9 +240,9 @@ Outputs list
          nuc_energies.csv
 
       Hellmann-Feynman atomic forces:
-         forces.csv
-         ele_forces.csv
-         nuc_forces.csv
+         atomic_forces.csv
+         ele_atomic_forces.csv
+         nuc_atomic_forces.csv
 
       Electric dipole moments:
          dipoles.csv
@@ -270,3 +270,8 @@ Outputs list
          hf_ionic_forces.csv
          nuc_hf_ionic_forces.csv
          ele_hf_ionic_forces.csv
+
+      Electric dipole moments:
+         dipoles.csv
+         ele_dipoles.csv
+         nuc_dipoles.csv
