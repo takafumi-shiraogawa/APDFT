@@ -52,9 +52,9 @@ for i in range(eval_num):
     # dict_inp_total = csv.DictReader(inp_total)
 
     for k in range(apdft_order):
-      inp_reference = open("%s/reference_contributions.csv" % path, "r")
-      inp_target = open("%s/target_contributions.csv" % path, "r")
-      inp_total = open("%s/total_contributions.csv" % path, "r")
+      inp_reference = open("%s/energies_reference_contributions.csv" % path, "r")
+      inp_target = open("%s/energies_target_contributions.csv" % path, "r")
+      inp_total = open("%s/energies_total_contributions.csv" % path, "r")
 
       dict_inp_reference = csv.DictReader(inp_reference)
       dict_inp_target = csv.DictReader(inp_target)
