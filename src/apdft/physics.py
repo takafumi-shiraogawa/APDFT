@@ -621,6 +621,10 @@ class APDFT(object):
         betas = np.zeros(
             (sum([nvals[_] for _ in self._orders]), len(self._orders), N))
 
+        # Convert unit of a small number for nuclear differentiation
+        # from Angstrom to a.u.
+        R_delta_ang = self._R_delta * angstrom
+
         # test input
         if N != len(deltaZ):
             raise ValueError(
@@ -667,7 +671,8 @@ class APDFT(object):
 
             # self._delta is 0.005, a small fraction for the finite difference
             # with respect to atomic coordinate changes
-            prefactor = 1 / (2 * self._R_delta) / np.math.factorial(1 + shift)
+            prefactor = 1 / (2 * R_delta_ang) / \
+                np.math.factorial(1 + shift)
             # Loop for an atomic geometry change
             for siteidx in range(N):
                 # Current implementation only can deal with one Cartesian
@@ -779,7 +784,7 @@ class APDFT(object):
                         #                 2 * (delta ** 2) = 2 * (0.05 ** 2)
                         #                                  = 2 * 0.025
                         #                                  = 0.005
-                        prefactor = (1 / (2 * (self._R_delta ** 2))) / np.math.factorial(
+                        prefactor = (1 / (2 * (R_delta_ang ** 2))) / np.math.factorial(
                             2 + shift
                         )
                         # Set a prefactor for betas.
@@ -830,7 +835,7 @@ class APDFT(object):
                         # To use same perturbed density with the first-order one, 2h -> h
                         # is used, and therefore in prefactor 1 / ((2 * self._delta) ** 2)
                         # becomes 1 / (self._delta ** 2).
-                        prefactor = (1 / (self._R_delta ** 2)) / np.math.factorial(
+                        prefactor = (1 / (R_delta_ang ** 2)) / np.math.factorial(
                             2 + shift
                         )
                         # Set a prefactor for betas
@@ -864,9 +869,8 @@ class APDFT(object):
                     # if deltaR[siteidx_j, 2] == 0 or deltaZ[siteidx_i] == 0:
                     #     continue
 
-                    prefactor = (1 / (4 * self._delta * self._R_delta)) / np.math.factorial(
-                        2 + shift
-                    )
+                    prefactor = (1 / (4 * self._delta * R_delta_ang)
+                                 ) / np.math.factorial(2 + shift)
                     # prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
                     #     2 + shift
                     # )
