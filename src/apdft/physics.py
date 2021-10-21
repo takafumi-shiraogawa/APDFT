@@ -1976,10 +1976,11 @@ class APDFT(object):
 
                 # Force contributions from the Hellmann-Feynman ionic force
                 contributions_hf_ionic_force = np.zeros((len(self._nuclear_numbers), 3))
-                # Roop for three Cartesian coordinates
-                for i in range(3):
-                    contributions_hf_ionic_force[:, i] = np.multiply(
-                        np.outer(alphas[:, order], target), ionic_force_matrix[:, :, i]
+                # Calculation of the forces on each atom
+                for i in range(len(self._nuclear_numbers)):
+                    contributions_hf_ionic_force[i, :] = np.multiply(
+                        target[i] * hf_ionic_force_matrix[:,
+                                                          i, :], alphas[:, order, np.newaxis]
                     ).sum(axis=0)
 
                 # Force contributions from the force of derivatives of
