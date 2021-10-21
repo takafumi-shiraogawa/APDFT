@@ -839,7 +839,7 @@ class APDFT(object):
                             2 + shift
                         )
                         # Set a prefactor for betas
-                        prefactor_betas = prefactor * deltaR[siteidx_i, 2]
+                        prefactor_betas = 2 * prefactor * deltaR[siteidx_i, 2]
                         # Set a prefactor for alphas
                         prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
                         # For the raw electron density
