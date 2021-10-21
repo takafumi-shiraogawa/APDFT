@@ -1931,6 +1931,14 @@ class APDFT(object):
         hf_ionic_force_matrix = self.get_linear_density_matrix_general(
             "TARGET_HF_IONIC_FORCE")
 
+        # hf_ionic_force_matrix and ionic_force_matrix are identical
+        # print("hf_ionic_force_matrix", np.shape(hf_ionic_force_matrix))
+        # print("ionic_force_matrix", np.shape(ionic_force_matrix))
+        # for i in range(len(self._nuclear_numbers)):
+        #     for j in range(3):
+        #         print("")
+        #         print(ionic_force_matrix[:, i, j] - hf_ionic_force_matrix[:, i, j])
+
         # get difference between reference and target geometries
         deltaR = target_coordinate - self._coordinates
         # Convert angstrom to Bohr (a.u.)
