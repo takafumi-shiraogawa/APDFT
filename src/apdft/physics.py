@@ -1933,7 +1933,7 @@ class APDFT(object):
 
         # get difference between reference and target geometries
         deltaR = target_coordinate - self._coordinates
-        # Converge angstrom to Bohr (a.u.)
+        # Convert angstrom to Bohr (a.u.)
         deltaR *= angstrom
 
         # get target predictions
