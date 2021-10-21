@@ -844,7 +844,7 @@ class APDFT(object):
                         prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
                         # For the raw electron density
                         alphas[0, 2] -= 2 * prefactor
-                        betas[0, 2] -= 2 * prefactor_betas
+                        betas[0, 2, siteidx_i] -= 2 * prefactor_betas
                         # For the double changes at the same atom
                         # Note that here siteidx_i == siteidx_j.
                         alphas[1 + 2 * N + siteidx_i * 2, 2] += prefactor
