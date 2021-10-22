@@ -92,6 +92,20 @@ class PyscfCalculator(apc.Calculator):
             nuclear_numbers, self._basisset)
         env["method"] = self._methods[self._method]
 
+        # Collect all different coordinates of atoms
+        # TODO: this algorithm is not smart and should be changed.
+        all_coordinates = original_coordinates
+        all_coordinates = np.vstack([original_coordinates, coordinates])
+        all_coordinates = np.vstack([all_coordinates, target_coordinates])
+
+        # print("")
+        # print(all_coordinates)
+
+        # Obtain unique coordinates
+        all_coordinates = np.unique(all_coordinates, axis=0)
+
+        # print(all_coordinates)
+
         if includeonly is None:
             includeonly = range(len(nuclear_numbers))
         env["includeonly"] = PyscfCalculator._format_list(includeonly)
