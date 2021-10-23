@@ -102,8 +102,9 @@ class PyscfCalculator(apc.Calculator):
         # print(all_coordinates)
 
         # Obtain unique coordinates
-        all_coordinates = np.unique(all_coordinates, axis=0)
+        all_coordinates, all_nuclear_numbers = np.unique(all_coordinates, return_index=True, axis=0)
 
+        # print(all_nuclear_numbers)
         # print(all_coordinates)
 
         if includeonly is None:
