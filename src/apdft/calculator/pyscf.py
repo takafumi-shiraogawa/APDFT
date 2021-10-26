@@ -107,6 +107,11 @@ class PyscfCalculator(apc.Calculator):
         # print(all_nuclear_numbers)
         # print(all_coordinates)
 
+        # "all_atom" collects all atom geometries used in each QM calculation
+        env["all_atoms"] = PyscfCalculator._format_coordinates(
+            all_nuclear_numbers, all_coordinates
+        )
+
         if includeonly is None:
             includeonly = range(len(nuclear_numbers))
         env["includeonly"] = PyscfCalculator._format_list(includeonly)

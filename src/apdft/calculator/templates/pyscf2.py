@@ -27,6 +27,11 @@ target_mol = pyscf.gto.Mole()
 target_mol.atom = "{{ target_atoms }}"
 target_mol.build()
 
+# Set information on all atom geometries for generating numerical grids
+all_mol = pyscf.gto.Mole()
+all_mol.atom = "{{ all_atoms }}"
+all_mol.build()
+
 # Set a quantum chemical computation method
 # Only CCSD or HF is allowed.
 method = "{{ method }}"
