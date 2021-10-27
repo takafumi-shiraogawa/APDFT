@@ -98,11 +98,23 @@ class PyscfCalculator(apc.Calculator):
         all_coordinates = np.vstack([original_coordinates, coordinates])
         all_coordinates = np.vstack([all_coordinates, target_coordinates])
 
-        # print("")
+        collect_all_nuclear_numbers = nuclear_numbers
+        collect_all_nuclear_numbers = np.vstack(
+            [collect_all_nuclear_numbers, nuclear_numbers])
+        collect_all_nuclear_numbers = np.vstack(
+            [collect_all_nuclear_numbers, nuclear_numbers])
+        onedim_collect_all_nuclear_numbers = collect_all_nuclear_numbers.flatten()
+
         # print(all_coordinates)
 
         # Obtain unique coordinates
-        all_coordinates, all_nuclear_numbers = np.unique(all_coordinates, return_index=True, axis=0)
+        all_coordinates, all_nuclear_numbers_id = np.unique(all_coordinates, return_index=True, axis=0)
+        all_nuclear_numbers = np.zeros(
+            len(all_nuclear_numbers_id), dtype=np.int64)
+        for id_1 in range(len(all_nuclear_numbers_id)):
+            for id_2 in range(len(onedim_collect_all_nuclear_numbers)):
+                if all_nuclear_numbers_id[id_1] == id_2:
+                    all_nuclear_numbers[id_1] = onedim_collect_all_nuclear_numbers[id_2]
 
         # print(all_nuclear_numbers)
         # print(all_coordinates)
