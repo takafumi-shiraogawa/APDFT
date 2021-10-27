@@ -30,6 +30,7 @@ target_mol.build()
 # Set information on all atom geometries for generating numerical grids
 all_mol = pyscf.gto.Mole()
 all_mol.atom = "{{ all_atoms }}"
+all_mol.spin = {{all_spin}}
 all_mol.build()
 
 # Set a quantum chemical computation method

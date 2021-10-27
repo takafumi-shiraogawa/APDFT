@@ -124,6 +124,14 @@ class PyscfCalculator(apc.Calculator):
             all_nuclear_numbers, all_coordinates
         )
 
+        # To avoid error in PySCF, a spin state is setted.
+        if np.sum(all_nuclear_numbers) % 2 == 0:
+            # Singlet spin state
+            env["all_spin"] = 0
+        else:
+            # Doublet spin state
+            env["all_spin"] = 1
+
         if includeonly is None:
             includeonly = range(len(nuclear_numbers))
         env["includeonly"] = PyscfCalculator._format_list(includeonly)
