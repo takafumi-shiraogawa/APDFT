@@ -142,7 +142,7 @@ rho = pyscf.dft.numint.eval_rho(mol, ao_value, dm1_ao, xctype="LDA")
 # Set distance vectors to the grids from a mass center
 # of the molecule
 num_r = grid.coords - mol.atom_coords().mean(axis=0)
-num_dipole = np.einsum('g,g,gx->x', rho, grid.weights, num_r)
+num_dipole = -np.einsum('g,g,gx->x', rho, grid.weights, num_r)
 print("NUMERICAL_DIPOLE", *num_dipole)
 
 # Ionic Forces
