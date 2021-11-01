@@ -125,7 +125,9 @@ target_dipole = -numpy.einsum("xij,ji->x", target_ao_dip, dm1_ao).real
 print("TARGET_ELECTRONIC_DIPOLE", *target_dipole)
 
 # GRID, as things were #####################################
-grid = pyscf.dft.gen_grid.Grids(mol)
+# For evaluation of atomic forces, numerical grids are small near both
+# reference and target atoms.
+grid = pyscf.dft.gen_grid.Grids(all_mol)
 # level = 3 is a standard condition of PySCF
 grid.level = 3
 grid.build()
@@ -153,8 +155,8 @@ for site in includeonly:
     print("IONIC_FORCE", site, *force)
 
 # Target ionic Forces
-# TODO: Numerical grids should be small near both reference and
-#       target atoms.
+# Numerical grids are small near both reference and
+# target atoms.
 for site in includeonly:
     target_rvec = grid.coords - target_mol.atom_coords()[site]
     target_force = [
