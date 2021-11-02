@@ -172,6 +172,13 @@ class Configuration:
             ),
             Option(
                 "apdft",
+                "cartesian",
+                str,
+                "z",
+                "Cartesian axes along geometry changes. z for the Z axis and full for full-geometry changes",
+            ),
+            Option(
+                "apdft",
                 "deltaz",
                 float,
                 0.05,

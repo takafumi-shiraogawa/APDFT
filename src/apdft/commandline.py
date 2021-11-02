@@ -127,6 +127,7 @@ def mode_energies(conf, modeshort=None):
         conf.apdft_maxdz,
         conf.apdft_includeonly,
         targetlist,
+        conf.apdft_cartesian,
         conf.apdft_deltaz,
         conf.apdft_deltar
     )
@@ -205,6 +206,7 @@ def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
         conf.apdft_maxdz,
         conf.apdft_includeonly,
         targetlist,
+        conf.apdft_cartesian,
         conf.apdft_deltaz,
         conf.apdft_deltar
     )

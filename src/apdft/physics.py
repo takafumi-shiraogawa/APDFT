@@ -183,6 +183,7 @@ class APDFT(object):
         max_deltaz=3,
         include_atoms=None,
         targetlist=None,
+        target_cartesian="z",
         small_deltaZ = 0.05,
         small_deltaR = 0.005
     ):
@@ -191,6 +192,7 @@ class APDFT(object):
         self._orders = list(range(0, highest_order + 1))
         self._nuclear_numbers = np.array(nuclear_numbers)
         self._coordinates = coordinates
+        self._cartesian = target_cartesian
         self._delta = small_deltaZ
         self._R_delta = small_deltaR
         self._basepath = basepath
