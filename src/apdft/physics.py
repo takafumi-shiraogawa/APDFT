@@ -230,14 +230,12 @@ class APDFT(object):
         return baseline
 
     # For molecular geometry changes
-    def _calculate_delta_R_vector(self, numatoms, order, sites, direction):
+    def _calculate_delta_R_vector(self, numatoms, order, sites, direction, axis):
         baseline = np.zeros((numatoms, 3))
 
         if order > 0:
             sign = {"up": 1, "dn": -1}[direction] * (self._R_delta)
-            # It is assumed that only Z coordinate changes
-            # TODO: generalize to three Cartesian components
-            baseline[list(sites), 2] += sign
+            baseline[list(sites), axis] += sign
 
         return baseline
 
@@ -396,111 +394,224 @@ class APDFT(object):
             for combination_r in it.combinations_with_replacement(
                 self._include_atoms, order
             ):
-                # If the order is 2 and selected two atoms are
-                # equivalent, QM calculations are not needed for
-                # constructing perturbed electron densities, and hence
-                # the directories are not necessary, at least within
-                # APDFT3 or lower levels.
-                # TODO: need to consider the derivatives of the density
-                #       for the higher level APDFT (n > 3)
-                if len(combination_r) == 2 and combination_r[0] == combination_r[1]:
-                    continue
-                if order > 0:
-                    # For nuclear coordinate changes
-                    # e.g., -1- and -0-1-
-                    label = "-" + "-".join(map(str, combination_r))
-                    directions = ["up", "dn"]
-                else:
-                    # In QM/order-0/, site-all-cc is unique.
-                    continue
-
-                for direction in directions:
-                    path = "QM/order-%d/r-site%s-%s" % (order, label, direction)
-                    commands.append("( cd %s && bash run.sh )" % path)
-                    if os.path.isdir(path):
+                # For z-Cartesian coordinate changes
+                if self._cartesian == "z":
+                    # If the order is 2 and selected two atoms are
+                    # equivalent, QM calculations are not needed for
+                    # constructing perturbed electron densities, and hence
+                    # the directories are not necessary, at least within
+                    # APDFT3 or lower levels.
+                    # TODO: need to consider the derivatives of the density
+                    #       for the higher level APDFT (n > 3)
+                    if len(combination_r) == 2 and combination_r[0] == combination_r[1]:
                         continue
-                    os.makedirs(path)
+                    if order > 0:
+                        # For nuclear coordinate changes
+                        # e.g., -1- and -0-1-
+                        label = "-" + "-".join(map(str, combination_r))
+                        directions = ["up", "dn"]
+                    else:
+                        # In QM/order-0/, site-all-cc is unique.
+                        continue
 
-                    # It is assumed that only Z coordinate changes
-                    # TODO: generalize to three Cartesian components
-                    nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
-                        len(self._nuclear_numbers), order, combination_r, direction
-                    )
-                    inputfile = self._calculator.get_input_general(
-                        nuclear_positions,
-                        self._coordinates,
-                        target_coordinate,
-                        self._nuclear_numbers,
-                        self._nuclear_numbers,
-                        None,
-                        includeonly=self._include_atoms,
-                    )
-                    with open("%s/run.inp" % path, "w") as fh:
-                        fh.write(inputfile)
-                    with open("%s/run.sh" % path, "w") as fh:
-                        fh.write(
-                            self._calculator.get_runfile(
-                                self._coordinates, self._nuclear_numbers, charges, None
-                            )
+                    for direction in directions:
+                        path = "QM/order-%d/r-site%s-%s" % (order, label, direction)
+                        commands.append("( cd %s && bash run.sh )" % path)
+                        if os.path.isdir(path):
+                            continue
+                        os.makedirs(path)
+
+                        # It is assumed that only Z coordinate changes
+                        # TODO: generalize to three Cartesian components
+                        nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                            len(self._nuclear_numbers), order, combination_r, direction, 2
                         )
+                        inputfile = self._calculator.get_input_general(
+                            nuclear_positions,
+                            self._coordinates,
+                            target_coordinate,
+                            self._nuclear_numbers,
+                            self._nuclear_numbers,
+                            None,
+                            includeonly=self._include_atoms,
+                        )
+                        with open("%s/run.inp" % path, "w") as fh:
+                            fh.write(inputfile)
+                        with open("%s/run.sh" % path, "w") as fh:
+                            fh.write(
+                                self._calculator.get_runfile(
+                                    self._coordinates, self._nuclear_numbers, charges, None
+                                )
+                            )
+                # For full-Cartesian coordinate changes
+                else:
+                    # If the order is 2 and selected two atoms are
+                    # equivalent, QM calculations are not needed for
+                    # constructing perturbed electron densities, and hence
+                    # the directories are not necessary, at least within
+                    # APDFT3 or lower levels.
+                    # TODO: need to consider the derivatives of the density
+                    #       for the higher level APDFT (n > 3)
+                    if len(combination_r) == 2 and combination_r[0] == combination_r[1]:
+                        continue
+                    if order > 0:
+                        # For nuclear coordinate changes
+                        # e.g., -1- and -0-1-
+                        label = "-" + "-".join(map(str, combination_r))
+                        directions = ["up", "dn"]
+                    else:
+                        # In QM/order-0/, site-all-cc is unique.
+                        continue
+
+                    # For 3 Cartesian axes
+                    for didx, dim in enumerate("XYZ"):
+                        for direction in directions:
+                            path = "QM/order-%d/r%s-site%s-%s" % (
+                                order, dim, label, direction)
+                            commands.append("( cd %s && bash run.sh )" % path)
+                            if os.path.isdir(path):
+                                continue
+                            os.makedirs(path)
+
+                            # It is assumed that only Z coordinate changes
+                            # TODO: generalize to three Cartesian components
+                            nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                                len(self._nuclear_numbers), order, combination_r, direction, didx
+                            )
+                            inputfile = self._calculator.get_input_general(
+                                nuclear_positions,
+                                self._coordinates,
+                                target_coordinate,
+                                self._nuclear_numbers,
+                                self._nuclear_numbers,
+                                None,
+                                includeonly=self._include_atoms,
+                            )
+                            with open("%s/run.inp" % path, "w") as fh:
+                                fh.write(inputfile)
+                            with open("%s/run.sh" % path, "w") as fh:
+                                fh.write(
+                                    self._calculator.get_runfile(
+                                        self._coordinates, self._nuclear_numbers, charges, None
+                                    )
+                                )
 
             # Loop for mixed changes of nuclear charge and coordinate
             for combination_zr in it.product(
                 self._include_atoms, repeat = order
             ):
-                # If the order is 2 and selected two atoms are
-                # equivalent, QM calculations are not needed for
-                # constructing perturbed electron densities, and hence
-                # the directories are not necessary, at least within
-                # APDFT3 or lower levels.
-                # TODO: need to consider the derivatives of the density
-                #       for the higher level APDFT (n > 3)
-                # if len(combination_zr) == 2 and combination_zr[0] == combination_zr[1]:
-                #     continue
-                if order > 1:
-                    # For nuclear mixed changes of nuclear charge and coordinate
-                    # e.g., -0-1-
-                    label = "-" + "-".join(map(str, combination_zr))
-                    directions = ["up", "dn"]
-                else:
-                    # In QM/order-0/, site-all-cc is unique, and
-                    # zr-site-?-?-dn or -up do not appear in QM/order-1/.
-                    continue
-
-                for direction in directions:
-                    path = "QM/order-%d/zr-site%s-%s" % (order, label, direction)
-                    commands.append("( cd %s && bash run.sh )" % path)
-                    if os.path.isdir(path):
+                # For z-Cartesian coordinate changes
+                if self._cartesian == "z":
+                    # If the order is 2 and selected two atoms are
+                    # equivalent, QM calculations are not needed for
+                    # constructing perturbed electron densities, and hence
+                    # the directories are not necessary, at least within
+                    # APDFT3 or lower levels.
+                    # TODO: need to consider the derivatives of the density
+                    #       for the higher level APDFT (n > 3)
+                    # if len(combination_zr) == 2 and combination_zr[0] == combination_zr[1]:
+                    #     continue
+                    if order > 1:
+                        # For nuclear mixed changes of nuclear charge and coordinate
+                        # e.g., -0-1-
+                        label = "-" + "-".join(map(str, combination_zr))
+                        directions = ["up", "dn"]
+                    else:
+                        # In QM/order-0/, site-all-cc is unique, and
+                        # zr-site-?-?-dn or -up do not appear in QM/order-1/.
                         continue
-                    os.makedirs(path)
 
-                    # For nuclear charge changes
-                    # TODO:generalize to higher-order APDFT (n > 3)
-                    charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
-                        len(self._nuclear_numbers), order, tuple([combination_zr[0]]), direction
-                    )
-                    # For molecular geometry changes
-                    # TODO:generalize to higher-order APDFT (n > 3)
-                    nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
-                        len(self._nuclear_numbers), order, tuple([combination_zr[1]]), direction
-                    )
-                    inputfile = self._calculator.get_input_general(
-                        nuclear_positions,
-                        self._coordinates,
-                        target_coordinate,
-                        self._nuclear_numbers,
-                        charges,
-                        None,
-                        includeonly=self._include_atoms,
-                    )
-                    with open("%s/run.inp" % path, "w") as fh:
-                        fh.write(inputfile)
-                    with open("%s/run.sh" % path, "w") as fh:
-                        fh.write(
-                            self._calculator.get_runfile(
-                                self._coordinates, self._nuclear_numbers, charges, None
-                            )
+                    for direction in directions:
+                        path = "QM/order-%d/zr-site%s-%s" % (order, label, direction)
+                        commands.append("( cd %s && bash run.sh )" % path)
+                        if os.path.isdir(path):
+                            continue
+                        os.makedirs(path)
+
+                        # For nuclear charge changes
+                        # TODO:generalize to higher-order APDFT (n > 3)
+                        charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
+                            len(self._nuclear_numbers), order, tuple([combination_zr[0]]), direction
                         )
+                        # For molecular geometry changes
+                        # TODO:generalize to higher-order APDFT (n > 3)
+                        nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                            len(self._nuclear_numbers), order, tuple([combination_zr[1]]), direction, 2
+                        )
+                        inputfile = self._calculator.get_input_general(
+                            nuclear_positions,
+                            self._coordinates,
+                            target_coordinate,
+                            self._nuclear_numbers,
+                            charges,
+                            None,
+                            includeonly=self._include_atoms,
+                        )
+                        with open("%s/run.inp" % path, "w") as fh:
+                            fh.write(inputfile)
+                        with open("%s/run.sh" % path, "w") as fh:
+                            fh.write(
+                                self._calculator.get_runfile(
+                                    self._coordinates, self._nuclear_numbers, charges, None
+                                )
+                            )
+                # For full-Cartesian coordinate changes
+                else:
+                    # If the order is 2 and selected two atoms are
+                    # equivalent, QM calculations are not needed for
+                    # constructing perturbed electron densities, and hence
+                    # the directories are not necessary, at least within
+                    # APDFT3 or lower levels.
+                    # TODO: need to consider the derivatives of the density
+                    #       for the higher level APDFT (n > 3)
+                    # if len(combination_zr) == 2 and combination_zr[0] == combination_zr[1]:
+                    #     continue
+                    if order > 1:
+                        # For nuclear mixed changes of nuclear charge and coordinate
+                        # e.g., -0-1-
+                        label = "-" + "-".join(map(str, combination_zr))
+                        directions = ["up", "dn"]
+                    else:
+                        # In QM/order-0/, site-all-cc is unique, and
+                        # zr-site-?-?-dn or -up do not appear in QM/order-1/.
+                        continue
+
+                    # For 3 Cartesian axes
+                    for didx, dim in enumerate("XYZ"):
+                        for direction in directions:
+                            path = "QM/order-%d/zr%s-site%s-%s" % (order, dim, label, direction)
+                            commands.append("( cd %s && bash run.sh )" % path)
+                            if os.path.isdir(path):
+                                continue
+                            os.makedirs(path)
+
+                            # For nuclear charge changes
+                            # TODO:generalize to higher-order APDFT (n > 3)
+                            charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
+                                len(self._nuclear_numbers), order, tuple([combination_zr[0]]), direction
+                            )
+                            # For molecular geometry changes
+                            # TODO:generalize to higher-order APDFT (n > 3)
+                            nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                                len(self._nuclear_numbers), order, tuple([combination_zr[1]]), direction, didx
+                            )
+                            inputfile = self._calculator.get_input_general(
+                                nuclear_positions,
+                                self._coordinates,
+                                target_coordinate,
+                                self._nuclear_numbers,
+                                charges,
+                                None,
+                                includeonly=self._include_atoms,
+                            )
+                            with open("%s/run.inp" % path, "w") as fh:
+                                fh.write(inputfile)
+                            with open("%s/run.sh" % path, "w") as fh:
+                                fh.write(
+                                    self._calculator.get_runfile(
+                                        self._coordinates, self._nuclear_numbers, charges, None
+                                    )
+                                )
 
         if explicit_reference:
             targets = self.enumerate_all_targets()
