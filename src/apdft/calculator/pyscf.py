@@ -17,7 +17,7 @@ class PyscfCalculator(apc.Calculator):
         """ Converts the vector representation into the atomspec format for PySCF."""
         ret = []
         for z, pos in zip(nuclear_numbers, coordinates):
-            ret.append("%d %f %f %f" % (z, *pos))
+            ret.append("%d %.15f %.15f %.15f" % (z, *pos))
         return ";".join(ret)
 
     @staticmethod
