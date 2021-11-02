@@ -341,7 +341,7 @@ class APDFT(object):
                 # the directories are not necessary, at least within
                 # APDFT3 or lower levels.
                 # TODO: need to consider the derivatives of the density
-                #       for the higher level APDFT
+                #       for the higher level APDFT (n > 3)
                 if len(combination_z) == 2 and \
                     combination_z[0] == combination_z[1]:
                     continue
@@ -397,7 +397,7 @@ class APDFT(object):
                 # the directories are not necessary, at least within
                 # APDFT3 or lower levels.
                 # TODO: need to consider the derivatives of the density
-                #       for the higher level APDFT
+                #       for the higher level APDFT (n > 3)
                 if len(combination_r) == 2 and combination_r[0] == combination_r[1]:
                     continue
                 if order > 0:
@@ -449,7 +449,7 @@ class APDFT(object):
                 # the directories are not necessary, at least within
                 # APDFT3 or lower levels.
                 # TODO: need to consider the derivatives of the density
-                #       for the higher level APDFT
+                #       for the higher level APDFT (n > 3)
                 # if len(combination_zr) == 2 and combination_zr[0] == combination_zr[1]:
                 #     continue
                 if order > 1:
