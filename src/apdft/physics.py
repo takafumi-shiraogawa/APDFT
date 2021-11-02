@@ -187,8 +187,13 @@ class APDFT(object):
         small_deltaZ = 0.05,
         small_deltaR = 0.005
     ):
+        # Exception handling for the apdft.conf input
+        # For APDFT order
         if highest_order > 2:
-            raise NotImplementedError()
+            raise NotImplementedError("apdft_maxorder in apdft.conf must be smaller than 3.")
+        # For molecular geometry change in the "energies_geometries" mode
+        if target_cartesian not in ["z", "full"]:
+            raise NotImplementedError("apdft_cartesian in apdft.conf must be z or full.")
         self._orders = list(range(0, highest_order + 1))
         self._nuclear_numbers = np.array(nuclear_numbers)
         self._coordinates = coordinates
