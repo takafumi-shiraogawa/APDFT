@@ -1185,7 +1185,6 @@ class APDFT(object):
         folders.append("%s/QM/order-0/site-all-cc/" % self._basepath)
 
         # order 1
-        # TODO: generalization to three Cartesian coordinates
         if 1 in self._orders:
             # For the atomic charge change
             for site in self._include_atoms:
@@ -1193,13 +1192,23 @@ class APDFT(object):
                                (self._basepath, site))
                 folders.append("%s/QM/order-1/z-site-%d-dn/" %
                                (self._basepath, site))
+
             # For the atomic position change
-            # TODO: generalization to three Cartesian coordinates
-            for site in self._include_atoms:
-                folders.append("%s/QM/order-1/r-site-%d-up/" %
-                               (self._basepath, site))
-                folders.append("%s/QM/order-1/r-site-%d-dn/" %
-                               (self._basepath, site))
+            # For z-Cartesian coordinate changes
+            if self._cartesian == "z":
+                for site in self._include_atoms:
+                    folders.append("%s/QM/order-1/r-site-%d-up/" %
+                                (self._basepath, site))
+                    folders.append("%s/QM/order-1/r-site-%d-dn/" %
+                                (self._basepath, site))
+            # For full-Cartesian coordinate changes
+            else:
+                for site in self._include_atoms:
+                    for didx, dim in enumerate("XYZ"):
+                        folders.append("%s/QM/order-1/r%s-site-%d-up/" %
+                                    (self._basepath, dim, site))
+                        folders.append("%s/QM/order-1/r%s-site-%d-dn/" %
+                                    (self._basepath, dim, site))
 
         # order 2
         if 2 in self._orders:
@@ -1219,33 +1228,67 @@ class APDFT(object):
                     )
 
             # For the atomic position changes
-            for site_i in self._include_atoms:
-                for site_j in self._include_atoms:
-                    if site_j <= site_i:
-                        continue
+            # For z-Cartesian coordinate changes
+            if self._cartesian == "z":
+                for site_i in self._include_atoms:
+                    for site_j in self._include_atoms:
+                        if site_j <= site_i:
+                            continue
 
-                    folders.append(
-                        "%s/QM/order-2/r-site-%d-%d-up/"
-                        % (self._basepath, site_i, site_j)
-                    )
-                    folders.append(
-                        "%s/QM/order-2/r-site-%d-%d-dn/"
-                        % (self._basepath, site_i, site_j)
-                    )
+                        folders.append(
+                            "%s/QM/order-2/r-site-%d-%d-up/"
+                            % (self._basepath, site_i, site_j)
+                        )
+                        folders.append(
+                            "%s/QM/order-2/r-site-%d-%d-dn/"
+                            % (self._basepath, site_i, site_j)
+                        )
+            # For full-Cartesian coordinate changes
+            else:
+                for site_i in self._include_atoms:
+                    for site_j in self._include_atoms:
+                        if site_j <= site_i:
+                            continue
+
+                        for didx, dim in enumerate("XYZ"):
+                            folders.append(
+                                "%s/QM/order-2/r%s-site-%d-%d-up/"
+                                % (self._basepath, dim, site_i, site_j)
+                            )
+                            folders.append(
+                                "%s/QM/order-2/r%s-site-%d-%d-dn/"
+                                % (self._basepath, dim, site_i, site_j)
+                            )
 
             # For both changes of atomic charge and position
             # Loop for the atomic charge change
-            for site_i in self._include_atoms:
-                # Loop for the atomic position change
-                for site_j in self._include_atoms:
-                    folders.append(
-                        "%s/QM/order-2/zr-site-%d-%d-up/"
-                        % (self._basepath, site_i, site_j)
-                    )
-                    folders.append(
-                        "%s/QM/order-2/zr-site-%d-%d-dn/"
-                        % (self._basepath, site_i, site_j)
-                    )
+            # For z-Cartesian coordinate changes
+            if self._cartesian == "z":
+                for site_i in self._include_atoms:
+                    # Loop for the atomic position change
+                    for site_j in self._include_atoms:
+                        folders.append(
+                            "%s/QM/order-2/zr-site-%d-%d-up/"
+                            % (self._basepath, site_i, site_j)
+                        )
+                        folders.append(
+                            "%s/QM/order-2/zr-site-%d-%d-dn/"
+                            % (self._basepath, site_i, site_j)
+                        )
+            # For full-Cartesian coordinate changes
+            else:
+                for site_i in self._include_atoms:
+                    # Loop for the atomic position change
+                    for site_j in self._include_atoms:
+                        for didx, dim in enumerate("XYZ"):
+                            folders.append(
+                                "%s/QM/order-2/zr%s-site-%d-%d-up/"
+                                % (self._basepath, dim, site_i, site_j)
+                            )
+                            folders.append(
+                                "%s/QM/order-2/zr%s-site-%d-%d-dn/"
+                                % (self._basepath, dim, site_i, site_j)
+                            )
 
         return folders
 
