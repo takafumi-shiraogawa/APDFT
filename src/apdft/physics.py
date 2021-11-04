@@ -1822,14 +1822,24 @@ class APDFT(object):
         cost = sum({0: 1, 1: 2 * N, 2: N * (N - 1)}[_] for _ in self._orders)
 
         # Add a cost with respect to molecular geometry changes.
-        # TODO: consider 3 Cartesian components
-        cost += sum({0: 0, 1: 2 * N, 2: N * (N - 1)}[_] for _ in self._orders)
+        # For z-Cartesian coordinate changes
+        if self._cartesian == "z":
+            cost += sum({0: 0, 1: 2 * N, 2: N * (N - 1)}[_] for _ in self._orders)
+        # For full-Cartesian coordinate changes
+        else:
+            cost += sum({0: 0, 1: 3 * (2 * N), 2: 3 * (N * (N - 1)
+                                                       ) + 3 * (2 * N * N)}[_] for _ in self._orders)
 
         # Add a cost with respect to mixed changes for atomic charge
         # and geometry.
         # In the order 2, the prefactor 2 is for "up" and "dn".
         # TODO: consider 3 Cartesian components
-        cost += sum({0: 0, 1: 0, 2: 2 * N * N}[_] for _ in self._orders)
+        # For z-Cartesian coordinate changes
+        if self._cartesian == "z":
+            cost += sum({0: 0, 1: 0, 2: 2 * N * N}[_] for _ in self._orders)
+        # For full-Cartesian coordinate changes
+        else:
+            cost += sum({0: 0, 1: 0, 2: 3 * (2 * N * N)}[_] for _ in self._orders)
 
         # The number of candidates does not change with nuclear charge transformations
         # because it is assumed that the molecular geometry is determined by the nuclear
