@@ -12,20 +12,26 @@ angstrom = 1 / 0.52917721067
 
 # Set information on a reference molecule
 mol = pyscf.gto.Mole()
-mol.atom = "7 0.000000 0.000000 -0.005000;7 0.000000 0.000000 0.995000"
+mol.atom = "7 0.000000000000000 0.000000000000000 -0.005000000000000;7 0.000000000000000 0.000000000000000 1.095000000000000"
 mol.basis = {7: '#----------------------------------------------------------------------\n# Basis Set Exchange\n# Version v0.8.13\n# https://www.basissetexchange.org\n#----------------------------------------------------------------------\n#   Basis set: def2-TZVP\n# Description: def2-TZVP\n#        Role: orbital\n#     Version: 1  (Data from Turbomole 7.3)\n#----------------------------------------------------------------------\n\n\nBASIS "ao basis" PRINT\n#BASIS SET: (11s,6p,2d,1f) -> [5s,3p,2d,1f]\nN    S\n  19730.8006470              0.21887984991E-03\n   2957.8958745              0.16960708803E-02\n    673.22133595             0.87954603538E-02\n    190.68249494             0.35359382605E-01\n     62.295441898            0.11095789217\n     22.654161182            0.24982972552\nN    S\n      8.9791477428           0.40623896148\n      3.6863002370           0.24338217176\nN    S\n      0.84660076805          1.0000000\nN    S\n      0.33647133771          1.0000000\nN    S\n      0.13647653675          1.0000000\nN    P\n     49.200380510            0.55552416751E-02\n     11.346790537            0.38052379723E-01\n      3.4273972411           0.14953671029\n      1.1785525134           0.34949305230\nN    P\n      0.41642204972           .45843153697\nN    P\n      0.14260826011           .24428771672\nN    D\n      1.65400000             1.0000000\nN    D\n      0.46900000             1.0000000\nN    F\n      1.09300000             1.0000000\nEND\n'}
 mol.verbose = 0
 mol.build()
 
 # Set information on a original reference molecule
 original_mol = pyscf.gto.Mole()
-original_mol.atom = "7 0.000000 0.000000 0.000000;7 0.000000 0.000000 1.000000"
+original_mol.atom = "7 0.000000000000000 0.000000000000000 0.000000000000000;7 0.000000000000000 0.000000000000000 1.100000000000000"
 original_mol.build()
 
 # Set information on a target molecule
 target_mol = pyscf.gto.Mole()
-target_mol.atom = "7 0.000000 0.000000 0.000000;7 0.000000 0.000000 1.200000"
+target_mol.atom = "7 0.000000000000000 0.000000000000000 0.000000000000000;7 0.000000000000000 0.000000000000000 1.200000000000000"
 target_mol.build()
+
+# Set information on all atom geometries for generating numerical grids
+all_mol = pyscf.gto.Mole()
+all_mol.atom = "7 0.000000000000000 0.000000000000000 -0.005000000000000;7 0.000000000000000 0.000000000000000 0.000000000000000;7 0.000000000000000 0.000000000000000 1.095000000000000;7 0.000000000000000 0.000000000000000 1.100000000000000;7 0.000000000000000 0.000000000000000 1.200000000000000"
+all_mol.spin = 1
+all_mol.build()
 
 # Set a quantum chemical computation method
 # Only CCSD or HF is allowed.
@@ -43,7 +49,7 @@ def add_qmmm(calc, mol, deltaZ):
     mf = pyscf.qmmm.mm_charge(calc, mol.atom_coords()[includeonly]/ angstrom, deltaZ)
 
     def energy_nuc(self):
-        q = mol.atom_charges().astype(np.float)
+        q = mol.atom_charges().astype(float)
         q[includeonly] += deltaZ
         return mol.energy_nuc(q)
 
@@ -105,14 +111,23 @@ for site in includeonly:
     mol.set_rinv_orig_(target_mol.atom_coords()[site])
     print("ELECTRONIC_EPN2", site, np.matmul(dm1_ao, mol.intor("int1e_rinv")).trace())
 
-# Electronic Dipole w.r.t to center of geometry
+# Electronic Dipole w.r.t to center of geometry (geometrical center)
 with mol.with_common_orig(mol.atom_coords().mean(axis=0)):
     ao_dip = mol.intor_symmetric("int1e_r", comp=3)
-dipole = numpy.einsum("xij,ji->x", ao_dip, dm1_ao).real
+dipole = -numpy.einsum("xij,ji->x", ao_dip, dm1_ao).real
 print("ELECTRONIC_DIPOLE", *dipole)
 
+# Target electronic Dipole w.r.t to center of geometry (geometrical center)
+# of the target molecule
+with mol.with_common_orig(target_mol.atom_coords().mean(axis=0)):
+    target_ao_dip = mol.intor_symmetric("int1e_r", comp=3)
+target_dipole = -numpy.einsum("xij,ji->x", target_ao_dip, dm1_ao).real
+print("TARGET_ELECTRONIC_DIPOLE", *target_dipole)
+
 # GRID, as things were #####################################
-grid = pyscf.dft.gen_grid.Grids(mol)
+# For evaluation of atomic forces, numerical grids are small near both
+# reference and target atoms.
+grid = pyscf.dft.gen_grid.Grids(all_mol)
 # level = 3 is a standard condition of PySCF
 grid.level = 3
 grid.build()
@@ -127,7 +142,7 @@ rho = pyscf.dft.numint.eval_rho(mol, ao_value, dm1_ao, xctype="LDA")
 # Set distance vectors to the grids from a mass center
 # of the molecule
 num_r = grid.coords - mol.atom_coords().mean(axis=0)
-num_dipole = np.einsum('g,g,gx->x', rho, grid.weights, num_r)
+num_dipole = -np.einsum('g,g,gx->x', rho, grid.weights, num_r)
 print("NUMERICAL_DIPOLE", *num_dipole)
 
 # Ionic Forces
@@ -140,8 +155,8 @@ for site in includeonly:
     print("IONIC_FORCE", site, *force)
 
 # Target ionic Forces
-# TODO: Numerical grids should be small near both reference and
-#       target atoms.
+# Numerical grids are small near both reference and
+# target atoms.
 for site in includeonly:
     target_rvec = grid.coords - target_mol.atom_coords()[site]
     target_force = [
@@ -149,7 +164,7 @@ for site in includeonly:
          np.linalg.norm(target_rvec, axis=1) ** 3).sum()
         for _ in range(3)
     ]
-    print("TARGET_IONIC_FORCE", site, *force)
+    print("TARGET_IONIC_FORCE", site, *target_force)
 
 # Quadrupole moments
 rs = grid.coords - mol.atom_coords().mean(axis=0)

@@ -1,1 +1,1 @@
-cli.py energies_geometries
+python3 ~/Program/APDFT/src/cli.py energies_geometries
