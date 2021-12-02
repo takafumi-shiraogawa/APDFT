@@ -198,6 +198,13 @@ class Configuration:
                 1.0,
                 "Alchemical interpolation between reference and target molecules (0 and 1, respectively).",
             ),
+            Option(
+                "apdft",
+                "derivative",
+                boolean,
+                False,
+                "Whether to perform calculations of analytical derivatives of potential energy with respect to nuclear coordinates.",
+            ),
         ]
         self.__dict__["_options"] = {}
         for option in options:
