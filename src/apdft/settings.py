@@ -191,6 +191,13 @@ class Configuration:
                 0.005,
                 "Small difference of nuclear position in finite differential for perturbed density.",
             ),
+            Option(
+                "apdft",
+                "lambda",
+                float,
+                1.0,
+                "Alchemical interpolation between reference and target molecules (0 and 1, respectively).",
+            ),
         ]
         self.__dict__["_options"] = {}
         for option in options:

@@ -129,7 +129,8 @@ def mode_energies(conf, modeshort=None):
         targetlist,
         conf.apdft_cartesian,
         conf.apdft_deltaz,
-        conf.apdft_deltar
+        conf.apdft_deltar,
+        conf.apdft_lambda
     )
 
     cost, coverage = derivatives.estimate_cost_and_coverage()
