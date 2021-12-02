@@ -212,3 +212,11 @@ interface.
 Finally, the command line handler in commandline.mode_energies() needs a
 selection branch for the new calculator.
 
+
+
+How to add a new input variable in apdft.conf?
+   1. add a new option to apdft/settings.py's Configuration.__init__
+   2. add the new variable in "derivatives" of a mode_energies or
+      mode_energies_geometries in apdft/commandline.py
+   3. add an argument of __init__ of class APDFT of apdft/physics.py,
+      which corresponds to the new variable in "derivative"
