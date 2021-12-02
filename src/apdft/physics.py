@@ -185,7 +185,8 @@ class APDFT(object):
         targetlist=None,
         target_cartesian="z",
         small_deltaZ = 0.05,
-        small_deltaR = 0.005
+        small_deltaR = 0.005,
+        mix_lambda = 1.0
     ):
         # Exception handling for the apdft.conf input
         # For APDFT order
@@ -205,6 +206,7 @@ class APDFT(object):
         self._max_charge = max_charge
         self._max_deltaz = max_deltaz
         self._targetlist = targetlist
+        self._mix_lambda = mix_lambda
         if include_atoms is None:
             self._include_atoms = list(range(len(self._nuclear_numbers)))
         else:
@@ -671,9 +673,20 @@ class APDFT(object):
         if 0 in self._orders:
             alphas[0, 0] = 1
 
+            # Mixing reference and target molecules by using non-integer lambda
+            # If target molecule is not targeted
+            if self._mix_lambda != 1.0:
+                alphas[0, 0] *= self._mix_lambda ** shift
+
         # order 1
         if 1 in self._orders:
             prefactor = 1 / (2 * self._delta) / np.math.factorial(1 + shift)
+
+            # Mixing reference and target molecules by using non-integer lambda
+            # If target molecule is not targeted
+            if self._mix_lambda != 1.0:
+                prefactor *= self._mix_lambda ** 2.0
+
             for siteidx in range(N):
                 alphas[1 + siteidx * 2, 1] += prefactor * deltaZ[siteidx]
                 alphas[1 + siteidx * 2 + 1, 1] -= prefactor * deltaZ[siteidx]
@@ -691,6 +704,12 @@ class APDFT(object):
                         prefactor = (1 / (2 * self._delta ** 2)) / np.math.factorial(
                             2 + shift
                         )
+
+                        # Mixing reference and target molecules by using non-integer lambda
+                        # If target molecule is not targeted
+                        if self._mix_lambda != 1.0:
+                            prefactor *= self._mix_lambda ** (2 + shift)
+
                         prefactor *= deltaZ[siteidx_i] * deltaZ[siteidx_j]
                         alphas[pos, 2] += prefactor
                         alphas[pos + 1, 2] += prefactor
@@ -703,6 +722,12 @@ class APDFT(object):
                         prefactor = (1 / (self._delta ** 2)) / np.math.factorial(
                             2 + shift
                         )
+
+                        # Mixing reference and target molecules by using non-integer lambda
+                        # If target molecule is not targeted
+                        if self._mix_lambda != 1.0:
+                            prefactor *= self._mix_lambda ** (2 + shift)
+
                         prefactor *= deltaZ[siteidx_i] * deltaZ[siteidx_j]
                         alphas[0, 2] -= 2 * prefactor
                         alphas[1 + siteidx_i * 2, 2] += prefactor
@@ -1973,6 +1998,8 @@ class APDFT(object):
         dipole_matrix = self.get_linear_density_matrix("ELECTRONIC_DIPOLE")
         force_matrix = self.get_linear_density_matrix("IONIC_FORCE")
 
+        alchemical_target = np.zeros(len(self._nuclear_numbers))
+
         # get target predictions
         for targetidx, target in enumerate(targets):
             deltaZ = target - self._nuclear_numbers
@@ -1980,9 +2007,26 @@ class APDFT(object):
             deltaZ_included = deltaZ[self._include_atoms]
             alphas = self.get_epn_coefficients(deltaZ_included)
 
+            # Mixing reference and target molecules by using non-integer lambda
+            # If target molecule is not targeted
+            if self._mix_lambda != 1.0:
+                alchemical_target = self._mix_lambda * np.array(target) + \
+                    (1.0 - self._mix_lambda) * self._nuclear_numbers
+
             # energies
-            deltaEnn = Coulomb.nuclei_nuclei(self._coordinates, target) - own_nuc_nuc
-            Enn = Coulomb.nuclei_nuclei(self._coordinates, target)
+            # Mixing reference and target molecules by using non-integer lambda
+            # If target molecule is not targeted
+            if self._mix_lambda == 1.0:
+                deltaEnn = Coulomb.nuclei_nuclei(self._coordinates, target) - own_nuc_nuc
+                Enn = Coulomb.nuclei_nuclei(self._coordinates, target)
+            else:
+                alchemical_target = self._mix_lambda * np.array(target) + \
+                    (1.0 - self._mix_lambda) * self._nuclear_numbers
+                deltaEnn = Coulomb.nuclei_nuclei(
+                    self._coordinates, alchemical_target) - own_nuc_nuc
+                Enn = Coulomb.nuclei_nuclei(
+                    self._coordinates, alchemical_target)
+
             for order in sorted(self._orders):
                 contributions = -np.multiply(
                     np.outer(alphas[:, order], deltaZ_included), epn_matrix
