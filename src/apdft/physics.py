@@ -6,7 +6,7 @@ import os
 import itertools as it
 import pandas as pd
 
-#: Conversion factor from Bohr in Angstrom.
+#: Conversion factor from Angstrom to Bohr
 angstrom = 1 / 0.52917721067
 #: Conversion factor from electron charges and Angstrom to Debye
 debye = 1 / 0.20819433
