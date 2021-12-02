@@ -186,7 +186,8 @@ class APDFT(object):
         target_cartesian="z",
         small_deltaZ = 0.05,
         small_deltaR = 0.005,
-        mix_lambda = 1.0
+        mix_lambda = 1.0,
+        calc_der = False
     ):
         # Exception handling for the apdft.conf input
         # For APDFT order
@@ -207,6 +208,7 @@ class APDFT(object):
         self._max_deltaz = max_deltaz
         self._targetlist = targetlist
         self._mix_lambda = mix_lambda
+        self._calc_der = calc_der
         if include_atoms is None:
             self._include_atoms = list(range(len(self._nuclear_numbers)))
         else:
