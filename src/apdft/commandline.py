@@ -210,7 +210,8 @@ def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
         targetlist,
         conf.apdft_cartesian,
         conf.apdft_deltaz,
-        conf.apdft_deltar
+        conf.apdft_deltar,
+        conf.apdft_derivative
     )
 
     # cost is different from that of estimate_cost_and_coverage()
