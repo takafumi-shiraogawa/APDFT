@@ -211,6 +211,7 @@ def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
         conf.apdft_cartesian,
         conf.apdft_deltaz,
         conf.apdft_deltar,
+        conf.apdft_lambda,
         conf.apdft_derivative
     )
 
