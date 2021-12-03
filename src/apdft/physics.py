@@ -209,6 +209,12 @@ class APDFT(object):
         self._targetlist = targetlist
         self._mix_lambda = mix_lambda
         self._calc_der = calc_der
+
+        # For a combination of APDFT order and vertical energy derivative calculations
+        if max(self._orders) > 1 and self._calc_der:
+            raise NotImplementedError(
+                "Combination of vertical energy derivatives and APDFTn (n > 2) is not implemented yet.")
+
         if include_atoms is None:
             self._include_atoms = list(range(len(self._nuclear_numbers)))
         else:
@@ -398,6 +404,12 @@ class APDFT(object):
             for combination_r in it.combinations_with_replacement(
                 self._include_atoms, order
             ):
+                # If this is a calculation of the analytical derivative of potential
+                # energy with respect to nuclear coordinates by a vertical manner,
+                # this roop is skipped
+                if self._calc_der:
+                    continue
+
                 # For z-Cartesian coordinate changes
                 if self._cartesian == "z":
                     # If the order is 2 and selected two atoms are
@@ -504,6 +516,12 @@ class APDFT(object):
             for combination_zr in it.product(
                 self._include_atoms, repeat = order
             ):
+                # If this is a calculation of the analytical derivative of potential
+                # energy with respect to nuclear coordinates by a vertical manner,
+                # this roop is skipped
+                if self._calc_der:
+                    continue
+
                 # For z-Cartesian coordinate changes
                 if self._cartesian == "z":
                     # If the order is 2 and selected two atoms are
@@ -616,6 +634,125 @@ class APDFT(object):
                                         self._coordinates, self._nuclear_numbers, charges, None
                                     )
                                 )
+
+            # If this is a calculation of the analytical derivative of potential
+            # energy with respect to nuclear coordinates by a vertical manner
+            if self._calc_der:
+                # Loop for mixed changes of nuclear charge and coordinates
+                # for nuclear coordinate changes for analytical derivative
+                # of potential energy with respect to nuclear coordinates
+                #   APDFT1 <- del_rho / del_R
+                #       e.g., QM/order-1/rz-site-*-up
+                #   APDFT2 <- del^2_rho / (del_R * del_Z)
+                #       e.g., QM/order-2/rz-site-*-*-dn
+                # TODO: implementation of APDFT3 derivatives
+                #   APDFT3 <- del^3_rho / (del_R * del_Z * del_Z)
+                #       e.g., QM/order-3/rz-site-*-*-*-up
+                for combination_rz in it.product(
+                    self._include_atoms, repeat=order + 1
+                ):
+                    # For z-Cartesian coordinate changes
+                    if self._cartesian == "z":
+                        # For nuclear mixed changes of nuclear charge and coordinate
+                        # e.g., -0-1-
+                        label = "-" + "-".join(map(str, combination_rz))
+                        directions = ["up", "dn"]
+
+                        for direction in directions:
+                            # Because the analytical derivative requires one-order higher
+                            # derivative of the electron density in comparison with
+                            # the energy, order + 1 is used here.
+                            path = "QM/order-%d/rz-site%s-%s" % (
+                                order + 1, label, direction)
+                            commands.append("( cd %s && bash run.sh )" % path)
+                            if os.path.isdir(path):
+                                continue
+                            os.makedirs(path)
+
+                            # For molecular geometry changes
+                            # TODO: generalize to higher-order APDFT (n > 3)
+                            nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                                len(self._nuclear_numbers), order + 1, tuple(
+                                    [combination_rz[0]]), direction, 2
+                            )
+                            # For nuclear charge changes
+                            # TODO: generalize to higher-order APDFT (n > 3)
+                            if len(combination_rz) > 1:
+                                charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
+                                    len(self._nuclear_numbers), order + 1, tuple(
+                                        [combination_rz[1]]), direction
+                                )
+                            else:
+                                charges = self._nuclear_numbers
+                            inputfile = self._calculator.get_input_general(
+                                nuclear_positions,
+                                self._coordinates,
+                                target_coordinate,
+                                self._nuclear_numbers,
+                                charges,
+                                None,
+                                includeonly=self._include_atoms,
+                            )
+                            with open("%s/run.inp" % path, "w") as fh:
+                                fh.write(inputfile)
+                            with open("%s/run.sh" % path, "w") as fh:
+                                fh.write(
+                                    self._calculator.get_runfile(
+                                        self._coordinates, self._nuclear_numbers, charges, None
+                                    )
+                                )
+
+                    # For full-Cartesian coordinate changes
+                    # elif self._cartesian == "full":
+                    else:
+                        # For nuclear mixed changes of nuclear charge and coordinate
+                        # e.g., -0-1-
+                        label = "-" + "-".join(map(str, combination_rz))
+                        directions = ["up", "dn"]
+
+                        # For 3 Cartesian axes
+                        for didx, dim in enumerate("XYZ"):
+                            for direction in directions:
+                                path = "QM/order-%d/r%sz-site%s-%s" % (
+                                    order + 1, dim, label, direction)
+                                commands.append(
+                                    "( cd %s && bash run.sh )" % path)
+                                if os.path.isdir(path):
+                                    continue
+                                os.makedirs(path)
+
+                                # For molecular geometry changes
+                                # TODO:generalize to higher-order APDFT (n > 3)
+                                nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                                    len(self._nuclear_numbers), order + 1, tuple(
+                                        [combination_rz[0]]), direction, didx
+                                )
+                                # For nuclear charge changes
+                                # TODO: generalize to higher-order APDFT (n > 3)
+                                if len(combination_rz) > 1:
+                                    charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
+                                        len(self._nuclear_numbers), order + 1, tuple(
+                                            [combination_rz[1]]), direction
+                                    )
+                                else:
+                                    charges = self._nuclear_numbers
+                                inputfile = self._calculator.get_input_general(
+                                    nuclear_positions,
+                                    self._coordinates,
+                                    target_coordinate,
+                                    self._nuclear_numbers,
+                                    charges,
+                                    None,
+                                    includeonly=self._include_atoms,
+                                )
+                                with open("%s/run.inp" % path, "w") as fh:
+                                    fh.write(inputfile)
+                                with open("%s/run.sh" % path, "w") as fh:
+                                    fh.write(
+                                        self._calculator.get_runfile(
+                                            self._coordinates, self._nuclear_numbers, charges, None
+                                        )
+                                    )
 
         if explicit_reference:
             targets = self.enumerate_all_targets()
