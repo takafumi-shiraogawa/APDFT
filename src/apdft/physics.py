@@ -1997,7 +1997,6 @@ class APDFT(object):
         # Add a cost with respect to mixed changes for atomic charge
         # and geometry.
         # In the order 2, the prefactor 2 is for "up" and "dn".
-        # TODO: consider 3 Cartesian components
         # For z-Cartesian coordinate changes
         if self._cartesian == "z":
             cost += sum({0: 0, 1: 0, 2: 2 * N * N}[_] for _ in self._orders)
