@@ -2866,7 +2866,7 @@ class APDFT(object):
         for order in self._orders:
             for atom_pos in range(natoms):
                 # Only Z component is presented.
-                # TODO: generalization to three Cartesian coordinatesh
+                # TODO: generalization to three Cartesian coordinates
                 result_atomic_forces["atomic_force_%s_order%d" % (atom_pos, order)] = \
                     atomic_forces[:, order, atom_pos, 2]
                 result_ele_atomic_forces["ele_atomic_force_%s_order%d" % (atom_pos, order)] = \
