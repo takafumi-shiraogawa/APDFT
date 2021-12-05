@@ -2123,7 +2123,7 @@ class APDFT(object):
                 % propertyname
                 )
 
-        if self._calc_der and propertyname is 'ELECTRONIC_QUADRUPOLE':
+        if self._calc_der and propertyname == 'ELECTRONIC_QUADRUPOLE':
             raise NotImplemented(
                 "Electronic quadrupole is not implemented yet in a calculation of vertical energy derivatives."
             )
