@@ -2058,6 +2058,17 @@ class APDFT(object):
                 % (self._basepath, "-".join(map(str, nuclear_charges)))
             )
 
+    def get_reference_energy_derivatives(self):
+        """ Retreives analytical energy derivatives of a reference molecule from a QM reference. 
+
+		Args:
+			nuclear_charges: 	Integer list of nuclear charges. [e]
+		Returns:
+			analytical energy derivatives of a reference molecule. [a.u.]"""
+        return self._calculator.get_reference_anal_energy_derivatives(
+            "%s/QM/order-0/site-all-cc" % self._basepath, self._include_atoms
+        )
+
     def get_linear_density_matrix(self, propertyname):
         """ Retrieves the value matrix for properties linear in density.
 
@@ -2325,6 +2336,10 @@ class APDFT(object):
         refenergy = self.get_energy_from_reference(
             self._nuclear_numbers, is_reference_molecule=True
         )
+        # If this is a calculation of vertical energy derivatives,
+        # analytical energy derivatives of a reference molecule are extracted.
+        if self._calc_der:
+            atomic_forces_reference = -self.get_reference_energy_derivatives()
         # Dimension of epn_matrix is
         # (the number of QM calculations, the number of atoms).
         # TODO: need to be generalized to three Cartesian coordinates
