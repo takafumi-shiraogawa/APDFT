@@ -1716,7 +1716,8 @@ class APDFT(object):
                     res = self._calculator.get_epn(
                         folder, self._coordinates, self._include_atoms, charges
                     )
-                    # For EPNs of the reference
+                    # For EPNs for the target
+                    # Here self._coordinates is not used
                     res2 = self._calculator.get_epn2(
                         folder, self._coordinates, self._include_atoms, charges
                     )
@@ -2057,6 +2058,17 @@ class APDFT(object):
                 % (self._basepath, "-".join(map(str, nuclear_charges)))
             )
 
+    def get_reference_energy_derivatives(self):
+        """ Retreives analytical energy derivatives of a reference molecule from a QM reference. 
+
+		Args:
+			nuclear_charges: 	Integer list of nuclear charges. [e]
+		Returns:
+			analytical energy derivatives of a reference molecule. [a.u.]"""
+        return self._calculator.get_reference_anal_energy_derivatives(
+            "%s/QM/order-0/site-all-cc" % self._basepath, self._include_atoms
+        )
+
     def get_linear_density_matrix(self, propertyname):
         """ Retrieves the value matrix for properties linear in density.
 
@@ -2111,7 +2123,7 @@ class APDFT(object):
                 % propertyname
                 )
 
-        if self._calc_der and propertyname is 'ELECTRONIC_QUADRUPOLE':
+        if self._calc_der and propertyname == 'ELECTRONIC_QUADRUPOLE':
             raise NotImplemented(
                 "Electronic quadrupole is not implemented yet in a calculation of vertical energy derivatives."
             )
@@ -2133,7 +2145,7 @@ class APDFT(object):
                 res.append([0.0, 0.0, 0.0])
                 return res[0]
             elif label == 'TARGET_HF_IONIC_FORCE':
-                for i in range(len(self._coordinates)):
+                for i in range(len(self._nuclear_numbers)):
                     res.append([0.0, 0.0, 0.0])
 
             return res
@@ -2324,6 +2336,10 @@ class APDFT(object):
         refenergy = self.get_energy_from_reference(
             self._nuclear_numbers, is_reference_molecule=True
         )
+        # If this is a calculation of vertical energy derivatives,
+        # analytical energy derivatives of a reference molecule are extracted.
+        if self._calc_der:
+            atomic_forces_reference = -self.get_reference_energy_derivatives()
         # Dimension of epn_matrix is
         # (the number of QM calculations, the number of atoms).
         # TODO: need to be generalized to three Cartesian coordinates
@@ -2866,7 +2882,7 @@ class APDFT(object):
         for order in self._orders:
             for atom_pos in range(natoms):
                 # Only Z component is presented.
-                # TODO: generalization to three Cartesian coordinatesh
+                # TODO: generalization to three Cartesian coordinates
                 result_atomic_forces["atomic_force_%s_order%d" % (atom_pos, order)] = \
                     atomic_forces[:, order, atom_pos, 2]
                 result_ele_atomic_forces["ele_atomic_force_%s_order%d" % (atom_pos, order)] = \

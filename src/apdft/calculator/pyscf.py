@@ -301,3 +301,26 @@ class PyscfCalculator(apc.Calculator):
         # Return only ionic forces of each atom
         # ionic_forces[, 0] is the site number and ionic_forces[, 1:3] is the forces.
         return ionic_forces[[included_results.index(_) for _ in includeatoms], 1:4]
+
+    @staticmethod
+    def get_reference_anal_energy_derivatives(folder, includeatoms):
+        reference_energy_derivatives = PyscfCalculator._read_value(
+            folder, "REFERENCE_ENERGY_DERIVATIVE", True)
+        # If no data are read, raise error.
+        if len(reference_energy_derivatives.flatten()) == 0:
+            raise ValueError(
+                "Incomplete calculation of REFERENCE_ENERGY_DERIVATIVE.")
+
+        # check that all included sites are in fact present
+        included_results = reference_energy_derivatives[:, 0].astype(np.int)
+        if not set(included_results) == set(includeatoms):
+            log.log(
+                "Atom selections do not match. Likely the configuration has changed in the meantime.",
+                level="error",
+            )
+
+        included_results = list(included_results)
+        # Return only reference energy derivatives of each atom
+        # reference_energy_derivatives[, 0] is the site number and reference_energy_derivatives[, 1:3]
+        # is the energy derivatives.
+        return reference_energy_derivatives[[included_results.index(_) for _ in includeatoms], 1:4]
