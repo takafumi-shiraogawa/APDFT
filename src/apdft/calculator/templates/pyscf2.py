@@ -91,6 +91,22 @@ if method == "CCSD":
     # of the target molecular geometry
     # target_Enn = target_mol.energy_nuc()
 
+    # If this is a calculation of the reference molecule,
+    # calculate analytical gradients.
+    # TODO: modulate this routine since this procedure performs CCSD twice
+    #       in cc_scanner and mycc.
+    # TODO: here the last condition is redundant, and modification is possible
+    if np.count_nonzero(deltaZ) == 0 and mol.atom == original_mol.atom \
+        and target_mol.atom == original_mol.atom:
+        # Because this calculation does not use QM/MM, standard HF can be used instead.
+        cc_scanner = pyscf.cc.CCSD(pyscf.scf.RHF(
+            mol)).nuc_grad_method().as_scanner()
+        e_tot_cc_scanner, grad_cc_scanner = cc_scanner(mol)
+
+        for site in includeonly:
+            # derivative of total energy
+            print("REFERENCE_ENERGY_DERIVATIVE", site, *grad_cc_scanner[site])
+
 # GRIDLESS, as things should be ############################
 # Total energy of SCF run
 

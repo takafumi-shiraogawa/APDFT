@@ -1702,29 +1702,36 @@ class APDFT(object):
             charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
                 len(self._nuclear_numbers), order, combination, direction
             )
-            try:
-                # For PySCF, self._coordinates and charges are not used.
-                # Therefore, direction and combination are also not used.
-                # For EPNs of the reference
-                res = self._calculator.get_epn(
-                    folder, self._coordinates, self._include_atoms, charges
-                )
-                # For EPNs of the reference
-                res2 = self._calculator.get_epn2(
-                    folder, self._coordinates, self._include_atoms, charges
-                )
-            except ValueError:
-                apdft.log.log(
-                    "Calculation with incomplete results.",
-                    level="error",
-                    calulation=folder,
-                )
-            except FileNotFoundError:
-                apdft.log.log(
-                    "Calculation is missing a result file.",
-                    level="error",
-                    calculation=folder,
-                )
+
+            # If this is a calculation of vertical energy derivatives
+            # TODO: generalization to three Cartesian coordinates
+            if self._calc_der and "/r-site" in folder or "/zr-site" in folder:
+                res = 0.0
+                res2 = 0.0
+            else:
+                try:
+                    # For PySCF, self._coordinates and charges are not used.
+                    # Therefore, direction and combination are also not used.
+                    # For EPNs of the reference
+                    res = self._calculator.get_epn(
+                        folder, self._coordinates, self._include_atoms, charges
+                    )
+                    # For EPNs of the reference
+                    res2 = self._calculator.get_epn2(
+                        folder, self._coordinates, self._include_atoms, charges
+                    )
+                except ValueError:
+                    apdft.log.log(
+                        "Calculation with incomplete results.",
+                        level="error",
+                        calulation=folder,
+                    )
+                except FileNotFoundError:
+                    apdft.log.log(
+                        "Calculation is missing a result file.",
+                        level="error",
+                        calculation=folder,
+                    )
             return res, res2
 
         # This function is iteratively used in get_hf_ionic_force_matrix.
@@ -1740,22 +1747,27 @@ class APDFT(object):
                 len(self._nuclear_numbers), order, combination, direction
             )
 
-            try:
-                res = self._calculator.get_target_ionic_force(
-                    folder, self._coordinates, self._include_atoms, charges
-                )
-            except ValueError:
-                apdft.log.log(
-                    "Calculation with incomplete results.",
-                    level="error",
-                    calulation=folder,
-                )
-            except FileNotFoundError:
-                apdft.log.log(
-                    "Calculation is missing a result file.",
-                    level="error",
-                    calculation=folder,
-                )
+            # If this is a calculation of vertical energy derivatives and
+            # TODO: generalization to three Cartesian coordinates
+            if self._calc_der and "/r-site" in folder or "/zr-site" in folder:
+                res = 0.0
+            else:
+                try:
+                    res = self._calculator.get_target_ionic_force(
+                        folder, self._coordinates, self._include_atoms, charges
+                    )
+                except ValueError:
+                    apdft.log.log(
+                        "Calculation with incomplete results.",
+                        level="error",
+                        calulation=folder,
+                    )
+                except FileNotFoundError:
+                    apdft.log.log(
+                        "Calculation is missing a result file.",
+                        level="error",
+                        calculation=folder,
+                    )
             return res
 
         # order 0
@@ -1985,25 +1997,41 @@ class APDFT(object):
         # Here, self._orders is 0, 1, ..., n - 1.
         cost = sum({0: 1, 1: 2 * N, 2: N * (N - 1)}[_] for _ in self._orders)
 
-        # Add a cost with respect to molecular geometry changes.
-        # For z-Cartesian coordinate changes
-        if self._cartesian == "z":
-            cost += sum({0: 0, 1: 2 * N, 2: N * (N - 1)}[_] for _ in self._orders)
-        # For full-Cartesian coordinate changes
-        else:
-            cost += sum({0: 0, 1: 3 * (2 * N), 2: 3 * (N * (N - 1)
-                                                       ) + 3 * (2 * N * N)}[_] for _ in self._orders)
+        # If this is not a vertical energy derivative calculation,
+        # QM calculations for atomic coordinate changes are required.
+        if not self._calc_der:
+            # Add a cost with respect to molecular geometry changes.
+            # For z-Cartesian coordinate changes
+            if self._cartesian == "z":
+                cost += sum({0: 0, 1: 2 * N, 2: N * (N - 1)}
+                            [_] for _ in self._orders)
+            # For full-Cartesian coordinate changes
+            else:
+                cost += sum({0: 0, 1: 3 * (2 * N), 2: 3 * (N * (N - 1)
+                                                           ) + 3 * (2 * N * N)}[_] for _ in self._orders)
 
-        # Add a cost with respect to mixed changes for atomic charge
-        # and geometry.
-        # In the order 2, the prefactor 2 is for "up" and "dn".
-        # TODO: consider 3 Cartesian components
-        # For z-Cartesian coordinate changes
-        if self._cartesian == "z":
-            cost += sum({0: 0, 1: 0, 2: 2 * N * N}[_] for _ in self._orders)
-        # For full-Cartesian coordinate changes
+            # Add a cost with respect to mixed changes for atomic charge
+            # and geometry.
+            # In the order 2, the prefactor 2 is for "up" and "dn".
+            # For z-Cartesian coordinate changes
+            if self._cartesian == "z":
+                cost += sum({0: 0, 1: 0, 2: 2 * N * N}[_] for _ in self._orders)
+            # For full-Cartesian coordinate changes
+            else:
+                cost += sum({0: 0, 1: 0, 2: 3 * (2 * N * N)}[_] for _ in self._orders)
+
+        # If this is a vertical energy derivative calculation,
+        # QM calculations for atomic coordinate changes are required.
         else:
-            cost += sum({0: 0, 1: 0, 2: 3 * (2 * N * N)}[_] for _ in self._orders)
+            # TODO: Consider the cost for APDFT3
+            #       0 is added for now.
+            # For z-Cartesian coordinate changes
+            if self._cartesian == "z":
+                cost += sum({0: 2 * N , 1: 2 * N * N, 2: 0}[_] for _ in self._orders)
+            # For full-Cartesian coordinate changes
+            else:
+                cost += sum({0: 3 * (2 * N), 1: 3 * (2 * N * N), 2: 0}[_] for _ in self._orders)
+
 
         # The number of candidates does not change with nuclear charge transformations
         # because it is assumed that the molecular geometry is determined by the nuclear
@@ -2083,6 +2111,11 @@ class APDFT(object):
                 % propertyname
                 )
 
+        if self._calc_der and propertyname is 'ELECTRONIC_QUADRUPOLE':
+            raise NotImplemented(
+                "Electronic quadrupole is not implemented yet in a calculation of vertical energy derivatives."
+            )
+
         functionname = "get_%s" % propertyname.lower()
         try:
             # For functionname, "ELECTRONIC_DIPOLE" can be used.
@@ -2092,23 +2125,41 @@ class APDFT(object):
         except AttributeError:
             return None
 
+        # Obtain 0 values corresponding to properties
+        def get_empty_value(label):
+            res = []
+            if label == 'TARGET_ELECTRONIC_DIPOLE':
+                # For xyz components
+                res.append([0.0, 0.0, 0.0])
+                return res[0]
+            elif label == 'TARGET_HF_IONIC_FORCE':
+                for i in range(len(self._coordinates)):
+                    res.append([0.0, 0.0, 0.0])
+
+            return res
+
         # Obtain folders corresponding to "energies_geometries"
         folders = self.get_folder_order_general()
         results = []
         for folder in folders:
-            try:
-                # Properties are obtained.
-                if functionname == "get_target_hf_ionic_force":
-                    # For "TARGET_IONIC_FORCE"
-                    results.append(function(folder, self._include_atoms))
-                else:
-                    results.append(function(folder))
-            except ValueError:
-                apdft.log.log(
-                    "Calculation with incomplete results.",
-                    level="error",
-                    calulation=folder,
-                )
+            # If this is a calculation of vertical energy derivatives
+            # TODO: generalization to three Cartesian coordinates
+            if self._calc_der and "/r-site" in folder or "/zr-site" in folder:
+                results.append(get_empty_value(propertyname))
+            else:
+                try:
+                    # Properties are obtained.
+                    if functionname == "get_target_hf_ionic_force":
+                        # For "TARGET_IONIC_FORCE"
+                        results.append(function(folder, self._include_atoms))
+                    else:
+                        results.append(function(folder))
+                except ValueError:
+                    apdft.log.log(
+                        "Calculation with incomplete results.",
+                        level="error",
+                        calulation=folder,
+                    )
 
         # Only meaningful if all calculations are present.
         if len(results) == len(folders):
