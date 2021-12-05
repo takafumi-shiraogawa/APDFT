@@ -2145,7 +2145,7 @@ class APDFT(object):
                 res.append([0.0, 0.0, 0.0])
                 return res[0]
             elif label == 'TARGET_HF_IONIC_FORCE':
-                for i in range(len(self._coordinates)):
+                for i in range(len(self._nuclear_numbers)):
                     res.append([0.0, 0.0, 0.0])
 
             return res
