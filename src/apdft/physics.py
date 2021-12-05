@@ -1716,7 +1716,8 @@ class APDFT(object):
                     res = self._calculator.get_epn(
                         folder, self._coordinates, self._include_atoms, charges
                     )
-                    # For EPNs of the reference
+                    # For EPNs for the target
+                    # Here self._coordinates is not used
                     res2 = self._calculator.get_epn2(
                         folder, self._coordinates, self._include_atoms, charges
                     )
