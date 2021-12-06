@@ -2318,6 +2318,16 @@ class APDFT(object):
         deriv_rho_contributions = np.zeros((
             len(targets), len(self._orders), len(self._nuclear_numbers), 3))
 
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            # Vertical atomic forces
+            ver_atomic_forces = np.zeros(
+                (len(targets), len(self._orders), len(self._nuclear_numbers), 3))
+            # Electronic part of ver_atomic_forces
+            ele_ver_atomic_forces = np.zeros(
+                (len(targets), len(self._orders), len(self._nuclear_numbers), 3))
+            # Nuclear part is identical to nuc_atomic_forces
+
         # Hellmann-Feynman ionic force
         hf_ionic_forces = np.zeros((len(targets), len(self._nuclear_numbers),
                                     3, len(self._orders)))
@@ -2336,10 +2346,14 @@ class APDFT(object):
         refenergy = self.get_energy_from_reference(
             self._nuclear_numbers, is_reference_molecule=True
         )
+
         # If this is a calculation of vertical energy derivatives,
         # analytical energy derivatives of a reference molecule are extracted.
+        # Dimension of atomic_forces_reference is
+        # (the number of atoms, three Cartesian coordinates)
         if self._calc_der:
             atomic_forces_reference = -self.get_reference_energy_derivatives()
+
         # Dimension of epn_matrix is
         # (the number of QM calculations, the number of atoms).
         # TODO: need to be generalized to three Cartesian coordinates
@@ -2383,6 +2397,15 @@ class APDFT(object):
             targetFnn = Coulomb.nuclei_atom_force(
                 target_coordinate, target
             )
+
+            # If this is a calculation of vertical energy derivatives
+            if self._calc_der:
+                # Atomic force which originates from the nuclei repulsion term
+                # of a reference system
+                # referenceFnn = np.zeros((len(self._nuclear_numbers), 3))
+                referenceFnn = Coulomb.nuclei_atom_force(
+                    self._coordinates, self._nuclear_numbers
+                )
 
             for order in sorted(self._orders):
                 # Energy contributions from the target
@@ -2487,6 +2510,13 @@ class APDFT(object):
             # Save the nuclear term of atomic forces
             nuc_atomic_forces[targetidx, :] = targetFnn
 
+            # Vertical atomic forces
+            # If this is a calculation of vertical energy derivatives
+            if self._calc_der:
+                ele_ver_atomic_forces[targetidx, :] = atomic_forces_reference - referenceFnn
+                ver_atomic_forces[targetidx,
+                                  :] = ele_ver_atomic_forces[targetidx, :] + targetFnn
+
             # dipoles
             if dipole_matrix is not None:
                 betas = self.get_linear_density_coefficients_general(
@@ -2531,10 +2561,19 @@ class APDFT(object):
                                 :] += nuc_hf_ionic_forces[targetidx, :, :, :]
 
         # return results
-        return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, \
-               reference_energy_contributions, target_energy_contributions, total_energy_contributions, \
-               atomic_forces, ele_atomic_forces, nuc_atomic_forces, hf_ionic_force_contributions, \
-               deriv_rho_contributions, hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces
+        # If this is a calulation of vertical energy derivatives
+        if self._calc_der:
+            return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, \
+                   reference_energy_contributions, target_energy_contributions, total_energy_contributions, \
+                   atomic_forces, ele_atomic_forces, nuc_atomic_forces, hf_ionic_force_contributions, \
+                   deriv_rho_contributions, hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces, \
+                   ver_atomic_forces, ele_ver_atomic_forces
+        # If this is not a calulation of vertical energy derivatives
+        else:
+            return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, \
+                   reference_energy_contributions, target_energy_contributions, total_energy_contributions, \
+                   atomic_forces, ele_atomic_forces, nuc_atomic_forces, hf_ionic_force_contributions, \
+                   deriv_rho_contributions, hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces
 
     def analyse(self, explicit_reference=False):
         """ Performs actual analysis and integration. Prints results"""
@@ -2727,11 +2766,21 @@ class APDFT(object):
             )
 
         try:
-            targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, \
-            energies_reference_contributions, energies_target_contributions, energies_total_contributions, \
-            atomic_forces, ele_atomic_forces, nuc_atomic_forces, hf_ionic_force_contributions, \
-            deriv_rho_contributions, hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces \
-                = self.predict_all_targets_general(target_coordinate)
+            # If this is a calculation of vertical energy derivatives
+            if self._calc_der:
+                targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, \
+                energies_reference_contributions, energies_target_contributions, energies_total_contributions, \
+                atomic_forces, ele_atomic_forces, nuc_atomic_forces, hf_ionic_force_contributions, \
+                deriv_rho_contributions, hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces, \
+                ver_atomic_forces, ele_ver_atomic_forces, \
+                    = self.predict_all_targets_general(target_coordinate)
+            # If this is not a calculation of vertical energy derivatives
+            else:
+                targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, \
+                energies_reference_contributions, energies_target_contributions, energies_total_contributions, \
+                atomic_forces, ele_atomic_forces, nuc_atomic_forces, hf_ionic_force_contributions, \
+                deriv_rho_contributions, hf_ionic_forces, ele_hf_ionic_forces, nuc_hf_ionic_forces \
+                    = self.predict_all_targets_general(target_coordinate)
 
         except (FileNotFoundError, AttributeError):
             apdft.log.log(
@@ -2948,6 +2997,26 @@ class APDFT(object):
                         :, atomidx, didx, order
                     ]
 
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            # Set results of vertical atomic forces
+            result_ver_atomic_forces = {}
+            result_ver_atomic_forces["targets"] = targetnames
+            # Results of electronic contributions of vertical atomic forces
+            result_ver_ele_atomic_forces = {}
+            result_ver_ele_atomic_forces["targets"] = targetnames
+
+            # TODO: generalization to specify target atoms
+            natoms = len(self._coordinates)
+            for order in self._orders:
+                for atom_pos in range(natoms):
+                    # Only Z component is presented.
+                    # TODO: generalization to three Cartesian coordinates
+                    result_ver_atomic_forces["ver_atomic_force_%s_order%d" % (
+                        atom_pos, order)] = ver_atomic_forces[:, order, atom_pos, 2]
+                    result_ver_ele_atomic_forces["ver_ele_atomic_force_%s_order%d" % (
+                        atom_pos, order)] = ele_ver_atomic_forces[:, order, atom_pos, 2]
+
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
         pd.DataFrame(result_ele_energies).to_csv("ele_energies.csv", index=False)
         pd.DataFrame(result_nuc_energies).to_csv("nuc_energies.csv", index=False)
@@ -2978,5 +3047,12 @@ class APDFT(object):
             "ele_hf_ionic_forces.csv", index=False)
         pd.DataFrame(result_nuc_hf_ionic_forces).to_csv(
             "nuc_hf_ionic_forces.csv", index=False)
+
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            pd.DataFrame(result_ver_atomic_forces).to_csv(
+                "ver_atomic_forces.csv", index=False)
+            pd.DataFrame(result_ver_ele_atomic_forces).to_csv(
+                "ver_ele_atomic_forces.csv", index=False)
 
         return targets, energies, comparison_energies
