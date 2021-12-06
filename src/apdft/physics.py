@@ -2327,6 +2327,8 @@ class APDFT(object):
             ele_ver_atomic_forces = np.zeros(
                 (len(targets), len(self._orders), len(self._nuclear_numbers), 3))
             # Nuclear part is identical to nuc_atomic_forces
+            ver_hf_ionic_force_contributions = np.zeros((
+            len(targets), len(self._orders), len(self._nuclear_numbers), 3))
 
         # Hellmann-Feynman ionic force
         hf_ionic_forces = np.zeros((len(targets), len(self._nuclear_numbers),
@@ -2427,6 +2429,15 @@ class APDFT(object):
                                                           i, :], alphas[:, order, np.newaxis]
                     ).sum(axis=0)
 
+                # If this is a calculation of vertical energy derivatives
+                if self._calc_der:
+                    ver_contributions_hf_ionic_force = np.zeros(
+                        (len(self._nuclear_numbers), 3))
+                    # Calculation of the forces on each atom
+                    for i in range(len(self._nuclear_numbers)):
+                        ver_contributions_hf_ionic_force[i, :] = np.multiply(
+                            (target[i] - self._nuclear_numbers[i]) * hf_ionic_force_matrix[:, i, :], alphas[:, order, np.newaxis]).sum(axis=0)
+
                 # Force contributions from the force of derivatives of
                 # the perturbed density
                 contributions_target_deriv_rho = np.zeros(
@@ -2473,6 +2484,14 @@ class APDFT(object):
                 hf_ionic_force_contributions[targetidx, order, :, :] = \
                     contributions_hf_ionic_force[:, :]
 
+                # If this is a calculation of vertical energy derivatives
+                if self._calc_der:
+                    # Vertical atomic forces
+                    # Sum of the target and reference contributions to
+                    # the Hellmann-Feynman term of the atomic force
+                    ver_hf_ionic_force_contributions[targetidx, order, :, :] = \
+                        ver_contributions_hf_ionic_force[:, :]
+
                 # Sum of the target and reference contributions to
                 # the atromic force originates from  derivatives of
                 # the perturbed density
@@ -2485,6 +2504,15 @@ class APDFT(object):
                     hf_ionic_force_contributions[targetidx, order, :, :] + \
                     deriv_rho_contributions[targetidx, order, :, :]
                 atomic_forces[targetidx, order, :, :] = ele_atomic_forces[targetidx, order, :, :]
+
+                # If this is a calculation of vertical energy derivatives
+                if self._calc_der:
+                    # Sum of the electronic contributions to vertical atomic forces
+                    # TODO: add a remaining term
+                    ele_ver_atomic_forces[targetidx, order, :, :] = \
+                        ver_hf_ionic_force_contributions[targetidx, order, :, :]
+                    ver_atomic_forces[targetidx, order, :,
+                                      :] = ele_ver_atomic_forces[targetidx, order, :, :]
 
                 # Save energy contributions
                 reference_energy_contributions[targetidx, order] = contributions_reference
@@ -2501,6 +2529,14 @@ class APDFT(object):
                     atomic_forces[targetidx, order] += atomic_forces[targetidx, order - 1]
                     ele_atomic_forces[targetidx, order] += atomic_forces[targetidx, order - 1]
 
+                # If this is a calculation of vertical energy derivatives
+                if self._calc_der and order > 0:
+                    # Add a former order contribution
+                    ver_atomic_forces[targetidx,
+                                      order] += ver_atomic_forces[targetidx, order - 1]
+                    ele_ver_atomic_forces[targetidx,
+                                          order] += ver_atomic_forces[targetidx, order - 1]
+
             ele_energies[targetidx, :] += refenergy - own_nuc_nuc
             energies[targetidx, :] += ele_energies[targetidx, :] + Enn
             nuc_energies[targetidx, :] += Enn
@@ -2513,9 +2549,9 @@ class APDFT(object):
             # Vertical atomic forces
             # If this is a calculation of vertical energy derivatives
             if self._calc_der:
-                ele_ver_atomic_forces[targetidx, :] = atomic_forces_reference - referenceFnn
-                ver_atomic_forces[targetidx,
-                                  :] = ele_ver_atomic_forces[targetidx, :] + targetFnn
+                ver_atomic_forces[targetidx, :] += atomic_forces_reference - referenceFnn
+                ele_ver_atomic_forces[targetidx, :] += atomic_forces_reference - referenceFnn
+                ver_atomic_forces[targetidx, :] += targetFnn
 
             # dipoles
             if dipole_matrix is not None:
