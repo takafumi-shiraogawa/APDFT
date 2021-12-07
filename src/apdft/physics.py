@@ -1456,6 +1456,136 @@ class APDFT(object):
 
         return folders
 
+    # For vertical energy derivatives in an "energies_geometries" mode
+    # TODO: implementation of APDFT3 or higher derivatives
+    def get_ver_folder_order_general(self):
+        """ Returns a static order of calculation folders to build the individual derivative entries.
+
+        To allow for a more efficient evaluation of APDFT, terms are collected and most of the evaluation
+        is done with the combined cofficients of those terms. This requires the terms to be handled in a certain
+        fixed order that is stable in the various parts of the code. Depending on the selected expansion order, this 
+        function builds the list of folders to be included.
+
+        Returns: List of strings, the folder names."""
+
+        # Folders for a calculation of vertical energy derivatives
+        folders = []
+
+        # order 0
+        folders.append("%s/QM/order-0/site-all-cc/" % self._basepath)
+
+        # order 0
+        # if 1 in self._orders:
+        if 0 in self._orders:
+            # For the atomic charge change
+            for site in self._include_atoms:
+                folders.append("%s/QM/order-1/z-site-%d-up/" %
+                               (self._basepath, site))
+                folders.append("%s/QM/order-1/z-site-%d-dn/" %
+                               (self._basepath, site))
+
+            # For the atomic position change
+            # For z-Cartesian coordinate changes
+            if self._cartesian == "z":
+                for site in self._include_atoms:
+                    folders.append("%s/QM/order-1/rz-site-%d-up/" %
+                                   (self._basepath, site))
+                    folders.append("%s/QM/order-1/rz-site-%d-dn/" %
+                                   (self._basepath, site))
+            # For full-Cartesian coordinate changes
+            else:
+                for site in self._include_atoms:
+                    for didx, dim in enumerate("XYZ"):
+                        folders.append("%s/QM/order-1/r%sz-site-%d-up/" %
+                                       (self._basepath, dim, site))
+                        folders.append("%s/QM/order-1/r%sz-site-%d-dn/" %
+                                       (self._basepath, dim, site))
+
+        # order 1
+        # if 2 in self._orders:
+        if 1 in self._orders:
+            # For the atomic charge changes
+            # These folders are not used.
+            for site_i in self._include_atoms:
+                for site_j in self._include_atoms:
+                    if site_j <= site_i:
+                        continue
+
+                    folders.append(
+                        "%s/QM/order-2/z-site-%d-%d-up/"
+                        % (self._basepath, site_i, site_j)
+                    )
+                    folders.append(
+                        "%s/QM/order-2/z-site-%d-%d-dn/"
+                        % (self._basepath, site_i, site_j)
+                    )
+
+            # For the atomic position changes
+            # These folders are not used.
+            # For z-Cartesian coordinate changes
+            if self._cartesian == "z":
+                for site_i in self._include_atoms:
+                    for site_j in self._include_atoms:
+                        if site_j <= site_i:
+                            continue
+
+                        folders.append(
+                            "%s/QM/order-2/r-site-%d-%d-up/"
+                            % (self._basepath, site_i, site_j)
+                        )
+                        folders.append(
+                            "%s/QM/order-2/r-site-%d-%d-dn/"
+                            % (self._basepath, site_i, site_j)
+                        )
+            # For full-Cartesian coordinate changes
+            else:
+                for site_i in self._include_atoms:
+                    for site_j in self._include_atoms:
+                        if site_j <= site_i:
+                            continue
+
+                        for didx, dim in enumerate("XYZ"):
+                            folders.append(
+                                "%s/QM/order-2/r%s-site-%d-%d-up/"
+                                % (self._basepath, dim, site_i, site_j)
+                            )
+                            folders.append(
+                                "%s/QM/order-2/r%s-site-%d-%d-dn/"
+                                % (self._basepath, dim, site_i, site_j)
+                            )
+
+            # For both changes of atomic charge and position
+            # Loop for the atomic charge change
+            # For z-Cartesian coordinate changes
+            if self._cartesian == "z":
+                for site_i in self._include_atoms:
+                    # Loop for the atomic position change
+                    for site_j in self._include_atoms:
+                        folders.append(
+                            "%s/QM/order-2/rz-site-%d-%d-up/"
+                            % (self._basepath, site_i, site_j)
+                        )
+                        folders.append(
+                            "%s/QM/order-2/rz-site-%d-%d-dn/"
+                            % (self._basepath, site_i, site_j)
+                        )
+            # For full-Cartesian coordinate changes
+            else:
+                for site_i in self._include_atoms:
+                    # Loop for the atomic position change
+                    for site_j in self._include_atoms:
+                        for didx, dim in enumerate("XYZ"):
+                            folders.append(
+                                "%s/QM/order-2/rz%s-site-%d-%d-up/"
+                                % (self._basepath, dim, site_i, site_j)
+                            )
+                            folders.append(
+                                "%s/QM/order-2/rz%s-site-%d-%d-dn/"
+                                % (self._basepath, dim, site_i, site_j)
+                            )
+
+        return folders
+
     # Used in physics.predict_all_targets(_general) to obtain epn_matrix
     def get_epn_matrix(self):
         """ Collects :math:`\int_Omega rho_i(\mathbf{r}) /|\mathbf{r}-\mathbf{R}_I|`. """
@@ -1668,12 +1798,18 @@ class APDFT(object):
     # For an "energies_geometries" mode
     # Used in physics.predict_all_targets(_general) to obtain epn_matrix
     # and hf_ionic_force_matrix
+    # For vertical energy derivatives, ver_epn_matrix is returned.
+    # TODO: generalization to three Cartesian coordinates
     def get_property_matrix_general(self):
         """ Collects :math:`\int_Omega rho_i(\mathbf{r}) /|\mathbf{r}-\mathbf{R}_I|`. """
         N = len(self._include_atoms)
         # folders have the dimension of the number of the computed densities
         # (QM calculations)
         folders = self.get_folder_order_general()
+
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            ver_folders = self.get_ver_folder_order_general()
 
         # Dimension is (the number of QM calculations, the number of atoms).
         #              (the types of densities)
@@ -1686,6 +1822,19 @@ class APDFT(object):
         # The dimension is (the types of densities, the number of atoms,
         #                   three Cartesian coordinates)
         force_coeff = np.zeros((len(folders), N, 3))
+
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            # Two types of EPNs which depend on molecular geometries
+            # of reference and target systems are not necessary since
+            # these EPNs are identical for a calculation of vetical
+            # energy derivatives.
+            # Note that ver_folders has one-order higher information
+            # than folders, and ver_coeff and coeff are different.
+            ver_coeff = np.zeros((len(ver_folders), N))
+            # This is not used, but is used to get two returned arrays
+            # of get_epn.
+            ver_coeff2 = np.zeros((len(ver_folders), N))
 
         # This function is iteratively used in get_epn_matrix.
         # folder: a specific folder of a QM calculation
@@ -1708,6 +1857,12 @@ class APDFT(object):
             if self._calc_der and "/r-site" in folder or "/zr-site" in folder:
                 res = 0.0
                 res2 = 0.0
+            # For order 1, z-site-*-*-up or dn is unnecessary and does not exist
+            # TODO: generalization to APDFT3 or higher order calculations
+            elif self._calc_der and 2 not in self._orders and order == 2 and "/z-site" in folder:
+                res = 0.0
+                res2 = 0.0
+            # If this is not a calculation of vertical energy derivatives
             else:
                 try:
                     # For PySCF, self._coordinates and charges are not used.
@@ -1774,15 +1929,30 @@ class APDFT(object):
         # order 0
         pos = 0
 
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            ver_pos = 0
+
         # order 0
         # "up" is meaningless here.
         # Read EPN
         coeff[pos, :], coeff2[pos, :] = get_epn(folders[pos], 0, "up", 0)
+
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                ver_folders[ver_pos], 0, "up", 0)
+
         # Read ionic force
         force_coeff[pos, :, :] = get_ionic_force(folders[pos], 0, "up", 0)
 
         # For the next order
         pos += 1
+
+        # If this is a calculation of vertical energy derivatives
+        # For the next order
+        if self._calc_der:
+            ver_pos += 1
 
         # order 1
         if 1 in self._orders:
@@ -1820,6 +1990,33 @@ class APDFT(object):
 
                 # For the next site
                 pos += 2
+
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            # order 1 for vertical energy derivatives
+            if 0 in self._orders:
+                # For the atomic charge change
+                for site in self._include_atoms:
+                    # Read EPNs for vertical energy derivatives
+                    ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                        ver_folders[ver_pos], 1, "up", [site])
+                    ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                        ver_folders[ver_pos + 1], 1, "dn", [site])
+
+                    # For the next site
+                    ver_pos += 2
+
+                # For the atomic position change
+                # TODO: generalization to three Cartesian coordinates
+                for site in self._include_atoms:
+                    # Read EPNs for vertical energy derivatives
+                    ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                        ver_folders[ver_pos], 1, "up", [site])
+                    ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                        ver_folders[ver_pos + 1], 1, "dn", [site])
+
+                    # For the next site
+                    ver_pos += 2
 
         # order 2
         if 2 in self._orders:
@@ -1887,6 +2084,9 @@ class APDFT(object):
                     pos += 2
 
         # # For check
+        # print("pos")
+        # print(pos)
+        # print("")
         # print("epn")
         # print(coeff)
         # print("folders")
@@ -1900,7 +2100,84 @@ class APDFT(object):
         # [print(i) for i in folders]
         # print('')
 
-        return coeff, coeff2, force_coeff
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            # order 2 for vertical energy derivatives
+            if 1 in self._orders:
+                # For the atomic charge changes
+                for site_i in self._include_atoms:
+                    for site_j in self._include_atoms:
+                        if site_j <= site_i:
+                            continue
+
+                        # Read EPNs for vertical energy derivatives
+                        ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                            ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                        ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                            ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+
+                        # For the next site
+                        ver_pos += 2
+
+                # For the atomic position changes
+                for site_i in self._include_atoms:
+                    for site_j in self._include_atoms:
+                        if site_j <= site_i:
+                            continue
+
+                        # Read EPNs for vertical energy derivatives
+                        ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                            ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                        ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                            ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+
+                        # For the next site
+                        ver_pos += 2
+
+                # For both changes of atomic charge and position
+                # Loop for the atomic charge change
+                for site_i in self._include_atoms:
+                    # Loop for the atomic position change
+                    for site_j in self._include_atoms:
+
+                        # Read EPNs for vertical energy derivatives
+                        ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                            ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                        ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                            ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+
+                        # For the next site
+                        ver_pos += 2
+
+        # # For check
+        # if self._calc_der:
+        #     print("ver_pos")
+        #     print(ver_pos)
+        #     print('')
+
+        #     print("ver_epn")
+        #     print(ver_coeff)
+        #     print("ver_folders")
+        #     [print(i) for i in ver_folders]
+        #     print('')
+
+        #     print("ver_epn2")
+        #     print(ver_coeff2)
+        #     print("ver_folders")
+        #     [print(i) for i in ver_folders]
+        #     print('')
+
+        #     print("ver_coeff - ver_coeff2")
+        #     print(ver_coeff - ver_coeff2)
+        #     print('')
+
+        # If this is not a calculation of vertical energy derivatives
+        if not self._calc_der:
+            return coeff, coeff2, force_coeff
+        # If this is a calculation of vertical energy derivatives
+        else:
+            return coeff, coeff2, force_coeff, ver_coeff
+
 
     def get_linear_density_coefficients(self, deltaZ):
         """ Obtains the finite difference coefficients for a property linear in the density. 
@@ -2329,6 +2606,8 @@ class APDFT(object):
             # Nuclear part is identical to nuc_atomic_forces
             ver_hf_ionic_force_contributions = np.zeros((
             len(targets), len(self._orders), len(self._nuclear_numbers), 3))
+            ver_deriv_rho_contributions = np.zeros((
+                len(targets), len(self._orders), len(self._nuclear_numbers), 3))
 
         # Hellmann-Feynman ionic force
         hf_ionic_forces = np.zeros((len(targets), len(self._nuclear_numbers),
@@ -2360,7 +2639,12 @@ class APDFT(object):
         # (the number of QM calculations, the number of atoms).
         # TODO: need to be generalized to three Cartesian coordinates
         # epn_matrix, epn_matrix_target = self.get_epn_matrix_general()
-        epn_matrix, epn_matrix_target, ionic_force_matrix = self.get_property_matrix_general()
+        # If this is not a calculation of vertical energy derivatives
+        if not self._calc_der:
+            epn_matrix, epn_matrix_target, ionic_force_matrix = self.get_property_matrix_general()
+        # If this is a calculation of vertical energy derivatives
+        else:
+            epn_matrix, epn_matrix_target, ionic_force_matrix, ver_epn_matrix = self.get_property_matrix_general()
         # Dipole matrix
         # TODO: need to be generalized to three Cartesian coordinates
         dipole_matrix = self.get_linear_density_matrix_general("TARGET_ELECTRONIC_DIPOLE")
