@@ -2777,7 +2777,7 @@ class APDFT(object):
                         ver_contributions_hf_ionic_force[:, :]
 
                 # Sum of the target and reference contributions to
-                # the atromic force originates from  derivatives of
+                # the atomic force originates from derivatives of
                 # the perturbed density
                 deriv_rho_contributions[targetidx, order, :, :] = \
                     contributions_target_deriv_rho[:, :] + \
