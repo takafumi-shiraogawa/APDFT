@@ -2722,7 +2722,7 @@ class APDFT(object):
                 (len(targets), len(self._orders), len(self._nuclear_numbers), 3))
             # Nuclear part is identical to nuc_atomic_forces
             ver_hf_ionic_force_contributions = np.zeros((
-            len(targets), len(self._orders), len(self._nuclear_numbers), 3))
+                len(targets), len(self._orders), len(self._nuclear_numbers), 3))
             ver_deriv_rho_contributions = np.zeros((
                 len(targets), len(self._orders), len(self._nuclear_numbers), 3))
 
