@@ -24,3 +24,5 @@ rm hf_ionic_force_contributions.csv
 rm hf_ionic_forces.csv
 rm ele_hf_ionic_forces.csv
 rm nuc_hf_ionic_forces.csv
+rm ver_atomic_forces.csv
+rm ver_ele_atomic_forces.csv
