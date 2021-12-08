@@ -946,8 +946,6 @@ class APDFT(object):
             # self._delta is 0.05, a small fraction for the finite difference
             # with respect to atomic charge changes
             prefactor = 1 / (2 * self._delta) / np.math.factorial(1 + shift)
-            # Set the position for the loop for an atomic geometry change
-            pos = 0
             # Loop for an atomic charge change
             for siteidx in range(N):
                 # For "up" change of the charge,
