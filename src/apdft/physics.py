@@ -1940,9 +1940,37 @@ class APDFT(object):
 
             # If this is a calculation of vertical energy derivatives
             # TODO: generalization to three Cartesian coordinates
-            if self._calc_der and "/r-site" in folder or "/zr-site" in folder:
+            if self._calc_der and "/zr-site" in folder:
                 res = 0.0
                 res2 = 0.0
+            # Use /rz-site instead of /r-site for vertical energy derivatives
+            elif self._calc_der and "/r-site" in folder:
+                try:
+                    # For PySCF, self._coordinates and charges are not used.
+                    # Therefore, direction and combination are also not used.
+                    # For EPNs of the reference
+                    res = self._calculator.get_epn(
+                        folder.replace(
+                            "r-site", "rz-site"), self._coordinates, self._include_atoms, charges
+                    )
+                    # For EPNs for the target
+                    # Here self._coordinates is not used
+                    res2 = self._calculator.get_epn2(
+                        folder.replace(
+                            "r-site", "rz-site"), self._coordinates, self._include_atoms, charges
+                    )
+                except ValueError:
+                    apdft.log.log(
+                        "Calculation with incomplete results.",
+                        level="error",
+                        calulation=folder.replace("r-site", "rz-site"),
+                    )
+                except FileNotFoundError:
+                    apdft.log.log(
+                        "Calculation is missing a result file.",
+                        level="error",
+                        calculation=folder.replace("r-site", "rz-site"),
+                    )
             # For order 1, z-site-*-*-up or dn is unnecessary and does not exist
             # TODO: generalization to APDFT3 or higher order calculations
             elif self._calc_der and 2 not in self._orders and order == 2 and "/z-site" in folder:
