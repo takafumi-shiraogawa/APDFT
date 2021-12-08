@@ -5,6 +5,7 @@ import apdft
 import os
 import itertools as it
 import pandas as pd
+import gc
 
 #: Conversion factor from Angstrom to Bohr
 angstrom = 1 / 0.52917721067
@@ -2722,6 +2723,11 @@ class APDFT(object):
         # If this is a calculation of vertical energy derivatives
         else:
             epn_matrix, epn_matrix_target, ionic_force_matrix, ver_epn_matrix = self.get_property_matrix_general()
+
+        # Release a memory
+        del ionic_force_matrix
+        gc.collect()
+
         # Dipole matrix
         # TODO: need to be generalized to three Cartesian coordinates
         dipole_matrix = self.get_linear_density_matrix_general("TARGET_ELECTRONIC_DIPOLE")
