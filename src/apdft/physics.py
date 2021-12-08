@@ -672,16 +672,21 @@ class APDFT(object):
 
                             # For molecular geometry changes
                             # TODO: generalize to higher-order APDFT (n > 3)
-                            nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
-                                len(self._nuclear_numbers), order + 1, tuple(
-                                    [combination_rz[0]]), direction, 2
-                            )
+                            if len(combination_rz) == 1:
+                                nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                                    len(self._nuclear_numbers), order + 1, tuple(
+                                        [combination_rz[0]]), direction, 2
+                                )
                             # For nuclear charge changes
                             # TODO: generalize to higher-order APDFT (n > 3)
                             if len(combination_rz) > 1:
                                 charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
                                     len(self._nuclear_numbers), order + 1, tuple(
-                                        [combination_rz[1]]), direction
+                                        [combination_rz[0]]), direction
+                                )
+                                nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                                    len(self._nuclear_numbers), order + 1, tuple(
+                                        [combination_rz[1]]), direction, 2
                                 )
                             else:
                                 charges = self._nuclear_numbers
@@ -724,16 +729,21 @@ class APDFT(object):
 
                                 # For molecular geometry changes
                                 # TODO:generalize to higher-order APDFT (n > 3)
-                                nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
-                                    len(self._nuclear_numbers), order + 1, tuple(
-                                        [combination_rz[0]]), direction, didx
-                                )
+                                if len(combination_rz) == 1:
+                                    nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                                        len(self._nuclear_numbers), order + 1, tuple(
+                                            [combination_rz[0]]), direction, didx
+                                    )
                                 # For nuclear charge changes
                                 # TODO: generalize to higher-order APDFT (n > 3)
                                 if len(combination_rz) > 1:
                                     charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
                                         len(self._nuclear_numbers), order + 1, tuple(
-                                            [combination_rz[1]]), direction
+                                            [combination_rz[0]]), direction
+                                    )
+                                    nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                                        len(self._nuclear_numbers), order + 1, tuple(
+                                            [combination_rz[1]]), direction, didx
                                     )
                                 else:
                                     charges = self._nuclear_numbers
@@ -1232,10 +1242,10 @@ class APDFT(object):
                 # For both atomic charge and coordinate changes
                 # TODO: generalization to three Cartesian coordinates
                 # Need to note that the order of loops are different from the case of betas
-                # Loop for the atomic coordinate change
-                for siteidx_j in range(N):
-                    # Loop for the atomic charge change
-                    for siteidx_i in range(N):
+                # Loop for the atomic charge change
+                for siteidx_i in range(N):
+                    # Loop for the atomic coordinate change
+                    for siteidx_j in range(N):
                         pos += 2
 
                         prefactor = (1 / (4 * self._delta * R_delta_ang)
