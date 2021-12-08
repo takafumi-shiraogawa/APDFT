@@ -903,6 +903,13 @@ class APDFT(object):
         betas = np.zeros(
             (sum([nvals[_] for _ in self._orders]), len(self._orders), N))
 
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der and shift == 1:
+            # ver_orders is one-order higher self._orders
+            ver_orders = list(range(0, max(self._orders) + 2))
+            ver_betas = np.zeros(
+                (sum([nvals[_] for _ in ver_orders]), len(ver_orders), N))
+
         # Convert unit of a small number for nuclear differentiation
         # from Angstrom to a.u.
         R_delta_ang = self._R_delta * angstrom
@@ -928,6 +935,7 @@ class APDFT(object):
         if 0 in self._orders:
             alphas[0, 0] = 1
         # betas for the force is zero for [0, 0].
+        # ver_betas for the vertical force is zero for [0, 0].
 
         # order 1
         # APDFT(1 + 1) = APDFT2
@@ -964,6 +972,27 @@ class APDFT(object):
                 alphas[1 + 2 * N + siteidx * 2 + 1, 1] -= prefactor * deltaR[siteidx, 2]
                 betas[1 + 2 * N + siteidx * 2, 1, siteidx] = prefactor
                 betas[1 + 2 * N + siteidx * 2 + 1, 1, siteidx] = -prefactor
+
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der and shift == 1:
+            # order 1 for vertical energy derivatives
+            # APDFT(1 + 1) = APDFT2
+            # For energy, the 1st-order perturbed density of APDFT1 consider
+            # the effects of individual changes of atomic charges and coordinates.
+            if 0 in self._orders:
+                # ver_betas for the force are zero for the atomic charge changes.
+
+                # self._delta is 0.005, a small fraction for the finite difference
+                # with respect to atomic coordinate changes
+                prefactor = 1 / (2 * R_delta_ang) / np.math.factorial(1 + shift - 1)
+                #                                                         shift - 1 is required!
+                # Loop for an atomic geometry change
+                for siteidx in range(N):
+                    # Current implementation only can deal with one Cartesian
+                    # coordinate change (Z vector here).
+                    # TODO: generalization to three Cartesian coordinates
+                    ver_betas[1 + 2 * N + siteidx * 2, 1, siteidx] = prefactor
+                    ver_betas[1 + 2 * N + siteidx * 2 + 1, 1, siteidx] = -prefactor
 
         # order 2
         # APDFT(2 + 1) = APDFT3
@@ -1190,10 +1219,58 @@ class APDFT(object):
                     betas[1 + 2 * N + siteidx_j * 2, 2, siteidx_j] -= prefactor_betas
                     betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_j] -= prefactor_betas
 
-        if shift == 1:
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der and shift == 1:
+            # order 2
+            # APDFT(2 + 1) = APDFT3
+            # For energy, the 2nd-order perturbed density of APDFT1 consider
+            # the effects of combinatorial changes of atomic charges.
+            if 1 in self._orders:
+                # pos is used to specify the position in ver_betas
+                # Position of both atomic and geometry changes is set.
+                pos = 1 + 2 * (N * 2) + 2 * (N * (N - 1)) - 2
+
+                # For both atomic charge and coordinate changes
+                # TODO: generalization to three Cartesian coordinates
+                # Need to note that the order of loops are different from the case of betas
+                # Loop for the atomic coordinate change
+                for siteidx_j in range(N):
+                    # Loop for the atomic charge change
+                    for siteidx_i in range(N):
+                        pos += 2
+
+                        prefactor = (1 / (4 * self._delta * R_delta_ang)
+                                     ) / np.math.factorial(2 + shift - 1)
+                        #                                     shift - 1 is required!
+                        # Set a prefactor for ver_betas
+                        prefactor_ver_betas = prefactor * deltaZ[siteidx_i]
+
+                        # Following ver_betas are for the seven terms in the mixed derivatives
+                        # with respect to atomic charge and coordinate.
+                        ver_betas[pos, 2, siteidx_j] += prefactor_ver_betas
+                        ver_betas[pos + 1, 2, siteidx_j] += prefactor_ver_betas
+                        # For the raw reference density
+                        ver_betas[0, 2, siteidx_j] += 2 * prefactor_ver_betas
+                        # For the single change of the atomic charge
+                        ver_betas[1 + siteidx_i * 2, 2, siteidx_j] -= prefactor_ver_betas
+                        ver_betas[1 + siteidx_i * 2 + 1, 2,
+                            siteidx_j] -= prefactor_ver_betas
+                        # For the single change of the atomic coordinate
+                        ver_betas[1 + 2 * N + siteidx_j * 2, 2,
+                            siteidx_j] -= prefactor_ver_betas
+                        ver_betas[1 + 2 * N + siteidx_j * 2 + 1,
+                                  2, siteidx_j] -= prefactor_ver_betas
+
+        if shift == 1 and not self._calc_der:
             return alphas, betas
+        elif shift == 1 and self._calc_der:
+            return alphas, betas, ver_betas
         elif shift == 0:
             return alphas
+        else:
+            raise ValueError(
+                "in _get_stencil_coefficients_general."
+            )
 
     def get_epn_coefficients(self, deltaZ):
         """ EPN coefficients are the weighting of the electronic EPN from each of the finite difference calculations.
@@ -2671,7 +2748,13 @@ class APDFT(object):
             deltaZ = target - self._nuclear_numbers
 
             deltaZ_included = deltaZ[self._include_atoms]
-            alphas, force_alphas = self.get_epn_coefficients_general(deltaZ_included, deltaR)
+            # If this is not a calculation of vertical energy derivatives
+            if not self._calc_der:
+                alphas, force_alphas = self.get_epn_coefficients_general(deltaZ_included, deltaR)
+            # If this is a calculation of vertical energy derivatives
+            else:
+                alphas, force_alphas, ver_force_alphas = self.get_epn_coefficients_general(
+                    deltaZ_included, deltaR)
 
             # energies
             # Calculate nuclear-nuclear repulsion energy of the target
@@ -2759,6 +2842,20 @@ class APDFT(object):
                 #     print(contributions_reference_deriv_rho[i, 2])
                 #     print('')
 
+                # If this is a calculation of vertical energy derivatives
+                if self._calc_der:
+                    # Vertical force contributions from the force of derivatives of
+                    # the perturbed density
+                    ver_contributions_deriv_rho = np.zeros(
+                        (len(self._nuclear_numbers), 3))
+                    for i in range(len(self._nuclear_numbers)):
+                        for j in range(3):
+                            # Z axis
+                            # TODO: generalization to three Cartesian coordinates
+                            if j == 2:
+                                ver_contributions_deriv_rho[i, j] = np.multiply(
+                                    np.outer(ver_force_alphas[:, order + 1, i], deltaZ_included), ver_epn_matrix).sum()
+
                 # Energy
                 ele_energies[targetidx, order] = contributions_target + contributions_reference
 
@@ -2783,6 +2880,14 @@ class APDFT(object):
                     contributions_target_deriv_rho[:, :] + \
                     contributions_reference_deriv_rho[:, :]
 
+                # If this is a calculation of vertical energy derivatives
+                if self._calc_der:
+                    # Sum of the target and reference contributions to
+                    # the vertical atomic force originates from derivatives of
+                    # the perturbed density
+                    ver_deriv_rho_contributions[targetidx, order, :, :] = \
+                        ver_contributions_deriv_rho[:, :]
+
                 # Sum of the electronic contributions to atomic forces
                 ele_atomic_forces[targetidx, order, :, :] = \
                     hf_ionic_force_contributions[targetidx, order, :, :] + \
@@ -2792,9 +2897,9 @@ class APDFT(object):
                 # If this is a calculation of vertical energy derivatives
                 if self._calc_der:
                     # Sum of the electronic contributions to vertical atomic forces
-                    # TODO: add a remaining term
                     ele_ver_atomic_forces[targetidx, order, :, :] = \
-                        ver_hf_ionic_force_contributions[targetidx, order, :, :]
+                        ver_hf_ionic_force_contributions[targetidx, order, :, :] + \
+                        ver_deriv_rho_contributions[targetidx, order, :, :]
                     ver_atomic_forces[targetidx, order, :,
                                       :] = ele_ver_atomic_forces[targetidx, order, :, :]
 
