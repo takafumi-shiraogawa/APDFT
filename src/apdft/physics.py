@@ -1943,8 +1943,11 @@ class APDFT(object):
             if self._calc_der and "/zr-site" in folder:
                 res = 0.0
                 res2 = 0.0
+            elif self._calc_der and "/r-site" in folder and order > 1:
+                res = 0.0
+                res2 = 0.0
             # Use /rz-site instead of /r-site for vertical energy derivatives
-            elif self._calc_der and "/r-site" in folder:
+            elif self._calc_der and "/r-site" in folder and order == 1:
                 try:
                     # For PySCF, self._coordinates and charges are not used.
                     # Therefore, direction and combination are also not used.
