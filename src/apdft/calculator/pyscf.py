@@ -94,9 +94,15 @@ class PyscfCalculator(apc.Calculator):
 
         # Collect all different coordinates of atoms
         # TODO: this algorithm is not smart and should be changed.
-        all_coordinates = original_coordinates
         all_coordinates = np.vstack([original_coordinates, coordinates])
         all_coordinates = np.vstack([all_coordinates, target_coordinates])
+        # To avoid duplication of coordinates with too small those differences,
+        # all_coordinates is converted to low-accuracy numbers with the small
+        # number of digits, and then is recovered to be float64 accuracy.
+        # TODO: modification of this solution
+        all_coordinates = all_coordinates.astype(np.float16)
+        all_coordinates = np.array(all_coordinates, dtype=str)
+        all_coordinates = all_coordinates.astype(np.float64)
 
         collect_all_nuclear_numbers = nuclear_numbers
         collect_all_nuclear_numbers = np.vstack(
