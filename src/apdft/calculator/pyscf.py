@@ -99,10 +99,22 @@ class PyscfCalculator(apc.Calculator):
         # To avoid duplication of coordinates with too small those differences,
         # all_coordinates is converted to low-accuracy numbers with the small
         # number of digits, and then is recovered to be float64 accuracy.
-        # TODO: modification of this solution
-        all_coordinates = all_coordinates.astype(np.float16)
-        all_coordinates = np.array(all_coordinates, dtype=str)
-        all_coordinates = all_coordinates.astype(np.float64)
+        # TODO: modification of this solution. This is too heuristic.
+        if abs(np.amax(all_coordinates)) > 10.0:
+            all_coordinates = np.round(all_coordinates, decimals=13)
+        elif abs(np.amax(all_coordinates)) > 100.0:
+            all_coordinates = np.round(all_coordinates, decimals=12)
+        elif abs(np.amax(all_coordinates)) > 1000.0:
+            all_coordinates = np.round(all_coordinates, decimals=11)
+        elif abs(np.amax(all_coordinates)) > 10000.0:
+            all_coordinates = np.round(all_coordinates, decimals=10)
+        elif abs(np.amax(all_coordinates)) > 100000.0:
+            all_coordinates = np.round(all_coordinates, decimals=9)
+        elif abs(np.amax(all_coordinates)) > 1000000.0:
+            all_coordinates = np.round(all_coordinates, decimals=8)
+        # Assumming max(abs(all_coordinates)) < 10.0
+        else:
+            all_coordinates = np.round(all_coordinates, decimals=14)
 
         collect_all_nuclear_numbers = nuclear_numbers
         collect_all_nuclear_numbers = np.vstack(
