@@ -94,27 +94,33 @@ class PyscfCalculator(apc.Calculator):
 
         # Collect all different coordinates of atoms
         # TODO: this algorithm is not smart and should be changed.
-        all_coordinates = np.vstack([original_coordinates, coordinates])
-        all_coordinates = np.vstack([all_coordinates, target_coordinates])
+        dummy_all_coordinates = np.vstack([original_coordinates, coordinates])
+        dummy_all_coordinates = np.vstack(
+            [dummy_all_coordinates, target_coordinates])
+        collect_all_coordinates = np.vstack(
+            [original_coordinates, coordinates])
+        collect_all_coordinates = np.vstack(
+            [collect_all_coordinates, target_coordinates])
         # To avoid duplication of coordinates with too small those differences,
         # all_coordinates is converted to low-accuracy numbers with the small
         # number of digits, and then is recovered to be float64 accuracy.
         # TODO: modification of this solution. This is too heuristic.
-        if np.amax(abs(all_coordinates)) > 10.0:
-            all_coordinates = np.round(all_coordinates, decimals=13)
-        elif np.amax(abs(all_coordinates)) > 100.0:
-            all_coordinates = np.round(all_coordinates, decimals=12)
-        elif np.amax(abs(all_coordinates)) > 1000.0:
-            all_coordinates = np.round(all_coordinates, decimals=11)
-        elif np.amax(abs(all_coordinates)) > 10000.0:
-            all_coordinates = np.round(all_coordinates, decimals=10)
-        elif np.amax(abs(all_coordinates)) > 100000.0:
-            all_coordinates = np.round(all_coordinates, decimals=9)
-        elif np.amax(abs(all_coordinates)) > 1000000.0:
-            all_coordinates = np.round(all_coordinates, decimals=8)
+        if np.amax(abs(dummy_all_coordinates)) > 10.0:
+            dummy_all_coordinates = np.round(dummy_all_coordinates, decimals=13)
+        elif np.amax(abs(dummy_all_coordinates)) > 100.0:
+            dummy_all_coordinates = np.round(dummy_all_coordinates, decimals=12)
+        elif np.amax(abs(dummy_all_coordinates)) > 1000.0:
+            dummy_all_coordinates = np.round(
+                dummy_all_coordinates, decimals=11)
+        elif np.amax(abs(dummy_all_coordinates)) > 10000.0:
+            dummy_all_coordinates = np.round(dummy_all_coordinates, decimals=10)
+        elif np.amax(abs(dummy_all_coordinates)) > 100000.0:
+            dummy_all_coordinates = np.round(dummy_all_coordinates, decimals=9)
+        elif np.amax(abs(dummy_all_coordinates)) > 1000000.0:
+            dummy_all_coordinates = np.round(dummy_all_coordinates, decimals=8)
         # Assumming max(abs(all_coordinates)) < 10.0
         else:
-            all_coordinates = np.round(all_coordinates, decimals=14)
+            dummy_all_coordinates = np.round(dummy_all_coordinates, decimals=14)
 
         collect_all_nuclear_numbers = nuclear_numbers
         collect_all_nuclear_numbers = np.vstack(
@@ -126,13 +132,16 @@ class PyscfCalculator(apc.Calculator):
         # print(all_coordinates)
 
         # Obtain unique coordinates
-        all_coordinates, all_nuclear_numbers_id = np.unique(all_coordinates, return_index=True, axis=0)
+        dummy_all_coordinates_2, all_nuclear_numbers_id = np.unique(dummy_all_coordinates, return_index=True, axis=0)
         all_nuclear_numbers = np.zeros(
             len(all_nuclear_numbers_id), dtype=np.int64)
+        all_coordinates = np.zeros(
+            (len(all_nuclear_numbers_id), 3), dtype=np.float64)
         for id_1 in range(len(all_nuclear_numbers_id)):
             for id_2 in range(len(onedim_collect_all_nuclear_numbers)):
                 if all_nuclear_numbers_id[id_1] == id_2:
                     all_nuclear_numbers[id_1] = onedim_collect_all_nuclear_numbers[id_2]
+                    all_coordinates[id_1, :] = collect_all_coordinates[id_2, :]
 
         # print(all_nuclear_numbers)
         # print(all_coordinates)
