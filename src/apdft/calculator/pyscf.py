@@ -100,17 +100,17 @@ class PyscfCalculator(apc.Calculator):
         # all_coordinates is converted to low-accuracy numbers with the small
         # number of digits, and then is recovered to be float64 accuracy.
         # TODO: modification of this solution. This is too heuristic.
-        if abs(np.amax(all_coordinates)) > 10.0:
+        if np.amax(abs(all_coordinates)) > 10.0:
             all_coordinates = np.round(all_coordinates, decimals=13)
-        elif abs(np.amax(all_coordinates)) > 100.0:
+        elif np.amax(abs(all_coordinates)) > 100.0:
             all_coordinates = np.round(all_coordinates, decimals=12)
-        elif abs(np.amax(all_coordinates)) > 1000.0:
+        elif np.amax(abs(all_coordinates)) > 1000.0:
             all_coordinates = np.round(all_coordinates, decimals=11)
-        elif abs(np.amax(all_coordinates)) > 10000.0:
+        elif np.amax(abs(all_coordinates)) > 10000.0:
             all_coordinates = np.round(all_coordinates, decimals=10)
-        elif abs(np.amax(all_coordinates)) > 100000.0:
+        elif np.amax(abs(all_coordinates)) > 100000.0:
             all_coordinates = np.round(all_coordinates, decimals=9)
-        elif abs(np.amax(all_coordinates)) > 1000000.0:
+        elif np.amax(abs(all_coordinates)) > 1000000.0:
             all_coordinates = np.round(all_coordinates, decimals=8)
         # Assumming max(abs(all_coordinates)) < 10.0
         else:
