@@ -1243,23 +1243,22 @@ class APDFT(object):
                 # TODO: generalization to three Cartesian coordinates
                 # Need to note that the order of loops are different from the case of betas
                 # Loop for the atomic charge change
+                prefactor = (1.0 / (4.0 * self._delta * R_delta_ang)
+                             ) / np.math.factorial(2 + shift - 1)
+                #                                     shift - 1 is required!
                 for siteidx_i in range(N):
+                    # Set a prefactor for ver_betas
+                    prefactor_ver_betas = prefactor * deltaZ[siteidx_i]
                     # Loop for the atomic coordinate change
                     for siteidx_j in range(N):
                         pos += 2
-
-                        prefactor = (1 / (4 * self._delta * R_delta_ang)
-                                     ) / np.math.factorial(2 + shift - 1)
-                        #                                     shift - 1 is required!
-                        # Set a prefactor for ver_betas
-                        prefactor_ver_betas = prefactor * deltaZ[siteidx_i]
 
                         # Following ver_betas are for the seven terms in the mixed derivatives
                         # with respect to atomic charge and coordinate.
                         ver_betas[pos, 2, siteidx_j] += prefactor_ver_betas
                         ver_betas[pos + 1, 2, siteidx_j] += prefactor_ver_betas
                         # For the raw reference density
-                        ver_betas[0, 2, siteidx_j] += 2 * prefactor_ver_betas
+                        ver_betas[0, 2, siteidx_j] += 2.0 * prefactor_ver_betas
                         # For the single change of the atomic charge
                         ver_betas[1 + siteidx_i * 2, 2, siteidx_j] -= prefactor_ver_betas
                         ver_betas[1 + siteidx_i * 2 + 1, 2,
