@@ -2849,6 +2849,13 @@ class APDFT(object):
                         ver_contributions_hf_ionic_force[i, :] = np.multiply(
                             (target[i] - self._nuclear_numbers[i]) * hf_ionic_force_matrix[:, i, :], alphas[:, order, np.newaxis]).sum(axis=0)
 
+                    # # For check
+                    # print("target", target)
+                    # print("order", order)
+                    # print("ver_contributions_hf_ionic_force[:, 2]")
+                    # print(ver_contributions_hf_ionic_force[:, 2])
+                    # print("")
+
                 # Force contributions from the force of derivatives of
                 # the perturbed density
                 contributions_target_deriv_rho = np.zeros(
@@ -2899,6 +2906,13 @@ class APDFT(object):
                             if j == 2:
                                 ver_contributions_deriv_rho[i, j] = np.multiply(
                                     np.outer(ver_force_alphas[:, order + 1, i], deltaZ_included), ver_epn_matrix).sum()
+
+                    # # For check
+                    # print("target", target)
+                    # print("order", order)
+                    # print("ver_contributions_deriv_rho[:, 2]")
+                    # print(ver_contributions_deriv_rho[:, 2])
+                    # print("")
 
                 # Energy
                 ele_energies[targetidx, order] = contributions_target + contributions_reference
