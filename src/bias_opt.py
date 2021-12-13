@@ -7,6 +7,7 @@ import gc
 
 # Algorithms
 # 1. Identify unique molecules
+# 2. Generate weights of the molecules
 
 
 def get_target_value(target, dict_inp, apdft_order):
@@ -30,3 +31,10 @@ unique_nuc_energies, id_unique_mol = np.unique(
 del full_nuc_energies
 del unique_nuc_energies
 gc.collect()
+
+# The number of unique molecules
+num_unique_mol = len(id_unique_mol)
+
+# Set initial weights
+mol_weights = np.zeros(len(id_unique_mol))
+mol_weights[:] = 1.0 / num_unique_mol
