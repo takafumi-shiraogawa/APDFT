@@ -61,6 +61,25 @@ def calc_weight_energy_and_gradients(num_full_mol, num_atom, apdft_order, id_uni
 
   return weight_energy, weight_gradients
 
+def calc_weight_dipole(num_full_mol, num_atom, apdft_order, id_unique_mol, mol_weights):
+  # Set information on outputs of the APDFT calculation
+  inp_dipole = open("./dipoles.csv", "r")
+
+  # Open the inputs
+  dict_dipole = csv.DictReader(inp_dipole)
+
+  full_dipoles = np.zeros(num_full_mol)
+
+  # Obtain results
+  full_dipoles = get_target_value(
+      "dipole_moment_z_order", dict_dipole, apdft_order)
+
+  # Compute weighted properties
+  weight_dipole = get_weight_property(
+      full_dipoles, id_unique_mol, mol_weights)
+
+  return weight_dipole
+
 
 # Parameters
 apdft_order = 1
@@ -92,3 +111,7 @@ mol_weights[:] = 1.0 / num_unique_mol
 
 weight_energy, weight_gradients = calc_weight_energy_and_gradients(
     num_full_mol, num_atom, apdft_order, id_unique_mol, mol_weights)
+
+weight_dipole = calc_weight_dipole(
+    num_full_mol, num_atom, apdft_order, id_unique_mol, mol_weights)
+print(weight_dipole)
