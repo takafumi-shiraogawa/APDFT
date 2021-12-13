@@ -15,7 +15,18 @@ def get_target_value(target, dict_inp, apdft_order):
   for i, row in enumerate(dict_inp):
     target_values.append(row["%s%s" % (target, str(apdft_order))])
 
-  return np.array(target_values)
+  return np.array(target_values).astype(np.float64)
+
+
+def get_weight_property(full_property, id_unique_mol, weight):
+  weight_property = 0.0
+  pos = -1
+  for i in range(len(full_property)):
+    if i in id_unique_mol:
+      pos += 1
+      weight_property += full_property[i] * weight[pos]
+
+  return weight_property
 
 
 # Parameters
@@ -57,6 +68,7 @@ dict_atomic_force = csv.DictReader(inp_atomic_force)
 
 full_energies = np.zeros(num_full_mol)
 full_gradients = np.zeros((num_full_mol, num_atom))
+weight_gradients = np.zeros(num_atom)
 
 # Obtain results
 full_energies = get_target_value(
@@ -69,3 +81,9 @@ for i in range(num_atom):
   dict_atomic_force = csv.DictReader(inp_atomic_force)
 
 full_gradients[:, :] = -full_gradients[:, :]
+
+# Compute weighted properties
+weight_energy = get_weight_property(full_energies, id_unique_mol, mol_weights)
+for i in range(num_atom):
+  weight_gradients[i] = get_weight_property(
+      full_gradients[:, i], id_unique_mol, mol_weights)
