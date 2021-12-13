@@ -119,4 +119,3 @@ weight_energy, weight_gradients = calc_weight_energy_and_gradients(
 
 weight_dipole = calc_weight_dipole(
     num_full_mol, num_atom, apdft_order, id_unique_mol, mol_weights)
-print(weight_dipole)
