@@ -51,6 +51,9 @@ def calc_weight_energy_and_gradients(num_full_mol, num_atom, apdft_order, id_uni
     inp_atomic_force = open("./ver_atomic_forces.csv", "r")
     dict_atomic_force = csv.DictReader(inp_atomic_force)
 
+  inp_total_energy.close()
+  inp_atomic_force.close()
+
   full_gradients[:, :] = -full_gradients[:, :]
 
   # Compute weighted properties
@@ -77,6 +80,8 @@ def calc_weight_dipole(num_full_mol, num_atom, apdft_order, id_unique_mol, mol_w
   # Compute weighted properties
   weight_dipole = get_weight_property(
       full_dipoles, id_unique_mol, mol_weights)
+
+  inp_dipole.close()
 
   return weight_dipole
 
