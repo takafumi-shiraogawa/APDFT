@@ -28,6 +28,39 @@ def get_weight_property(full_property, id_unique_mol, weight):
 
   return weight_property
 
+def calc_weight_energy_and_gradients(num_full_mol, num_atom, apdft_order, id_unique_mol, mol_weights):
+  # Set information on outputs of the APDFT calculation
+  inp_total_energy = open("./energies.csv", "r")
+  inp_atomic_force = open("./ver_atomic_forces.csv", "r")
+
+  # Open the inputs
+  dict_total_energy = csv.DictReader(inp_total_energy)
+  dict_atomic_force = csv.DictReader(inp_atomic_force)
+
+  full_energies = np.zeros(num_full_mol)
+  full_gradients = np.zeros((num_full_mol, num_atom))
+  weight_gradients = np.zeros(num_atom)
+
+  # Obtain results
+  full_energies = get_target_value(
+      "total_energy_order", dict_total_energy, apdft_order)
+  for i in range(num_atom):
+    full_gradients[:, i] = get_target_value(
+        "ver_atomic_force_%s_order" % str(i), dict_atomic_force, apdft_order)
+    inp_atomic_force.close()
+    inp_atomic_force = open("./ver_atomic_forces.csv", "r")
+    dict_atomic_force = csv.DictReader(inp_atomic_force)
+
+  full_gradients[:, :] = -full_gradients[:, :]
+
+  # Compute weighted properties
+  weight_energy = get_weight_property(full_energies, id_unique_mol, mol_weights)
+  for i in range(num_atom):
+    weight_gradients[i] = get_weight_property(
+        full_gradients[:, i], id_unique_mol, mol_weights)
+
+  return weight_energy, weight_gradients
+
 
 # Parameters
 apdft_order = 1
@@ -57,33 +90,5 @@ num_unique_mol = len(id_unique_mol)
 mol_weights = np.zeros(len(id_unique_mol))
 mol_weights[:] = 1.0 / num_unique_mol
 
-
-# Set information on outputs of the APDFT calculation
-inp_total_energy = open("./energies.csv", "r")
-inp_atomic_force = open("./ver_atomic_forces.csv", "r")
-
-# Open the inputs
-dict_total_energy = csv.DictReader(inp_total_energy)
-dict_atomic_force = csv.DictReader(inp_atomic_force)
-
-full_energies = np.zeros(num_full_mol)
-full_gradients = np.zeros((num_full_mol, num_atom))
-weight_gradients = np.zeros(num_atom)
-
-# Obtain results
-full_energies = get_target_value(
-    "total_energy_order", dict_total_energy, apdft_order)
-for i in range(num_atom):
-  full_gradients[:, i] = get_target_value(
-      "ver_atomic_force_%s_order" % str(i), dict_atomic_force, apdft_order)
-  inp_atomic_force.close()
-  inp_atomic_force = open("./ver_atomic_forces.csv", "r")
-  dict_atomic_force = csv.DictReader(inp_atomic_force)
-
-full_gradients[:, :] = -full_gradients[:, :]
-
-# Compute weighted properties
-weight_energy = get_weight_property(full_energies, id_unique_mol, mol_weights)
-for i in range(num_atom):
-  weight_gradients[i] = get_weight_property(
-      full_gradients[:, i], id_unique_mol, mol_weights)
+weight_energy, weight_gradients = calc_weight_energy_and_gradients(
+    num_full_mol, num_atom, apdft_order, id_unique_mol, mol_weights)
