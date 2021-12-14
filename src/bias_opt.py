@@ -6,8 +6,11 @@ import gc
 import os
 import shutil
 import jinja2 as jinja
-from multiprocessing import Pool
 from multiprocessing import Process
+
+# Inputs
+# order.inp
+# nuc_energies.xyz
 
 # Algorithms
 # 1. Identify unique molecules
@@ -313,8 +316,6 @@ for bias_shift_idx in range(len(sigma) + 1):
         p.start()
     for p in processes:
         p.join()
-    # p = Pool(par_var)
-    # p.map(inp_commands_file, path, range(par_var))
 
     os.system("( cd %s && bash imp_mod_cli2.sh )" % path)
 
