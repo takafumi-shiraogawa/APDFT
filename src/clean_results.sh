@@ -4,6 +4,7 @@
 # in modified APDFT
 rm apdft.conf
 rm commands.sh
+rm commands_*.sh
 rm -rf QM/
 rm energies.csv
 rm ele_energies.csv
