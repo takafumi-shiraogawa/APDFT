@@ -6,17 +6,43 @@ import gc
 import os
 import shutil
 import jinja2 as jinja
+# from basis_set_exchange import lut
 from multiprocessing import Process
 
 # Inputs
 # order.inp
 # nuc_energies.xyz
+# mol.xyz
+# mol.xyz needs to have numbers for atom species.
 
 # Algorithms
 # 1. Identify unique molecules
 # 2. Generate weights of the molecules
 # 3. Geometry optimization
 # 4. Back to 2
+
+# def get_element_number(element):
+#     return lut.element_Z_from_sym(element)
+
+def read_xyz(fn):
+    with open(fn) as fh:
+        lines = fh.readlines()
+    numatoms = int(lines[0].strip())
+    lines = lines[2 : 2 + numatoms]
+    nuclear_numbers = []
+    coordinates = []
+    for line in lines:
+        line = line.strip()
+        if len(line) == 0:
+            break
+        parts = line.split()
+        nuclear_numbers.append(int(parts[0]))
+        # try:
+        #     nuclear_numbers.append(int(parts[0]))
+        # except:
+        #     nuclear_numbers.append(get_element_number(parts[0]))
+        coordinates.append([float(_) for _ in parts[1:4]])
+    return np.array(nuclear_numbers), np.array(coordinates)
 
 # Copy inputs of an APDFT calculation from template/ to the target directry
 def copy_ingredients(copy_directry):
@@ -213,12 +239,12 @@ log = open('log', 'w')
 
 par_var = get_par_var()
 
+nuclear_numbers, coordinates = read_xyz("mol.xyz")
+
 # Parameters
 # intial bond length
-inp_coord_atom1 = 0.0
-inp_coord_atom2 = 1.4
 apdft_order = 1
-num_atom = 2
+num_atom = len(nuclear_numbers)
 # maximum number of bias shifts
 max_bias_shift = 100
 # maximum number of optimization loops
@@ -238,8 +264,8 @@ gradient = np.zeros((num_atom, len(sigma) + 1, max_geom_opt))
 coord = np.zeros((num_atom, len(sigma) + 1, max_geom_opt))
 dipole = np.zeros((len(sigma) + 1, max_geom_opt))
 
-coord[0, 0, 0] = inp_coord_atom1
-coord[1, 0, 0] = inp_coord_atom2
+for i in range(num_atom):
+  coord[i, 0, 0] = coordinates[i, 2]
 
 # Obtain nuclear-nuclear repulsion energies of all molecules in chemcal space
 inp_nuc_energies = open("./nuc_energies.csv", "r")
@@ -309,13 +335,14 @@ for bias_shift_idx in range(len(sigma) + 1):
 
     # os.system("( cd %s && bash commands.sh )" % path)
     gener_commands_file(path)
-    processes = [
-        Process(target=inp_commands_file, args=(path, i))
-        for i in range(par_var)]
-    for p in processes:
-        p.start()
-    for p in processes:
-        p.join()
+    if __name__ == "__main__":
+      processes = [
+          Process(target=inp_commands_file, args=(path, i))
+          for i in range(par_var)]
+      for p in processes:
+          p.start()
+      for p in processes:
+          p.join()
 
     os.system("( cd %s && bash imp_mod_cli2.sh )" % path)
 
