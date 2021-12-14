@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 import csv
-import matplotlib.pyplot as plt
 import numpy as np
 import gc
 import os
 import shutil
 import jinja2 as jinja
+from multiprocessing import Pool
+from multiprocessing import Process
 
 # Algorithms
 # 1. Identify unique molecules
@@ -162,6 +163,37 @@ def line_search(coord, energy, gradient):
 
   return next_coord
 
+def readlines_commands_file(path):
+    with open('%s/commands.sh' % path, 'r') as file:
+        return file.readlines()
+
+def save_commands_file(file_name, text):
+    with open(file_name, 'w') as file:
+      file.write(text)
+
+def get_par_var():
+  order_inp = open('order.inp', 'r')
+  par_var = order_inp.read()
+
+  return int(par_var)
+
+def gener_commands_file(path):
+  # Read parallerization variable
+  order_inp = open('order.inp', 'r')
+  par_var = order_inp.read()
+
+  commands_lines = readlines_commands_file(path)
+  limit = len(commands_lines) // int(par_var)
+
+  for i in range(int(par_var)):
+    offset = i * limit
+    text = commands_lines[offset: offset + limit]
+    save_commands_file("%s/commands_%s.sh" % (path, str(i)), "".join(text))
+
+def inp_commands_file(path, pos):
+  print("( cd %s && bash commands_%s.sh )" % (path, str(pos)))
+  os.system("( cd %s && bash commands_%s.sh )" % (path, str(pos)))
+
 
 # Begin the code
 if os.path.isdir("work/"):
@@ -172,6 +204,8 @@ if os.path.isfile('log'):
 
 # For log
 log = open('log', 'w')
+
+par_var = get_par_var()
 
 # Parameters
 # intial bond length
@@ -264,7 +298,22 @@ for bias_shift_idx in range(len(sigma) + 1):
 
     # Implement the APDFT calculation
     os.system("( cd %s && bash imp_mod_cli1.sh )" % path)
-    os.system("( cd %s && bash commands.sh )" % path)
+
+    # os.system("( cd %s && bash commands.sh )" % path)
+    gener_commands_file(path)
+    print("")
+    print(path)
+    print("")
+    processes = [
+        Process(target=inp_commands_file, args=(path, i))
+        for i in range(par_var)]
+    for p in processes:
+        p.start()
+    for p in processes:
+        p.join()
+    # p = Pool(par_var)
+    # p.map(inp_commands_file, path, range(par_var))
+
     os.system("( cd %s && bash imp_mod_cli2.sh )" % path)
 
     weight_energy, weight_gradients = calc_weight_energy_and_gradients(
