@@ -62,13 +62,13 @@ def copy_ingredients(copy_directry):
   return
 
 # generate n2.xyz or n2_mod.inp with arbitrary bond length
-def gener_inputs(target1, target2, target_inp):
+def gener_inputs(targets, target_inp):
   with open(str(target_inp)) as fh:
     template = jinja.Template(fh.read())
 
   env = {}
-  env["bond_length1"] = target1
-  env["bond_length2"] = target2
+  for target_idx, target in enumerate(targets):
+    env["bond_length%s" % str(target_idx + 1)] = target
 
   return template.render(**env)
 
@@ -322,9 +322,9 @@ for bias_shift_idx in range(len(sigma) + 1):
 
     # Set *.xyz
     inputfile_ori = gener_inputs(
-        coord[0, bias_shift_idx, geom_opt_idx], coord[1, bias_shift_idx, geom_opt_idx], "template/n2.xyz")
+        coord[:, bias_shift_idx, geom_opt_idx], "template/n2.xyz")
     inputfile_mod = gener_inputs(
-        coord[0, bias_shift_idx, geom_opt_idx], coord[1, bias_shift_idx, geom_opt_idx], "template/n2_mod.xyz")
+        coord[:, bias_shift_idx, geom_opt_idx], "template/n2_mod.xyz")
     with open("%s/n2.xyz" % path, "w") as inp:
       inp.write(inputfile_ori)
     with open("%s/n2_mod.xyz" % path, "w") as inp:
