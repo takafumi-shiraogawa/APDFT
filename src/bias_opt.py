@@ -245,6 +245,8 @@ coord[1, 0, 0] = inp_coord_atom2
 inp_nuc_energies = open("./nuc_energies.csv", "r")
 dict_inp_nuc_energies = csv.DictReader(inp_nuc_energies)
 full_nuc_energies = get_target_value("nuc_energy_order", dict_inp_nuc_energies, 0)
+# Consider numerical errors
+full_nuc_energies = np.round(full_nuc_energies, decimals=10)
 inp_nuc_energies.close()
 
 num_full_mol = len(full_nuc_energies)
