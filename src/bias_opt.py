@@ -181,17 +181,22 @@ def gener_commands_file(path):
   # Read parallerization variable
   order_inp = open('order.inp', 'r')
   par_var = order_inp.read()
+  par_var = int(par_var)
 
   commands_lines = readlines_commands_file(path)
-  limit = len(commands_lines) // int(par_var)
 
-  for i in range(int(par_var)):
-    offset = i * limit
-    text = commands_lines[offset: offset + limit]
-    save_commands_file("%s/commands_%s.sh" % (path, str(i)), "".join(text))
+  div_num = len(commands_lines) // par_var
+  if len(commands_lines) % par_var == 0:
+    tune_div_num = div_num
+  else:
+    tune_div_num = div_num + 1
+  div_commands_lines = [commands_lines[i:i+tune_div_num]
+                        for i in range(0, len(commands_lines), tune_div_num)]
+
+  for textidx, text in enumerate(div_commands_lines):
+    save_commands_file("%s/commands_%s.sh" % (path, str(textidx)), "".join(text))
 
 def inp_commands_file(path, pos):
-  print("( cd %s && bash commands_%s.sh )" % (path, str(pos)))
   os.system("( cd %s && bash commands_%s.sh )" % (path, str(pos)))
 
 
@@ -301,9 +306,6 @@ for bias_shift_idx in range(len(sigma) + 1):
 
     # os.system("( cd %s && bash commands.sh )" % path)
     gener_commands_file(path)
-    print("")
-    print(path)
-    print("")
     processes = [
         Process(target=inp_commands_file, args=(path, i))
         for i in range(par_var)]
