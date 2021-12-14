@@ -11,13 +11,11 @@ import jinja2 as jinja
 # Algorithms
 # 1. Identify unique molecules
 # 2. Generate weights of the molecules
-
+# 3. Geometry optimization
+# 4. Back to 2
 
 # Copy inputs of an APDFT calculation from template/ to the target directry
-def copy_ingredients(target):
-
-  # Set a target directry
-  copy_directry = "work/iter-%s" % (str(target))
+def copy_ingredients(copy_directry):
 
   # Copy imp_mod_cli1.sh
   copyfile = "template/imp_mod_cli1.sh"
@@ -121,6 +119,40 @@ def calc_weight_dipole(path, num_full_mol, num_atom, apdft_order, id_unique_mol,
 
   return weight_dipole
 
+def calc_weights_from_dipoles(local, sigma, path, num_full_mol, num_atom, apdft_order, id_unique_mol):
+  # Set information on outputs of the APDFT calculation
+  inp_dipole = open("%s/dipoles.csv" % path, "r")
+
+  # Open the inputs
+  dict_dipole = csv.DictReader(inp_dipole)
+
+  full_dipoles = np.zeros(num_full_mol)
+
+  # Obtain results
+  full_dipoles = get_target_value(
+      "dipole_moment_z_order", dict_dipole, apdft_order)
+
+  prop_sum = 0.0
+  unique_dipoles = np.zeros(len(id_unique_mol))
+  pos = -1
+  for i in range(num_full_mol):
+    if i in id_unique_mol:
+      pos += 1
+      unique_dipoles[pos] = full_dipoles[i]
+
+  weights = np.zeros(len(id_unique_mol))
+  if not local:
+    prop_sum = np.exp(sigma * (abs(unique_dipoles) ** 2.0)).sum()
+    for i in range(len(id_unique_mol)):
+      weights[i] = np.exp(sigma * (abs(unique_dipoles[i]) ** 2.0)) / prop_sum
+  else:
+    weights[:] = 0.0
+    weights[np.argmax(abs(unique_dipoles))] = 1.0
+
+  inp_dipole.close()
+
+  return weights
+
 # Conduct line search
 def line_search(coord, energy, gradient):
   next_coord = np.zeros(len(coord))
@@ -135,6 +167,12 @@ def line_search(coord, energy, gradient):
 if os.path.isdir("work/"):
   shutil.rmtree("work/")
 
+if os.path.isfile('log'):
+  os.remove('log')
+
+# For log
+log = open('log', 'w')
+
 # Parameters
 # intial bond length
 inp_coord_atom1 = 0.0
@@ -145,21 +183,23 @@ num_atom = 2
 max_bias_shift = 100
 # maximum number of optimization loops
 max_geom_opt = 1000
-ipsilon = 0.001
+ipsilon = 1.0 # 0.01
+sigma = np.array([0.0, 1.0]).astype(np.float64) # np.array([0.0, 0.01, 0.05, 0.1, 0.5, 1.0]).astype(np.float64)
 
 # Convertor
 ang_to_bohr = 1.0 / 0.529117
 
 # Results
 # APDFT energy
-energy = np.zeros(max_geom_opt)
+energy = np.zeros((len(sigma) + 1, max_geom_opt))
 # APDFT gradient
-gradient = np.zeros((num_atom, max_geom_opt))
+gradient = np.zeros((num_atom, len(sigma) + 1, max_geom_opt))
 # Atomic coordinates
-coord = np.zeros((num_atom, max_geom_opt))
+coord = np.zeros((num_atom, len(sigma) + 1, max_geom_opt))
+dipole = np.zeros((len(sigma) + 1, max_geom_opt))
 
-coord[0, 0] = inp_coord_atom1
-coord[1, 0] = inp_coord_atom2
+coord[0, 0, 0] = inp_coord_atom1
+coord[1, 0, 0] = inp_coord_atom2
 
 # Obtain nuclear-nuclear repulsion energies of all molecules in chemcal space
 inp_nuc_energies = open("./nuc_energies.csv", "r")
@@ -182,25 +222,41 @@ num_unique_mol = len(id_unique_mol)
 
 # Set initial weights
 mol_weights = np.zeros(len(id_unique_mol))
-mol_weights[:] = 1.0 / num_unique_mol
 
-# For development of geometry optimizer
-max_bias_shift = 1
+save_geom_opt_idx = np.zeros(len(sigma) + 1).astype(np.int64)
 
-for bias_shift_idx in range(max_bias_shift):
+for bias_shift_idx in range(len(sigma) + 1):
+
+  if bias_shift_idx == 0:
+    mol_weights[:] = 1.0 / num_unique_mol
+  elif bias_shift_idx < len(sigma):
+    local = False
+    mol_weights = calc_weights_from_dipoles(
+        local, sigma[bias_shift_idx], former_path, num_full_mol, num_atom, apdft_order, id_unique_mol)
+  else:
+    local = True
+    # 1.0 is not used here
+    mol_weights = calc_weights_from_dipoles(
+        local, 1.0, former_path, num_full_mol, num_atom, apdft_order, id_unique_mol)
+
   for geom_opt_idx in range(max_geom_opt):
 
-    path = "work/iter-%s" % (str(geom_opt_idx))
+    if bias_shift_idx > 0 and geom_opt_idx == 0:
+      coord[:, bias_shift_idx, geom_opt_idx] = coord[:,
+                                                     bias_shift_idx - 1, save_geom_opt_idx[bias_shift_idx - 1]]
+
+    path = "work/bias-iter-%s/opt-iter-%s" % (
+        str(bias_shift_idx), str(geom_opt_idx))
     os.makedirs(path)
 
     # Copy inputs of the APDFT calculation in the working directry
-    copy_ingredients(geom_opt_idx)
+    copy_ingredients(path)
 
     # Set *.xyz
     inputfile_ori = gener_inputs(
-        coord[0, geom_opt_idx], coord[1, geom_opt_idx], "template/n2.xyz")
+        coord[0, bias_shift_idx, geom_opt_idx], coord[1, bias_shift_idx, geom_opt_idx], "template/n2.xyz")
     inputfile_mod = gener_inputs(
-        coord[0, geom_opt_idx], coord[1, geom_opt_idx], "template/n2_mod.xyz")
+        coord[0, bias_shift_idx, geom_opt_idx], coord[1, bias_shift_idx, geom_opt_idx], "template/n2_mod.xyz")
     with open("%s/n2.xyz" % path, "w") as inp:
       inp.write(inputfile_ori)
     with open("%s/n2_mod.xyz" % path, "w") as inp:
@@ -217,43 +273,76 @@ for bias_shift_idx in range(max_bias_shift):
     weight_dipole = calc_weight_dipole(
         path, num_full_mol, num_atom, apdft_order, id_unique_mol, mol_weights)
 
-    energy[geom_opt_idx] = weight_energy
-    gradient[:, geom_opt_idx] = weight_gradients
+    energy[bias_shift_idx, geom_opt_idx] = weight_energy
+    gradient[:, bias_shift_idx, geom_opt_idx] = weight_gradients
+    dipole[bias_shift_idx, geom_opt_idx] = weight_dipole
 
     print("")
     print("*** RESULTS ***")
-    print("Step", geom_opt_idx)
-    print("Energy", energy[geom_opt_idx])
+    print("Bias step", bias_shift_idx)
+    print("Opt step", geom_opt_idx)
+    print("Energy", energy[bias_shift_idx, geom_opt_idx])
     if geom_opt_idx > 0:
       print("Energy difference",
-            energy[geom_opt_idx] - energy[geom_opt_idx - 1])
-    print("Gradient", gradient[:, geom_opt_idx])
-    print("Coordinates", coord[:, geom_opt_idx])
-    print("Bond length", abs(coord[0, geom_opt_idx] - coord[1, geom_opt_idx]))
+            energy[bias_shift_idx, geom_opt_idx] - energy[bias_shift_idx, geom_opt_idx - 1])
+    print("Gradient", gradient[:, bias_shift_idx, geom_opt_idx])
+    print("Coordinates", coord[:, bias_shift_idx, geom_opt_idx])
+    print("Bond length", abs(
+        coord[0, bias_shift_idx, geom_opt_idx] - coord[1, bias_shift_idx, geom_opt_idx]))
+    print("Dipole", dipole[bias_shift_idx, geom_opt_idx])
     print("")
 
+    if bias_shift_idx > 0 and geom_opt_idx == 0:
+      log.write("\n")
+      log.write("\n")
+      log.write("\n")
+      log.write("\n")
+
+    log.write("Step-%s-%s (bias-opt)\n" %
+              (str(bias_shift_idx), str(geom_opt_idx)))
+    log.write("Energy, %s\n" % str(energy[bias_shift_idx, geom_opt_idx]))
+    if geom_opt_idx > 0:
+      log.write("Energy difference, %s\n" % str(
+          energy[bias_shift_idx, geom_opt_idx] - energy[bias_shift_idx, geom_opt_idx - 1]))
+    log.write("Gradient, %s\n" %
+              str(gradient[:, bias_shift_idx, geom_opt_idx]))
+    log.write("Coordinates, %s\n" %
+              str(coord[:, bias_shift_idx, geom_opt_idx]))
+    log.write("Bond length, %s\n" % str(abs(
+        coord[0, bias_shift_idx, geom_opt_idx] - coord[1, bias_shift_idx, geom_opt_idx])))
+    log.write("Dipole, %s\n" % str(abs(dipole[bias_shift_idx, geom_opt_idx])))
+    log.write("\n")
+
+
     # Save results
-    np.savetxt('energy_hist.csv', energy[:geom_opt_idx + 1])
+    np.savetxt('energy_hist.csv', energy[bias_shift_idx, :geom_opt_idx + 1])
     np.savetxt('grad_hist.csv', np.transpose(
-        gradient[:, :geom_opt_idx + 1]), delimiter=',')
+        gradient[:, bias_shift_idx, :geom_opt_idx + 1]), delimiter=',')
     np.savetxt('geom_hist.csv', np.transpose(
-        coord[:, :geom_opt_idx + 1]), delimiter=',')
+        coord[:, bias_shift_idx, :geom_opt_idx + 1]), delimiter=',')
     np.savetxt('bond_hist.csv', abs(
-        coord[0, :geom_opt_idx + 1] - coord[1, :geom_opt_idx + 1]), delimiter=',')
+        coord[0, bias_shift_idx, :geom_opt_idx + 1] - coord[1, bias_shift_idx, :geom_opt_idx + 1]), delimiter=',')
 
+    if np.amax(abs(gradient[:, bias_shift_idx, geom_opt_idx])) < ipsilon:
+      former_path = path
+      save_geom_opt_idx[bias_shift_idx] = geom_opt_idx
 
-    if np.amax(abs(gradient[:, geom_opt_idx])) < ipsilon:
+      # Save results
+      np.savetxt('energy_hist_bias%s.csv' % str(bias_shift_idx),
+                 energy[bias_shift_idx, :geom_opt_idx + 1])
+      np.savetxt('grad_hist_bias%s.csv' % str(bias_shift_idx), np.transpose(
+          gradient[:, bias_shift_idx, :max(save_geom_opt_idx) + 1]), delimiter=',')
+      np.savetxt('geom_hist_bias%s.csv' % str(bias_shift_idx), np.transpose(
+          coord[:, bias_shift_idx, :max(save_geom_opt_idx) + 1]), delimiter=',')
+      np.savetxt('bond_hist_bias%s.csv' % str(bias_shift_idx), abs(
+          coord[0, bias_shift_idx, :max(save_geom_opt_idx) + 1] - coord[1, bias_shift_idx, :max(save_geom_opt_idx) + 1]), delimiter=',')
+      np.savetxt('dipole_hist_bias%s.csv' % str(bias_shift_idx),
+          dipole[bias_shift_idx, :max(save_geom_opt_idx) + 1], delimiter=',')
+
       break
 
     # Perform line search and obtain renewed coordinates
-    coord[:, geom_opt_idx + 1] = line_search(coord[:, geom_opt_idx],
-                                             energy[geom_opt_idx], gradient[:, geom_opt_idx] / ang_to_bohr)
+    coord[:, bias_shift_idx, geom_opt_idx + 1] = line_search(coord[:, bias_shift_idx, geom_opt_idx],
+                                                                 energy[bias_shift_idx, geom_opt_idx], gradient[:, bias_shift_idx, geom_opt_idx] / ang_to_bohr)
 
-# Save results
-np.savetxt('energy_hist.csv', energy[:geom_opt_idx + 1])
-np.savetxt('grad_hist.csv', np.transpose(
-    gradient[:, :geom_opt_idx + 1]), delimiter=',')
-np.savetxt('geom_hist.csv', np.transpose(
-    coord[:, :geom_opt_idx + 1]), delimiter=',')
-np.savetxt('bond_hist.csv', abs(
-    coord[0, :geom_opt_idx + 1] - coord[1, :geom_opt_idx + 1]), delimiter=',')
+log.close()
