@@ -36,8 +36,6 @@ def copy_ingredients(copy_directry):
   return
 
 # generate n2.xyz or n2_mod.inp with arbitrary bond length
-
-
 def gener_inputs(target1, target2, target_inp):
   with open(str(target_inp)) as fh:
     template = jinja.Template(fh.read())
