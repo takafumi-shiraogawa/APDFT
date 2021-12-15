@@ -79,6 +79,12 @@ def get_target_value(target, dict_inp, apdft_order):
 
   return np.array(target_values).astype(np.float64)
 
+def get_target_value_wo_order(target, dict_inp):
+  target_values = []
+  for i, row in enumerate(dict_inp):
+    target_values.append(row["%s" % target])
+
+  return np.array(target_values).astype(str)
 
 def get_weight_property(full_property, id_unique_mol, weight):
   weight_property = 0.0
@@ -146,6 +152,16 @@ def calc_weight_dipole(path, num_full_mol, num_atom, apdft_order, id_unique_mol,
   inp_dipole.close()
 
   return weight_dipole
+
+def get_unique_mols(full_list_mols, id_unique_mol):
+  unique_list_mols = []
+  pos = -1
+  for i in range(len(full_list_mols)):
+    if i in id_unique_mol:
+      pos += 1
+      unique_list_mols.append(full_list_mols[i])
+
+  return unique_list_mols
 
 def calc_weights_from_dipoles(local, sigma, path, num_full_mol, num_atom, apdft_order, id_unique_mol):
   # Set information on outputs of the APDFT calculation
@@ -267,6 +283,10 @@ for i in range(num_atom):
 inp_nuc_energies = open("./nuc_energies.csv", "r")
 dict_inp_nuc_energies = csv.DictReader(inp_nuc_energies)
 full_nuc_energies = get_target_value("nuc_energy_order", dict_inp_nuc_energies, 0)
+inp_nuc_energies.close()
+inp_nuc_energies = open("./nuc_energies.csv", "r")
+dict_inp_nuc_energies = csv.DictReader(inp_nuc_energies)
+full_list_mol = get_target_value_wo_order("targets", dict_inp_nuc_energies)
 # Consider numerical errors
 full_nuc_energies = np.round(full_nuc_energies, decimals=10)
 inp_nuc_energies.close()
@@ -276,6 +296,12 @@ num_full_mol = len(full_nuc_energies)
 # Obtain indexes of the unique molecules
 unique_nuc_energies, id_unique_mol = np.unique(
     full_nuc_energies, return_index=True, axis=0)
+
+unique_list_mol = get_unique_mols(full_list_mol, id_unique_mol)
+unique_list_mol = np.array(unique_list_mol, dtype=str)
+# Save results
+np.savetxt('unique_list_mol_id.csv', id_unique_mol, fmt="%s")
+np.savetxt('unique_list_mol.csv', unique_list_mol, fmt="%s")
 
 del full_nuc_energies
 del unique_nuc_energies
