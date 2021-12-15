@@ -261,8 +261,8 @@ num_atom = len(nuclear_numbers)
 max_bias_shift = 100
 # maximum number of optimization loops
 max_geom_opt = 1000
-ipsilon = 1.0 # 0.01
-sigma = np.array([0.0, 1.0]).astype(np.float64) # np.array([0.0, 0.01, 0.05, 0.1, 0.5, 1.0]).astype(np.float64)
+ipsilon = 0.01
+sigma = np.array([0.0, 0.01, 0.05, 0.1, 0.5, 1.0]).astype(np.float64)
 
 # Convertor
 ang_to_bohr = 1.0 / 0.529117
