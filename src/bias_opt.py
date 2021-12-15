@@ -198,12 +198,6 @@ def save_commands_file(file_name, text):
     with open(file_name, 'w') as file:
       file.write(text)
 
-def get_par_var():
-  order_inp = open('order.inp', 'r')
-  par_var = order_inp.read()
-
-  return int(par_var)
-
 def gener_commands_file(path):
   # Read parallerization variable
   order_inp = open('order.inp', 'r')
@@ -223,6 +217,11 @@ def gener_commands_file(path):
   for textidx, text in enumerate(div_commands_lines):
     save_commands_file("%s/commands_%s.sh" % (path, str(textidx)), "".join(text))
 
+  if len(commands_lines) % tune_div_num == 0:
+    return len(commands_lines) // tune_div_num
+  else:
+    return (len(commands_lines) // tune_div_num) + 1
+
 def inp_commands_file(path, pos):
   os.system("( cd %s && bash commands_%s.sh )" % (path, str(pos)))
 
@@ -236,8 +235,6 @@ if os.path.isfile('log'):
 
 # For log
 log = open('log', 'w')
-
-par_var = get_par_var()
 
 nuclear_numbers, coordinates = read_xyz("mol.xyz")
 
@@ -333,11 +330,12 @@ for bias_shift_idx in range(len(sigma) + 1):
     os.system("( cd %s && bash imp_mod_cli1.sh )" % path)
 
     # os.system("( cd %s && bash commands.sh )" % path)
-    gener_commands_file(path)
+    real_par_var = gener_commands_file(path)
+    real_par_var = int(real_par_var)
     if __name__ == "__main__":
       processes = [
           Process(target=inp_commands_file, args=(path, i))
-          for i in range(par_var)]
+          for i in range(real_par_var)]
       for p in processes:
           p.start()
       for p in processes:
