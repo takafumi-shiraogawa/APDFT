@@ -242,7 +242,6 @@ par_var = get_par_var()
 nuclear_numbers, coordinates = read_xyz("mol.xyz")
 
 # Parameters
-# intial bond length
 apdft_order = 1
 num_atom = len(nuclear_numbers)
 # maximum number of bias shifts
@@ -366,8 +365,8 @@ for bias_shift_idx in range(len(sigma) + 1):
             energy[bias_shift_idx, geom_opt_idx] - energy[bias_shift_idx, geom_opt_idx - 1])
     print("Gradient", gradient[:, bias_shift_idx, geom_opt_idx])
     print("Coordinates", coord[:, bias_shift_idx, geom_opt_idx])
-    print("Bond length", abs(
-        coord[0, bias_shift_idx, geom_opt_idx] - coord[1, bias_shift_idx, geom_opt_idx]))
+    # print("Bond length", abs(
+    #     coord[0, bias_shift_idx, geom_opt_idx] - coord[1, bias_shift_idx, geom_opt_idx]))
     print("Dipole", dipole[bias_shift_idx, geom_opt_idx])
     print("")
 
@@ -387,8 +386,8 @@ for bias_shift_idx in range(len(sigma) + 1):
               str(gradient[:, bias_shift_idx, geom_opt_idx]))
     log.write("Coordinates, %s\n" %
               str(coord[:, bias_shift_idx, geom_opt_idx]))
-    log.write("Bond length, %s\n" % str(abs(
-        coord[0, bias_shift_idx, geom_opt_idx] - coord[1, bias_shift_idx, geom_opt_idx])))
+    # log.write("Bond length, %s\n" % str(abs(
+    #     coord[0, bias_shift_idx, geom_opt_idx] - coord[1, bias_shift_idx, geom_opt_idx])))
     log.write("Dipole, %s\n" % str(abs(dipole[bias_shift_idx, geom_opt_idx])))
     log.write("\n")
 
@@ -399,8 +398,8 @@ for bias_shift_idx in range(len(sigma) + 1):
         gradient[:, bias_shift_idx, :geom_opt_idx + 1]), delimiter=',')
     np.savetxt('geom_hist.csv', np.transpose(
         coord[:, bias_shift_idx, :geom_opt_idx + 1]), delimiter=',')
-    np.savetxt('bond_hist.csv', abs(
-        coord[0, bias_shift_idx, :geom_opt_idx + 1] - coord[1, bias_shift_idx, :geom_opt_idx + 1]), delimiter=',')
+    # np.savetxt('bond_hist.csv', abs(
+    #     coord[0, bias_shift_idx, :geom_opt_idx + 1] - coord[1, bias_shift_idx, :geom_opt_idx + 1]), delimiter=',')
 
     if np.amax(abs(gradient[:, bias_shift_idx, geom_opt_idx])) < ipsilon:
       former_path = path
@@ -413,8 +412,8 @@ for bias_shift_idx in range(len(sigma) + 1):
           gradient[:, bias_shift_idx, :max(save_geom_opt_idx) + 1]), delimiter=',')
       np.savetxt('geom_hist_bias%s.csv' % str(bias_shift_idx), np.transpose(
           coord[:, bias_shift_idx, :max(save_geom_opt_idx) + 1]), delimiter=',')
-      np.savetxt('bond_hist_bias%s.csv' % str(bias_shift_idx), abs(
-          coord[0, bias_shift_idx, :max(save_geom_opt_idx) + 1] - coord[1, bias_shift_idx, :max(save_geom_opt_idx) + 1]), delimiter=',')
+      # np.savetxt('bond_hist_bias%s.csv' % str(bias_shift_idx), abs(
+      #     coord[0, bias_shift_idx, :max(save_geom_opt_idx) + 1] - coord[1, bias_shift_idx, :max(save_geom_opt_idx) + 1]), delimiter=',')
       np.savetxt('dipole_hist_bias%s.csv' % str(bias_shift_idx),
           dipole[bias_shift_idx, :max(save_geom_opt_idx) + 1], delimiter=',')
 
