@@ -6,6 +6,7 @@ import pyscf.qmmm
 import pyscf.scf
 import pyscf.dft
 import pyscf.lib
+import pyscf.grad
 from pyscf.data import nist
 
 angstrom = 1 / 0.52917721067
@@ -75,6 +76,21 @@ if method == "HF":
     # Enn = calc.energy_nuc()
     # of the target molecular geometry
     # target_Enn = target_mol.energy_nuc()
+
+    # If this is a calculation of the reference molecule,
+    # calculate analytical gradients.
+    # TODO: modulate this routine since this procedure performs HF twice
+    #       in HF and mycc.
+    # TODO: here the last condition is redundant, and modification is possible
+    if np.count_nonzero(deltaZ) == 0 and mol.atom == original_mol.atom \
+        and target_mol.atom == original_mol.atom:
+        # Because this calculation does not use QM/MM, standard HF can be used instead.
+        mf_scf = pyscf.scf.RHF(mol).run()
+        grad_scf = pyscf.grad.RHF(mf_scf).kernel()
+
+        for site in includeonly:
+            # derivative of total energy
+            print("REFERENCE_ENERGY_DERIVATIVE", site, *grad_scf[site])
 
 if method == "CCSD":
     calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
