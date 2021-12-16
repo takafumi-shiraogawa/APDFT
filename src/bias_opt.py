@@ -329,6 +329,9 @@ for bias_shift_idx in range(len(sigma) + 1):
     mol_weights = calc_weights_from_dipoles(
         local, 1.0, former_path, num_full_mol, num_atom, apdft_order, id_unique_mol)
 
+    # Save results
+    np.savetxt('unique_list_design_mol.csv', zip(id_unique_mol, unique_list_mol, mol_weights), delimiter=',', fmt="%s")
+
   for geom_opt_idx in range(max_geom_opt):
 
     if bias_shift_idx > 0 and geom_opt_idx == 0:
