@@ -202,12 +202,7 @@ def line_search(coord, energy, gradient):
   next_coord = np.zeros(len(coord))
   for i in range(len(coord)):
     # next_coord[i] = coord[i] - (energy / gradient[i])
-    if np.amax(abs(gradient[:])) < 0.02:
-      next_coord[i] = coord[i] - (0.2 * gradient[i])
-    elif np.amax(abs(gradient[:])) < 0.03:
-      next_coord[i] = coord[i] - (0.5 * gradient[i])
-    else:
-      next_coord[i] = coord[i] - (1.0 * gradient[i])
+    next_coord[i] = coord[i] - (0.2 * gradient[i])
 
   return next_coord
 
