@@ -257,10 +257,8 @@ nuclear_numbers, coordinates = read_xyz("mol.xyz")
 # Parameters
 apdft_order = 1
 num_atom = len(nuclear_numbers)
-# maximum number of bias shifts
-max_bias_shift = 100
 # maximum number of optimization loops
-max_geom_opt = 1000
+max_geom_opt = 30
 ipsilon = 0.01
 sigma = np.array([0.0, 0.01, 0.05, 0.1, 0.5, 1.0]).astype(np.float64)
 
