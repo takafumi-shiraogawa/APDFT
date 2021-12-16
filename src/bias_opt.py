@@ -298,7 +298,7 @@ unique_nuc_energies, id_unique_mol = np.unique(
 unique_list_mol = get_unique_mols(full_list_mol, id_unique_mol)
 unique_list_mol = np.array(unique_list_mol, dtype=str)
 # Save results
-np.savetxt('unique_list_mol.csv', zip(id_unique_mol, unique_list_mol), delimiter=',', fmt="%s")
+np.savetxt('unique_list_mol.csv', np.column_stack([id_unique_mol, unique_list_mol]), delimiter=',', fmt="%s")
 
 del full_nuc_energies
 del unique_nuc_energies
@@ -327,7 +327,7 @@ for bias_shift_idx in range(len(sigma) + 1):
         local, 1.0, former_path, num_full_mol, num_atom, apdft_order, id_unique_mol)
 
     # Save results
-    np.savetxt('unique_list_design_mol.csv', zip(id_unique_mol, unique_list_mol, mol_weights), delimiter=',', fmt="%s")
+    np.savetxt('unique_list_design_mol.csv', np.column_stack([id_unique_mol, unique_list_mol, mol_weights]), delimiter=',', fmt="%s")
 
   for geom_opt_idx in range(max_geom_opt):
 
