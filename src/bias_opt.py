@@ -425,7 +425,7 @@ for bias_shift_idx in range(len(sigma) + 1):
     # np.savetxt('bond_hist.csv', abs(
     #     coord[0, bias_shift_idx, :geom_opt_idx + 1] - coord[1, bias_shift_idx, :geom_opt_idx + 1]), delimiter=',')
 
-    if np.amax(abs(gradient[:, bias_shift_idx, geom_opt_idx])) < ipsilon:
+    if np.amax(abs(gradient[:, bias_shift_idx, geom_opt_idx])) < ipsilon or geom_opt_idx == max_geom_opt - 1:
       former_path = path
       save_geom_opt_idx[bias_shift_idx] = geom_opt_idx
 
