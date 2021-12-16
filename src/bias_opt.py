@@ -300,8 +300,7 @@ unique_nuc_energies, id_unique_mol = np.unique(
 unique_list_mol = get_unique_mols(full_list_mol, id_unique_mol)
 unique_list_mol = np.array(unique_list_mol, dtype=str)
 # Save results
-np.savetxt('unique_list_mol_id.csv', id_unique_mol, fmt="%s")
-np.savetxt('unique_list_mol.csv', unique_list_mol, fmt="%s")
+np.savetxt('unique_list_mol.csv', zip(id_unique_mol, unique_list_mol), delimiter=',', fmt="%s")
 
 del full_nuc_energies
 del unique_nuc_energies
