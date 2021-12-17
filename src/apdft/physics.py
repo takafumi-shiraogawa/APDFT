@@ -1978,6 +1978,11 @@ class APDFT(object):
             elif self._calc_der and 2 not in self._orders and order == 2 and "/z-site" in folder:
                 res = 0.0
                 res2 = 0.0
+            # For order 0, z-site-*-up or dn is unnecessary and does not exist
+            # TODO: generalization to APDFT3 or higher order calculations
+            elif self._calc_der and 1 not in self._orders and order == 1 and "/z-site" in folder:
+                res = 0.0
+                res2 = 0.0
             # If this is not a calculation of vertical energy derivatives
             else:
                 try:
