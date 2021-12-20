@@ -861,6 +861,8 @@ class APDFT(object):
                             prefactor *= self._mix_lambda ** (2 + shift)
 
                         prefactor *= deltaZ[siteidx_i] * deltaZ[siteidx_j]
+                        # T.S., hotfix, : double for exchange of siteidx_i and siteidx_j
+                        prefactor *= 2.0
                         alphas[pos, 2] += prefactor
                         alphas[pos + 1, 2] += prefactor
                         alphas[0, 2] += 2 * prefactor
