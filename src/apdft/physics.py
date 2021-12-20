@@ -2925,6 +2925,64 @@ class APDFT(object):
                     # print(ver_contributions_deriv_rho[:, 2])
                     # print("")
 
+                    # # For check
+                    # coeff_test_ver = 2.0 * 0.05 * 0.005 * angstrom
+                    # # For C of CO
+                    # # del_rho / del_Z0 del_R0
+                    # test_ver = 0.0
+                    # test_ver += 2.0 * ver_epn_matrix[0, 0]
+                    # test_ver += ver_epn_matrix[13, 0] + ver_epn_matrix[14, 0]
+                    # test_ver += -ver_epn_matrix[1, 0] - ver_epn_matrix[2, 0]
+                    # test_ver += -ver_epn_matrix[5, 0] - ver_epn_matrix[6, 0]
+                    # # del_rho / del_Z1 del_R0
+                    # test_ver -= 2.0 * ver_epn_matrix[0, 0]
+                    # test_ver -= ver_epn_matrix[17, 0] + ver_epn_matrix[18, 0]
+                    # test_ver -= -ver_epn_matrix[3, 0] - ver_epn_matrix[4, 0]
+                    # test_ver -= -ver_epn_matrix[5, 0] - ver_epn_matrix[6, 0]
+                    # # del_rho / del_Z0 del_R0
+                    # test_ver -= 2.0 * ver_epn_matrix[0, 1]
+                    # test_ver -= ver_epn_matrix[13, 1] + ver_epn_matrix[14, 1]
+                    # test_ver -= -ver_epn_matrix[1, 1] - ver_epn_matrix[2, 1]
+                    # test_ver -= -ver_epn_matrix[5, 1] - ver_epn_matrix[6, 1]
+                    # # del_rho / del_Z1 del_R0
+                    # test_ver += 2.0 * ver_epn_matrix[0, 1]
+                    # test_ver += ver_epn_matrix[17, 1] + ver_epn_matrix[18, 1]
+                    # test_ver += -ver_epn_matrix[3, 1] - ver_epn_matrix[4, 1]
+                    # test_ver += -ver_epn_matrix[5, 1] - ver_epn_matrix[6, 1]
+                    # test_ver = test_ver / coeff_test_ver
+                    # test_ver *= 0.5
+                    # print("test_ver")
+                    # print(test_ver)
+                    # print("")
+
+                    # # For O of CO
+                    # # del_rho / del_Z0 del_R1
+                    # test_ver = 0.0
+                    # test_ver += 2.0 * ver_epn_matrix[0, 0]
+                    # test_ver += ver_epn_matrix[15, 0] + ver_epn_matrix[16, 0]
+                    # test_ver += -ver_epn_matrix[1, 0] - ver_epn_matrix[2, 0]
+                    # test_ver += -ver_epn_matrix[7, 0] - ver_epn_matrix[8, 0]
+                    # # del_rho / del_Z1 del_R1
+                    # test_ver -= 2.0 * ver_epn_matrix[0, 0]
+                    # test_ver -= ver_epn_matrix[19, 0] + ver_epn_matrix[20, 0]
+                    # test_ver -= -ver_epn_matrix[3, 0] - ver_epn_matrix[4, 0]
+                    # test_ver -= -ver_epn_matrix[7, 0] - ver_epn_matrix[8, 0]
+                    # # del_rho / del_Z0 del_R1
+                    # test_ver -= 2.0 * ver_epn_matrix[0, 1]
+                    # test_ver -= ver_epn_matrix[15, 1] + ver_epn_matrix[16, 1]
+                    # test_ver -= -ver_epn_matrix[1, 1] - ver_epn_matrix[2, 1]
+                    # test_ver -= -ver_epn_matrix[7, 1] - ver_epn_matrix[8, 1]
+                    # # del_rho / del_Z1 del_R1
+                    # test_ver += 2.0 * ver_epn_matrix[0, 1]
+                    # test_ver += ver_epn_matrix[19, 1] + ver_epn_matrix[20, 1]
+                    # test_ver += -ver_epn_matrix[3, 1] - ver_epn_matrix[4, 1]
+                    # test_ver += -ver_epn_matrix[7, 1] - ver_epn_matrix[8, 1]
+                    # test_ver = test_ver / coeff_test_ver
+                    # test_ver *= 0.5
+                    # print("test_ver")
+                    # print(test_ver)
+                    # print("")
+
                 # Energy
                 ele_energies[targetidx, order] = contributions_target + contributions_reference
 
