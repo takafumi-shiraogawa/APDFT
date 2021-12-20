@@ -1243,7 +1243,7 @@ class APDFT(object):
                 # TODO: generalization to three Cartesian coordinates
                 # Need to note that the order of loops are different from the case of betas
                 # Loop for the atomic charge change
-                prefactor = (1.0 / (4.0 * self._delta * R_delta_ang)
+                prefactor = (1.0 / (2.0 * self._delta * R_delta_ang)
                              ) / np.math.factorial(2 + shift - 1)
                 #                                     shift - 1 is required!
                 for siteidx_i in range(N):
