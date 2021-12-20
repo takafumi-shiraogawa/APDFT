@@ -1049,6 +1049,8 @@ class APDFT(object):
                             2 + shift
                         )
                         prefactor *= deltaZ[siteidx_i] * deltaZ[siteidx_j]
+                        # T.S., hotfix: double for exchange of siteidx_i and siteidx_j
+                        prefactor *= 2.0
                         # Following alphas are for the seven terms in the mixed derivatives
                         # with respect to the two different charges
                         alphas[pos, 2] += prefactor
@@ -1115,6 +1117,8 @@ class APDFT(object):
                         prefactor_betas_rev = prefactor * deltaR[siteidx_i, 2]
                         # Set a prefactor for alphas.
                         prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
+                        # T.S., hotfix: double for exchange of siteidx_i and siteidx_j
+                        prefactor *= 2.0
 
                         # Following alphas are for the seven terms in the mixed derivatives
                         # with respect to the two different coordinates
@@ -1191,7 +1195,7 @@ class APDFT(object):
                     # if deltaR[siteidx_j, 2] == 0 or deltaZ[siteidx_i] == 0:
                     #     continue
 
-                    prefactor = (1 / (4 * self._delta * R_delta_ang)
+                    prefactor = (1 / (2.0 * self._delta * R_delta_ang)
                                  ) / np.math.factorial(2 + shift)
                     # prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
                     #     2 + shift
