@@ -188,7 +188,7 @@ class Configuration:
                 "apdft",
                 "deltar",
                 float,
-                0.005,
+                0.001,
                 "Small difference of nuclear position in finite differential for perturbed density.",
             ),
             Option(

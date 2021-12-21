@@ -186,7 +186,7 @@ class APDFT(object):
         targetlist=None,
         target_cartesian="z",
         small_deltaZ = 0.05,
-        small_deltaR = 0.005,
+        small_deltaR = 0.001,
         mix_lambda = 1.0,
         calc_der = False
     ):
