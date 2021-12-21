@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from sys import float_repr_style
 import numpy as np
 import basis_set_exchange as bse
 import apdft
@@ -1890,7 +1891,6 @@ class APDFT(object):
     # Used in physics.predict_all_targets(_general) to obtain epn_matrix
     # and hf_ionic_force_matrix
     # For vertical energy derivatives, ver_epn_matrix is returned.
-    # TODO: generalization to three Cartesian coordinates
     def get_property_matrix_general(self):
         """ Collects :math:`\int_Omega rho_i(\mathbf{r}) /|\mathbf{r}-\mathbf{R}_I|`. """
         N = len(self._include_atoms)
@@ -1944,13 +1944,16 @@ class APDFT(object):
             )
 
             # If this is a calculation of vertical energy derivatives
-            # TODO: generalization to three Cartesian coordinates
             if self._calc_der and "/zr-site" in folder:
                 res = 0.0
                 res2 = 0.0
             elif self._calc_der and "/r-site" in folder and order > 1:
                 res = 0.0
                 res2 = 0.0
+            elif self._calc_der and order > 1 and "/rX-site" in folder \
+                or "/rY-site" in folder or "/rZ-site" in folder:
+                    res = 0.0
+                    res2 = 0.0
             # Use /rz-site instead of /r-site for vertical energy derivatives
             elif self._calc_der and "/r-site" in folder and order == 1:
                 try:
@@ -1979,6 +1982,59 @@ class APDFT(object):
                         level="error",
                         calculation=folder.replace("r-site", "rz-site"),
                     )
+            # Use /rXz-site instead of /rX-site (/rYz-site for /rY-site or
+            # /rZz-site for /rZ-site) for vertical energy derivatives
+            elif self._calc_der and order == 1 and "/rX-site" in folder or \
+                "/rY-site" in folder or "/rZ-site" in folder:
+                    try:
+                        # For PySCF, self._coordinates and charges are not used.
+                        # Therefore, direction and combination are also not used.
+                        # For EPNs of the reference
+                        if "/rX-site" in folder:
+                            res = self._calculator.get_epn(
+                                folder.replace(
+                                    "rX-site", "rXz-site"), self._coordinates, self._include_atoms, charges
+                            )
+                            # For EPNs for the target
+                            # Here self._coordinates is not used
+                            res2 = self._calculator.get_epn2(
+                                folder.replace(
+                                    "rX-site", "rXz-site"), self._coordinates, self._include_atoms, charges
+                            )
+                        elif "/rY-site" in folder:
+                            res = self._calculator.get_epn(
+                                folder.replace(
+                                    "rY-site", "rYz-site"), self._coordinates, self._include_atoms, charges
+                            )
+                            # For EPNs for the target
+                            # Here self._coordinates is not used
+                            res2 = self._calculator.get_epn2(
+                                folder.replace(
+                                    "rY-site", "rYz-site"), self._coordinates, self._include_atoms, charges
+                            )
+                        elif "/rZ-site" in folder:
+                            res = self._calculator.get_epn(
+                                folder.replace(
+                                    "rZ-site", "rZz-site"), self._coordinates, self._include_atoms, charges
+                            )
+                            # For EPNs for the target
+                            # Here self._coordinates is not used
+                            res2 = self._calculator.get_epn2(
+                                folder.replace(
+                                    "rZ-site", "rZz-site"), self._coordinates, self._include_atoms, charges
+                            )
+                    except ValueError:
+                        apdft.log.log(
+                            "Calculation with incomplete results.",
+                            level="error",
+                            calulation=folder.replace("r-site", "rz-site"),
+                        )
+                    except FileNotFoundError:
+                        apdft.log.log(
+                            "Calculation is missing a result file.",
+                            level="error",
+                            calculation=folder.replace("r-site", "rz-site"),
+                        )
             # For order 1, z-site-*-*-up or dn is unnecessary and does not exist
             # TODO: generalization to APDFT3 or higher order calculations
             elif self._calc_der and 2 not in self._orders and order == 2 and "/z-site" in folder:
@@ -2031,9 +2087,9 @@ class APDFT(object):
             )
 
             # If this is a calculation of vertical energy derivatives and
-            # TODO: generalization to three Cartesian coordinates
-            if self._calc_der and "/r-site" in folder or "/zr-site" in folder:
-                res = 0.0
+            if self._calc_der and "/r-site" in folder or "/zr-site" in folder or \
+                "/rX-site" in folder or "/rY-site" in folder or "/rZ-site" in folder:
+                    res = 0.0
             else:
                 try:
                     res = self._calculator.get_target_ionic_force(
