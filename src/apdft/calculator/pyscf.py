@@ -56,6 +56,25 @@ class PyscfCalculator(apc.Calculator):
         env["includeonly"] = PyscfCalculator._format_list(includeonly)
 
         deltaZ = np.array(nuclear_charges) - np.array(nuclear_numbers)
+        # Because QM/MM calculations and resultant APDFT energies are sensitive
+        # to deltaZ, the numerical error of deltaZ is removed here.
+        # TODO: modification of this solution. This is too heuristic.
+        if np.amax(abs(deltaZ)) > 0.001:
+            deltaZ = np.round(deltaZ, decimals=6)
+        elif np.amax(abs(deltaZ)) > 0.0001:
+            deltaZ = np.round(deltaZ, decimals=7)
+        elif np.amax(abs(deltaZ)) > 0.00001:
+            deltaZ = np.round(deltaZ, decimals=8)
+        elif np.amax(abs(deltaZ)) > 0.000001:
+            deltaZ = np.round(deltaZ, decimals=9)
+        elif np.amax(abs(deltaZ)) > 0.0000001:
+            deltaZ = np.round(deltaZ, decimals=10)
+        elif np.amax(abs(deltaZ)) > 0.00000001:
+            deltaZ = np.round(deltaZ, decimals=11)
+        elif np.amax(abs(deltaZ)) > 0.000000001:
+            deltaZ = np.round(deltaZ, decimals=12)
+        elif np.amax(abs(deltaZ)) > 0.0000000001:
+            deltaZ = np.round(deltaZ, decimals=13)
         deltaZ = deltaZ[includeonly]
         env["deltaZ"] = PyscfCalculator._format_list(deltaZ)
 
@@ -164,6 +183,25 @@ class PyscfCalculator(apc.Calculator):
         env["includeonly"] = PyscfCalculator._format_list(includeonly)
 
         deltaZ = np.array(nuclear_charges) - np.array(nuclear_numbers)
+        # Because QM/MM calculations and resultant APDFT energies are sensitive
+        # to deltaZ, the numerical error of deltaZ is removed here.
+        # TODO: modification of this solution. This is too heuristic.
+        if np.amax(abs(deltaZ)) > 0.001:
+            deltaZ = np.round(deltaZ, decimals=6)
+        elif np.amax(abs(deltaZ)) > 0.0001:
+            deltaZ = np.round(deltaZ, decimals=7)
+        elif np.amax(abs(deltaZ)) > 0.00001:
+            deltaZ = np.round(deltaZ, decimals=8)
+        elif np.amax(abs(deltaZ)) > 0.000001:
+            deltaZ = np.round(deltaZ, decimals=9)
+        elif np.amax(abs(deltaZ)) > 0.0000001:
+            deltaZ = np.round(deltaZ, decimals=10)
+        elif np.amax(abs(deltaZ)) > 0.00000001:
+            deltaZ = np.round(deltaZ, decimals=11)
+        elif np.amax(abs(deltaZ)) > 0.000000001:
+            deltaZ = np.round(deltaZ, decimals=12)
+        elif np.amax(abs(deltaZ)) > 0.0000000001:
+            deltaZ = np.round(deltaZ, decimals=13)
         deltaZ = deltaZ[includeonly]
         env["deltaZ"] = PyscfCalculator._format_list(deltaZ)
 
