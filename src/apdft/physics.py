@@ -3169,7 +3169,6 @@ class APDFT(object):
 
         # Dimension of epn_matrix is
         # (the number of QM calculations, the number of atoms).
-        # TODO: need to be generalized to three Cartesian coordinates
         # epn_matrix, epn_matrix_target = self.get_epn_matrix_general()
         # If this is not a calculation of vertical energy derivatives
         if not self._calc_der:
