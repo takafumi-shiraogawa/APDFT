@@ -2937,7 +2937,7 @@ class APDFT(object):
             # For only full-geometry changes
             else:
                 if self._calc_der and "/rX-site" in folder or "/rY-site" in folder or \
-                    "/rZ-site" in folder or "/zrX-site" in folder or "/zrX-site" in folder or \
+                    "/rZ-site" in folder or "/zrX-site" in folder or \
                     "/zrY-site" in folder or "/zrZ-site" in folder:
                         results.append(get_empty_value(propertyname))
                 else:
