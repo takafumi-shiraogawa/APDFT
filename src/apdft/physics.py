@@ -3180,7 +3180,6 @@ class APDFT(object):
         gc.collect()
 
         # Dipole matrix
-        # TODO: need to be generalized to three Cartesian coordinates
         dipole_matrix = self.get_linear_density_matrix_general("TARGET_ELECTRONIC_DIPOLE")
         # Hellmann-Feynmann force matrix
         hf_ionic_force_matrix = self.get_linear_density_matrix_general(
