@@ -2289,7 +2289,8 @@ class APDFT(object):
 
             # If this is a calculation of vertical energy derivatives and
             if self._calc_der and "/r-site" in folder or "/zr-site" in folder or \
-                "/rX-site" in folder or "/rY-site" in folder or "/rZ-site" in folder:
+                "/rX-site" in folder or "/rY-site" in folder or "/rZ-site" in folder or \
+                "/zrX-site" in folder or "/zrY-site" in folder or "/zrZ-site" in folder:
                     res = 0.0
             else:
                 try:
