@@ -2358,22 +2358,41 @@ class APDFT(object):
                 pos += 2
 
             # For the atomic position change
-            # TODO: generalization to three Cartesian coordinates
             for site in self._include_atoms:
-                # Read EPNs
-                coeff[pos, :], coeff2[pos, :] = get_epn(
-                    folders[pos], 1, "up", [site])
-                coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
-                    folders[pos + 1], 1, "dn", [site])
+                # For three-Cartesian coordinate changes
+                if self._cartesian == 'z':
+                    # Read EPNs
+                    coeff[pos, :], coeff2[pos, :] = get_epn(
+                        folders[pos], 1, "up", [site])
+                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                        folders[pos + 1], 1, "dn", [site])
 
-                # Read ionic forces
-                force_coeff[pos, :, :] = get_ionic_force(
-                    folders[pos], 1, "up", [site])
-                force_coeff[pos + 1, :, :] = get_ionic_force(
-                    folders[pos + 1], 1, "dn", [site])
+                    # Read ionic forces
+                    force_coeff[pos, :, :] = get_ionic_force(
+                        folders[pos], 1, "up", [site])
+                    force_coeff[pos + 1, :, :] = get_ionic_force(
+                        folders[pos + 1], 1, "dn", [site])
 
-                # For the next site
-                pos += 2
+                    # For the next site
+                    pos += 2
+
+                # For full-Cartesian coordinate changes
+                else:
+                    for rdx in range(3):
+                        # Read EPNs
+                        coeff[pos, :], coeff2[pos, :] = get_epn(
+                            folders[pos], 1, "up", [site])
+                        coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                            folders[pos + 1], 1, "dn", [site])
+
+                        # Read ionic forces
+                        force_coeff[pos, :, :] = get_ionic_force(
+                            folders[pos], 1, "up", [site])
+                        force_coeff[pos + 1, :, :] = get_ionic_force(
+                            folders[pos + 1], 1, "dn", [site])
+
+                        # For the next site
+                        pos += 2
 
         # If this is a calculation of vertical energy derivatives
         if self._calc_der:
@@ -2391,16 +2410,29 @@ class APDFT(object):
                     ver_pos += 2
 
                 # For the atomic position change
-                # TODO: generalization to three Cartesian coordinates
                 for site in self._include_atoms:
-                    # Read EPNs for vertical energy derivatives
-                    ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
-                        ver_folders[ver_pos], 1, "up", [site])
-                    ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
-                        ver_folders[ver_pos + 1], 1, "dn", [site])
+                    # For z-Cartesian coordinate changes
+                    if self._cartesian == "z":
+                        # Read EPNs for vertical energy derivatives
+                        ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                            ver_folders[ver_pos], 1, "up", [site])
+                        ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                            ver_folders[ver_pos + 1], 1, "dn", [site])
 
-                    # For the next site
-                    ver_pos += 2
+                        # For the next site
+                        ver_pos += 2
+
+                    # For full-Cartesian coordinate changes
+                    else:
+                        for rdx in range(3):
+                            # Read EPNs for vertical energy derivatives
+                            ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                                ver_folders[ver_pos], 1, "up", [site])
+                            ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                                ver_folders[ver_pos + 1], 1, "dn", [site])
+
+                            # For the next site
+                            ver_pos += 2
 
         # order 2
         if 2 in self._orders:
@@ -2431,41 +2463,80 @@ class APDFT(object):
                     if site_j <= site_i:
                         continue
 
-                    # Read EPNs
-                    coeff[pos, :], coeff2[pos, :] = get_epn(
-                        folders[pos], 2, "up", [site_i, site_j])
-                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
-                        folders[pos + 1], 2, "dn", [site_i, site_j])
+                    # For z-Cartesian coordinate changes
+                    if self._cartesian == "z":
+                        # Read EPNs
+                        coeff[pos, :], coeff2[pos, :] = get_epn(
+                            folders[pos], 2, "up", [site_i, site_j])
+                        coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                            folders[pos + 1], 2, "dn", [site_i, site_j])
 
-                    # Read ionic forces
-                    force_coeff[pos, :, :] = get_ionic_force(
-                        folders[pos], 2, "up", [site_i, site_j])
-                    force_coeff[pos + 1, :, :] = get_ionic_force(
-                        folders[pos + 1], 2, "dn", [site_i, site_j])
+                        # Read ionic forces
+                        force_coeff[pos, :, :] = get_ionic_force(
+                            folders[pos], 2, "up", [site_i, site_j])
+                        force_coeff[pos + 1, :, :] = get_ionic_force(
+                            folders[pos + 1], 2, "dn", [site_i, site_j])
 
-                    # For the next site
-                    pos += 2
+                        # For the next site
+                        pos += 2
+
+                    # For full-Cartesian coordinate changes
+                    else:
+                        for rdx in range(3):
+                            # Read EPNs
+                            coeff[pos, :], coeff2[pos, :] = get_epn(
+                                folders[pos], 2, "up", [site_i, site_j])
+                            coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                                folders[pos + 1], 2, "dn", [site_i, site_j])
+
+                            # Read ionic forces
+                            force_coeff[pos, :, :] = get_ionic_force(
+                                folders[pos], 2, "up", [site_i, site_j])
+                            force_coeff[pos + 1, :, :] = get_ionic_force(
+                                folders[pos + 1], 2, "dn", [site_i, site_j])
+
+                            # For the next site
+                            pos += 2
 
             # For both changes of atomic charge and position
             # Loop for the atomic charge change
             for site_i in self._include_atoms:
                 # Loop for the atomic position change
                 for site_j in self._include_atoms:
+                    # For z-Cartesian coordinate changes
+                    if self._cartesian == "z":
+                        # Read EPNs
+                        coeff[pos, :], coeff2[pos, :] = get_epn(
+                            folders[pos], 2, "up", [site_i, site_j])
+                        coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                            folders[pos + 1], 2, "dn", [site_i, site_j])
 
-                    # Read EPNs
-                    coeff[pos, :], coeff2[pos, :] = get_epn(
-                        folders[pos], 2, "up", [site_i, site_j])
-                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
-                        folders[pos + 1], 2, "dn", [site_i, site_j])
+                        # Read ionic forces
+                        force_coeff[pos, :, :] = get_ionic_force(
+                            folders[pos], 2, "up", [site_i, site_j])
+                        force_coeff[pos + 1, :, :] = get_ionic_force(
+                            folders[pos + 1], 2, "dn", [site_i, site_j])
 
-                    # Read ionic forces
-                    force_coeff[pos, :, :] = get_ionic_force(
-                        folders[pos], 2, "up", [site_i, site_j])
-                    force_coeff[pos + 1, :, :] = get_ionic_force(
-                        folders[pos + 1], 2, "dn", [site_i, site_j])
+                        # For the next site
+                        pos += 2
 
-                    # For the next site
-                    pos += 2
+                    # For full-Cartesian coordinate changes
+                    else:
+                        for rdx in range(3):
+                            # Read EPNs
+                            coeff[pos, :], coeff2[pos, :] = get_epn(
+                                folders[pos], 2, "up", [site_i, site_j])
+                            coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                                folders[pos + 1], 2, "dn", [site_i, site_j])
+
+                            # Read ionic forces
+                            force_coeff[pos, :, :] = get_ionic_force(
+                                folders[pos], 2, "up", [site_i, site_j])
+                            force_coeff[pos + 1, :, :] = get_ionic_force(
+                                folders[pos + 1], 2, "dn", [site_i, site_j])
+
+                            # For the next site
+                            pos += 2
 
         # # For check
         # print("pos")
@@ -2509,14 +2580,28 @@ class APDFT(object):
                         if site_j <= site_i:
                             continue
 
-                        # Read EPNs for vertical energy derivatives
-                        ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
-                            ver_folders[ver_pos], 2, "up", [site_i, site_j])
-                        ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
-                            ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                        # For z-Cartesian coordinate changes
+                        if self._cartesian == "z":
+                            # Read EPNs for vertical energy derivatives
+                            ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                                ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                            ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                                ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
 
-                        # For the next site
-                        ver_pos += 2
+                            # For the next site
+                            ver_pos += 2
+
+                        # For full-Cartesian coordinate changes
+                        else:
+                            for rdx in range(3):
+                                # Read EPNs for vertical energy derivatives
+                                ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                                    ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                                ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                                    ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+
+                                # For the next site
+                                ver_pos += 2
 
                 # For both changes of atomic charge and position
                 # Loop for the atomic charge change
@@ -2524,14 +2609,28 @@ class APDFT(object):
                     # Loop for the atomic position change
                     for site_j in self._include_atoms:
 
-                        # Read EPNs for vertical energy derivatives
-                        ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
-                            ver_folders[ver_pos], 2, "up", [site_i, site_j])
-                        ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
-                            ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                        # For z-Cartesian coordinate changes
+                        if self._cartesian == "z":
+                            # Read EPNs for vertical energy derivatives
+                            ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                                ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                            ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                                ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
 
-                        # For the next site
-                        ver_pos += 2
+                            # For the next site
+                            ver_pos += 2
+
+                        # For full-Cartesian coordinate changes
+                        else:
+                            for rdx in range(3):
+                                # Read EPNs for vertical energy derivatives
+                                ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                                    ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                                ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                                    ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+
+                                # For the next site
+                                ver_pos += 2
 
         # # For check
         # if self._calc_der:
