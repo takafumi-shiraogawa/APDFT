@@ -440,7 +440,6 @@ class APDFT(object):
                         os.makedirs(path)
 
                         # It is assumed that only Z coordinate changes
-                        # TODO: generalize to three Cartesian components
                         nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
                             len(self._nuclear_numbers), order, combination_r, direction, 2
                         )
@@ -492,7 +491,6 @@ class APDFT(object):
                             os.makedirs(path)
 
                             # It is assumed that only Z coordinate changes
-                            # TODO: generalize to three Cartesian components
                             nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
                                 len(self._nuclear_numbers), order, combination_r, direction, didx
                             )
