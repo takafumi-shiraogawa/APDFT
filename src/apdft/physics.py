@@ -1869,11 +1869,11 @@ class APDFT(object):
                     for site_j in self._include_atoms:
                         for didx, dim in enumerate("XYZ"):
                             folders.append(
-                                "%s/QM/order-2/rz%s-site-%d-%d-up/"
+                                "%s/QM/order-2/r%sz-site-%d-%d-up/"
                                 % (self._basepath, dim, site_i, site_j)
                             )
                             folders.append(
-                                "%s/QM/order-2/rz%s-site-%d-%d-dn/"
+                                "%s/QM/order-2/r%sz-site-%d-%d-dn/"
                                 % (self._basepath, dim, site_i, site_j)
                             )
 
