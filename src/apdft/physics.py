@@ -909,20 +909,41 @@ class APDFT(object):
         #        the derivative of the perturbed density (deriv_rho_force
         #        in predict_all_targets)
         N = len(self._include_atoms)
-        nvals = {0: 1, 1: 2 * (N * 2) + 0, 2: (2 * (N * (N - 1))) + (2 * N * N)}
+        # For z-Cartesian coordinate changes
+        if self._cartesian == "z":
+            nvals = {0: 1, 1: 2 * (N * 2) + 0, 2: (2 * (N * (N - 1))) + (2 * N * N)}
+        # For full-Cartesian coordinate changes
+        else:
+            # This is not correct, but for calculations of vertical energy derivatives,
+            # we do not need to add cross terms with respect to neclear coordinates.
+            nvals = {0: 1, 1: (4 * (N * 2)) + 0, 2: (4 * (N * (N - 1))) + (3 * (2 * N * N))}
+            # The correct form is
+            # nvals = {0: 1, 1: (4 * (N * 2)) + 0, 2: (4 * (N * (N - 1))) + (2 * (3 * (2 * N * N)))}
         # Dimension of alphas and beta is
         # (the number of QM calculations, the order of APDFT).
         alphas = np.zeros(
             (sum([nvals[_] for _ in self._orders]), len(self._orders)))
-        betas = np.zeros(
-            (sum([nvals[_] for _ in self._orders]), len(self._orders), N))
+        # For z-Cartesian coordinate changes
+        if self._cartesian == "z":
+            betas = np.zeros(
+                (sum([nvals[_] for _ in self._orders]), len(self._orders), N))
+        # For full-Cartesian coordinate changes
+        else:
+            betas = np.zeros(
+                (sum([nvals[_] for _ in self._orders]), len(self._orders), N, 3))
 
         # If this is a calculation of vertical energy derivatives
         if self._calc_der and shift == 1:
             # ver_orders is one-order higher self._orders
             ver_orders = list(range(0, max(self._orders) + 2))
-            ver_betas = np.zeros(
-                (sum([nvals[_] for _ in ver_orders]), len(ver_orders), N))
+            # For z-Cartesian coordinate changes
+            if self._cartesian == "z":
+                ver_betas = np.zeros(
+                    (sum([nvals[_] for _ in ver_orders]), len(ver_orders), N))
+            # For full-Cartesian coordinate changes
+            else:
+                ver_betas = np.zeros(
+                    (sum([nvals[_] for _ in ver_orders]), len(ver_orders), N, 3))
 
         # Convert unit of a small number for nuclear differentiation
         # from Angstrom to a.u.
@@ -979,11 +1000,19 @@ class APDFT(object):
             for siteidx in range(N):
                 # Current implementation only can deal with one Cartesian
                 # coordinate change (Z vector here).
-                # TODO: generalization to three Cartesian coordinates
-                alphas[1 + 2 * N + siteidx * 2, 1] += prefactor * deltaR[siteidx, 2]
-                alphas[1 + 2 * N + siteidx * 2 + 1, 1] -= prefactor * deltaR[siteidx, 2]
-                betas[1 + 2 * N + siteidx * 2, 1, siteidx] = prefactor
-                betas[1 + 2 * N + siteidx * 2 + 1, 1, siteidx] = -prefactor
+                # For z-Cartesian coordinate changes
+                if self._cartesian == "z":
+                    alphas[1 + 2 * N + siteidx * 2, 1] += prefactor * deltaR[siteidx, 2]
+                    alphas[1 + 2 * N + siteidx * 2 + 1, 1] -= prefactor * deltaR[siteidx, 2]
+                    betas[1 + 2 * N + siteidx * 2, 1, siteidx] = prefactor
+                    betas[1 + 2 * N + siteidx * 2 + 1, 1, siteidx] = -prefactor
+                # For full-Cartesian coordinate changes
+                else:
+                    for rdx in range(3):
+                        alphas[1 + 2 * N + rdx * 2 + siteidx * 2, 1] += prefactor * deltaR[siteidx, rdx]
+                        alphas[1 + 2 * N + rdx * 2 + siteidx * 2 + 1, 1] -= prefactor * deltaR[siteidx, rdx]
+                        betas[1 + 2 * N + rdx * 2 + siteidx * 2, 1, siteidx, rdx] = prefactor
+                        betas[1 + 2 * N + rdx * 2 + siteidx * 2 + 1, 1, siteidx, rdx] = -prefactor
 
         # If this is a calculation of vertical energy derivatives
         if self._calc_der and shift == 1:
@@ -1002,9 +1031,15 @@ class APDFT(object):
                 for siteidx in range(N):
                     # Current implementation only can deal with one Cartesian
                     # coordinate change (Z vector here).
-                    # TODO: generalization to three Cartesian coordinates
-                    ver_betas[1 + 2 * N + siteidx * 2, 1, siteidx] = prefactor
-                    ver_betas[1 + 2 * N + siteidx * 2 + 1, 1, siteidx] = -prefactor
+                    # For z-Cartesian coordinate changes
+                    if self._cartesian == "z":
+                        ver_betas[1 + 2 * N + siteidx * 2, 1, siteidx] = prefactor
+                        ver_betas[1 + 2 * N + siteidx * 2 + 1, 1, siteidx] = -prefactor
+                    # For full-Cartesian coordinate changes
+                    else:
+                        for rdx in range(3):
+                            ver_betas[1 + 2 * N + rdx * 2 + siteidx * 2, 1, siteidx, rdx] = prefactor
+                            ver_betas[1 + 2 * N + rdx * 2 + siteidx * 2 + 1, 1, siteidx, rdx] = -prefactor
 
         # order 2
         # APDFT(2 + 1) = APDFT3
@@ -1022,7 +1057,12 @@ class APDFT(object):
             #                           even number is for "dn".
             # pos is used to specify the position in alphas
             # Position of double changes of nuclear charges is set.
-            pos = 1 + 2 * (N * 2) - 2
+            # For z-Cartesian coordinate changes
+            if self._cartesian == "z":
+                pos = 1 + 2 * (N * 2) - 2
+            # For full-Cartesian coordinate changes
+            else:
+                pos = 1 + 4 * (N * 2) - 2
 
             # For atomic charge changes
             # Loops for the combination of two atoms
@@ -1088,7 +1128,6 @@ class APDFT(object):
             # For atomic coordinate changes
             # Loops for the combination of two atoms
             # (duplication is allowed)
-            # TODO: generalization to three Cartesian coordinates
             for siteidx_i in range(N):
                 for siteidx_j in range(siteidx_i, N):
                     if siteidx_i != siteidx_j:
@@ -1106,81 +1145,156 @@ class APDFT(object):
                     # If selected atoms with the coordinate change are different
                     # (It is same as siteidx_j > siteidx_i if all atoms are targeted.)
                     if self._include_atoms[siteidx_j] > self._include_atoms[siteidx_i]:
-                        #                 2 * (delta ** 2) = 2 * (0.05 ** 2)
-                        #                                  = 2 * 0.025
-                        #                                  = 0.005
-                        prefactor = (1 / (2 * (R_delta_ang ** 2))) / np.math.factorial(
-                            2 + shift
-                        )
-                        # Set a prefactor for betas.
-                        # betas's prefactor 2 is included in prefactor.
-                        prefactor_betas = prefactor * deltaR[siteidx_j, 2]
-                        prefactor_betas_rev = prefactor * deltaR[siteidx_i, 2]
-                        # Set a prefactor for alphas.
-                        prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
-                        # T.S., hotfix: double for exchange of siteidx_i and siteidx_j
-                        prefactor *= 2.0
+                        # For z-Cartesian coordinate changes
+                        if self._cartesian == "z":
+                            prefactor = (1 / (2 * (R_delta_ang ** 2))) / np.math.factorial(
+                                2 + shift
+                            )
+                            # Set a prefactor for betas.
+                            # betas's prefactor 2 is included in prefactor.
+                            prefactor_betas = prefactor * deltaR[siteidx_j, 2]
+                            prefactor_betas_rev = prefactor * deltaR[siteidx_i, 2]
+                            # Set a prefactor for alphas.
+                            prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
+                            # T.S., hotfix: double for exchange of siteidx_i and siteidx_j
+                            prefactor *= 2.0
 
-                        # Following alphas are for the seven terms in the mixed derivatives
-                        # with respect to the two different coordinates
-                        alphas[pos, 2] += prefactor
-                        alphas[pos + 1, 2] += prefactor
-                        # For the raw reference density
-                        alphas[0, 2] += 2 * prefactor
-                        # For the single change of the atomic coordinate
-                        alphas[1 + 2 * N + siteidx_i * 2, 2] -= prefactor
-                        alphas[1 + 2 * N + siteidx_i * 2 + 1, 2] -= prefactor
-                        alphas[1 + 2 * N + siteidx_j * 2, 2] -= prefactor
-                        alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] -= prefactor
+                            # Following alphas are for the seven terms in the mixed derivatives
+                            # with respect to the two different coordinates
+                            alphas[pos, 2] += prefactor
+                            alphas[pos + 1, 2] += prefactor
+                            # For the raw reference density
+                            alphas[0, 2] += 2 * prefactor
+                            # For the single change of the atomic coordinate
+                            alphas[1 + 2 * N + siteidx_i * 2, 2] -= prefactor
+                            alphas[1 + 2 * N + siteidx_i * 2 + 1, 2] -= prefactor
+                            alphas[1 + 2 * N + siteidx_j * 2, 2] -= prefactor
+                            alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] -= prefactor
 
-                        # Following betas are for the seven terms in the mixed derivatives
-                        # with respect to the two different coordinates
-                        betas[pos, 2, siteidx_i] += prefactor_betas
-                        betas[pos + 1, 2, siteidx_i] += prefactor_betas
-                        # For the raw reference density
-                        betas[0, 2, siteidx_i] += 2 * prefactor_betas
-                        # For the single change of the atomic coordinate
-                        betas[1 + 2 * N + siteidx_i * 2, 2, siteidx_i] -= prefactor_betas
-                        betas[1 + 2 * N + siteidx_i * 2 + 1, 2, siteidx_i] -= prefactor_betas
-                        betas[1 + 2 * N + siteidx_j * 2, 2, siteidx_i] -= prefactor_betas
-                        betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_i] -= prefactor_betas
+                            # Following betas are for the seven terms in the mixed derivatives
+                            # with respect to the two different coordinates
+                            betas[pos, 2, siteidx_i] += prefactor_betas
+                            betas[pos + 1, 2, siteidx_i] += prefactor_betas
+                            # For the raw reference density
+                            betas[0, 2, siteidx_i] += 2 * prefactor_betas
+                            # For the single change of the atomic coordinate
+                            betas[1 + 2 * N + siteidx_i * 2, 2, siteidx_i] -= prefactor_betas
+                            betas[1 + 2 * N + siteidx_i * 2 + 1, 2, siteidx_i] -= prefactor_betas
+                            betas[1 + 2 * N + siteidx_j * 2, 2, siteidx_i] -= prefactor_betas
+                            betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_i] -= prefactor_betas
 
-                        # Reverse indexes for betas
-                        betas[pos, 2, siteidx_j] += prefactor_betas_rev
-                        betas[pos + 1, 2, siteidx_j] += prefactor_betas_rev
-                        # For the raw reference density
-                        betas[0, 2, siteidx_j] += 2 * prefactor_betas_rev
-                        # For the single change of the atomic coordinate
-                        betas[1 + 2 * N + siteidx_j * 2, 2, siteidx_j] -= prefactor_betas_rev
-                        betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_j] -= prefactor_betas_rev
-                        betas[1 + 2 * N + siteidx_i * 2, 2, siteidx_j] -= prefactor_betas_rev
-                        betas[1 + 2 * N + siteidx_i * 2 + 1, 2, siteidx_j] -= prefactor_betas_rev
+                            # Reverse indexes for betas
+                            betas[pos, 2, siteidx_j] += prefactor_betas_rev
+                            betas[pos + 1, 2, siteidx_j] += prefactor_betas_rev
+                            # For the raw reference density
+                            betas[0, 2, siteidx_j] += 2 * prefactor_betas_rev
+                            # For the single change of the atomic coordinate
+                            betas[1 + 2 * N + siteidx_j * 2, 2, siteidx_j] -= prefactor_betas_rev
+                            betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_j] -= prefactor_betas_rev
+                            betas[1 + 2 * N + siteidx_i * 2, 2, siteidx_j] -= prefactor_betas_rev
+                            betas[1 + 2 * N + siteidx_i * 2 + 1, 2, siteidx_j] -= prefactor_betas_rev
+
+                        # For full-Cartesian coordinate changes
+                        else:
+                            for rdx in range(3):
+                                if rdx != 0:
+                                    pos += 2
+
+                                prefactor = (1 / (2 * (R_delta_ang ** 2))) / np.math.factorial(
+                                   2 + shift
+                                )
+                                # Set a prefactor for betas.
+                                # betas's prefactor 2 is included in prefactor.
+                                prefactor_betas = prefactor * deltaR[siteidx_j, rdx]
+                                prefactor_betas_rev = prefactor * deltaR[siteidx_i, rdx]
+                                # Set a prefactor for alphas.
+                                prefactor *= deltaR[siteidx_i, rdx] * deltaR[siteidx_j, rdx]
+                                # T.S., hotfix: double for exchange of siteidx_i and siteidx_j
+                                prefactor *= 2.0
+
+                                # Following alphas are for the seven terms in the mixed derivatives
+                                # with respect to the two different coordinates
+                                alphas[pos, 2] += prefactor
+                                alphas[pos + 1, 2] += prefactor
+                                # For the raw reference density
+                                alphas[0, 2] += 2 * prefactor
+                                # For the single change of the atomic coordinate
+                                alphas[1 + 2 * N + rdx * 2 + siteidx_i * 2, 2] -= prefactor
+                                alphas[1 + 2 * N + rdx * 2 + siteidx_i * 2 + 1, 2] -= prefactor
+                                alphas[1 + 2 * N + rdx * 2 + siteidx_j * 2, 2] -= prefactor
+                                alphas[1 + 2 * N + rdx * 2 + siteidx_j * 2 + 1, 2] -= prefactor
+
+                                # Following betas are for the seven terms in the mixed derivatives
+                                # with respect to the two different coordinates
+                                betas[pos, 2, siteidx_i, rdx] += prefactor_betas
+                                betas[pos + 1, 2, siteidx_i, rdx] += prefactor_betas
+                                # For the raw reference density
+                                betas[0, 2, siteidx_i, rdx] += 2 * prefactor_betas
+                                # For the single change of the atomic coordinate
+                                betas[1 + 2 * N + rdx * 2 + siteidx_i * 2, 2, siteidx_i, rdx] -= prefactor_betas
+                                betas[1 + 2 * N + rdx * 2 + siteidx_i * 2 + 1, 2, siteidx_i, rdx] -= prefactor_betas
+                                betas[1 + 2 * N + rdx * 2 + siteidx_j * 2, 2, siteidx_i, rdx] -= prefactor_betas
+                                betas[1 + 2 * N + rdx * 2 + siteidx_j * 2 + 1, 2, siteidx_i, rdx] -= prefactor_betas
+
+                                # Reverse indexes for betas
+                                betas[pos, 2, siteidx_j, rdx] += prefactor_betas_rev
+                                betas[pos + 1, 2, siteidx_j, rdx] += prefactor_betas_rev
+                                # For the raw reference density
+                                betas[0, 2, siteidx_j, rdx] += 2 * prefactor_betas_rev
+                                # For the single change of the atomic coordinate
+                                betas[1 + 2 * N + rdx * 2 + siteidx_j * 2, 2, siteidx_j, rdx] -= prefactor_betas_rev
+                                betas[1 + 2 * N + rdx * 2 + siteidx_j * 2 + 1, 2, siteidx_j, rdx] -= prefactor_betas_rev
+                                betas[1 + 2 * N + rdx * 2 + siteidx_i * 2, 2, siteidx_j, rdx] -= prefactor_betas_rev
+                                betas[1 + 2 * N + rdx * 2 + siteidx_i * 2 + 1, 2, siteidx_j, rdx] -= prefactor_betas_rev
 
                     # If selected atoms with the coordinate change are same
                     # (It is same as siteidx_j == siteidx_i if all atoms are targeted.)
                     if self._include_atoms[siteidx_j] == self._include_atoms[siteidx_i]:
-                        # To use same perturbed density with the first-order one, 2h -> h
-                        # is used, and therefore in prefactor 1 / ((2 * self._delta) ** 2)
-                        # becomes 1 / (self._delta ** 2).
-                        prefactor = (1 / (R_delta_ang ** 2)) / np.math.factorial(
-                            2 + shift
-                        )
-                        # Set a prefactor for betas
-                        prefactor_betas = 2 * prefactor * deltaR[siteidx_i, 2]
-                        # Set a prefactor for alphas
-                        prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
-                        # For the raw electron density
-                        alphas[0, 2] -= 2 * prefactor
-                        betas[0, 2, siteidx_i] -= 2 * prefactor_betas
-                        # For the double changes at the same atom
-                        # Note that here siteidx_i == siteidx_j.
-                        alphas[1 + 2 * N + siteidx_i * 2, 2] += prefactor
-                        alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] += prefactor
-                        betas[1 + 2 * N + siteidx_i * 2, 2, siteidx_i] += prefactor_betas
-                        betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_j] += prefactor_betas
+                        # For z-Cartesian coordinate changes
+                        if self._cartesian == "z":
+                            # To use same perturbed density with the first-order one, 2h -> h
+                            # is used, and therefore in prefactor 1 / ((2 * self._delta) ** 2)
+                            # becomes 1 / (self._delta ** 2).
+                            prefactor = (1 / (R_delta_ang ** 2)) / np.math.factorial(
+                                2 + shift
+                            )
+                            # Set a prefactor for betas
+                            prefactor_betas = 2 * prefactor * deltaR[siteidx_i, 2]
+                            # Set a prefactor for alphas
+                            prefactor *= deltaR[siteidx_i, 2] * deltaR[siteidx_j, 2]
+                            # For the raw electron density
+                            alphas[0, 2] -= 2 * prefactor
+                            betas[0, 2, siteidx_i] -= 2 * prefactor_betas
+                            # For the double changes at the same atom
+                            # Note that here siteidx_i == siteidx_j.
+                            alphas[1 + 2 * N + siteidx_i * 2, 2] += prefactor
+                            alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] += prefactor
+                            betas[1 + 2 * N + siteidx_i * 2, 2, siteidx_i] += prefactor_betas
+                            betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_j] += prefactor_betas
+                        # For full-Cartesian coordinate changes
+                        else:
+                            for rdx in range(3):
+                                # To use same perturbed density with the first-order one, 2h -> h
+                                # is used, and therefore in prefactor 1 / ((2 * self._delta) ** 2)
+                                # becomes 1 / (self._delta ** 2).
+                                prefactor = (1 / (R_delta_ang ** 2)) / np.math.factorial(
+                                    2 + shift
+                                )
+                                # Set a prefactor for betas
+                                prefactor_betas = 2 * prefactor * deltaR[siteidx_i, rdx]
+                                # Set a prefactor for alphas
+                                prefactor *= deltaR[siteidx_i, rdx] * deltaR[siteidx_j, rdx]
+                                # For the raw electron density
+                                alphas[0, 2] -= 2 * prefactor
+                                betas[0, 2, siteidx_i, rdx] -= 2 * prefactor_betas
+                                # For the double changes at the same atom
+                                # Note that here siteidx_i == siteidx_j.
+                                alphas[1 + 2 * N + 2 * rdx + siteidx_i * 2, 2] += prefactor
+                                alphas[1 + 2 * N + 2 * rdx + siteidx_j * 2 + 1, 2] += prefactor
+                                betas[1 + 2 * N + 2 * rdx + siteidx_i * 2, 2, siteidx_i, rdx] += prefactor_betas
+                                betas[1 + 2 * N + 2 * rdx + siteidx_j * 2 + 1, 2, siteidx_j, rdx] += prefactor_betas
 
             # For both atomic charge and coordinate changes
-            # TODO: generalization to three Cartesian coordinates
             # Loop for the atomic charge change
             for siteidx_i in range(N):
                 # Loop for the atomic coordinate change
@@ -1196,44 +1310,91 @@ class APDFT(object):
                     # if deltaR[siteidx_j, 2] == 0 or deltaZ[siteidx_i] == 0:
                     #     continue
 
-                    prefactor = (1 / (2.0 * self._delta * R_delta_ang)
-                                 ) / np.math.factorial(2 + shift)
-                    # prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
-                    #     2 + shift
-                    # )
-                    # Set a prefactor for betas
-                    # betas's prefactor 2 is included in prefactor.
-                    prefactor_betas = 2.0 * prefactor * deltaZ[siteidx_i]
-                    # Set a prefactor for alphas
-                    # Here 2 comes from the duplication of Z and R.
-                    prefactor *= 2 * deltaZ[siteidx_i] * deltaR[siteidx_j, 2]
-                    # prefactor *= deltaZ[siteidx_i] * deltaR[siteidx_j, 2]
+                    # For z-Cartesian coordinate changes
+                    if self._cartesian == "z":
+                        prefactor = (1 / (2.0 * self._delta * R_delta_ang)
+                                    ) / np.math.factorial(2 + shift)
+                        # prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
+                        #     2 + shift
+                        # )
+                        # Set a prefactor for betas
+                        # betas's prefactor 2 is included in prefactor.
+                        prefactor_betas = 2.0 * prefactor * deltaZ[siteidx_i]
+                        # Set a prefactor for alphas
+                        # Here 2 comes from the duplication of Z and R.
+                        prefactor *= 2 * deltaZ[siteidx_i] * deltaR[siteidx_j, 2]
+                        # prefactor *= deltaZ[siteidx_i] * deltaR[siteidx_j, 2]
 
-                    # Following alphas are for the seven terms in the mixed derivatives
-                    # with respect to atomic charge and coordinate.
-                    alphas[pos, 2] += prefactor
-                    alphas[pos + 1, 2] += prefactor
-                    # For the raw reference density
-                    alphas[0, 2] += 2 * prefactor
-                    # For the single change of the atomic charge
-                    alphas[1 + siteidx_i * 2, 2] -= prefactor
-                    alphas[1 + siteidx_i * 2 + 1, 2] -= prefactor
-                    # For the single change of the atomic coordinate
-                    alphas[1 + 2 * N + siteidx_j * 2, 2] -= prefactor
-                    alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] -= prefactor
+                        # Following alphas are for the seven terms in the mixed derivatives
+                        # with respect to atomic charge and coordinate.
+                        alphas[pos, 2] += prefactor
+                        alphas[pos + 1, 2] += prefactor
+                        # For the raw reference density
+                        alphas[0, 2] += 2 * prefactor
+                        # For the single change of the atomic charge
+                        alphas[1 + siteidx_i * 2, 2] -= prefactor
+                        alphas[1 + siteidx_i * 2 + 1, 2] -= prefactor
+                        # For the single change of the atomic coordinate
+                        alphas[1 + 2 * N + siteidx_j * 2, 2] -= prefactor
+                        alphas[1 + 2 * N + siteidx_j * 2 + 1, 2] -= prefactor
 
-                    # Following betas are for the seven terms in the mixed derivatives
-                    # with respect to atomic charge and coordinate.
-                    betas[pos, 2, siteidx_j] += prefactor_betas
-                    betas[pos + 1, 2, siteidx_j] += prefactor_betas
-                    # For the raw reference density
-                    betas[0, 2, siteidx_j] += 2 * prefactor_betas
-                    # For the single change of the atomic charge
-                    betas[1 + siteidx_i * 2, 2, siteidx_j] -= prefactor_betas
-                    betas[1 + siteidx_i * 2 + 1, 2, siteidx_j] -= prefactor_betas
-                    # For the single change of the atomic coordinate
-                    betas[1 + 2 * N + siteidx_j * 2, 2, siteidx_j] -= prefactor_betas
-                    betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_j] -= prefactor_betas
+                        # Following betas are for the seven terms in the mixed derivatives
+                        # with respect to atomic charge and coordinate.
+                        betas[pos, 2, siteidx_j] += prefactor_betas
+                        betas[pos + 1, 2, siteidx_j] += prefactor_betas
+                        # For the raw reference density
+                        betas[0, 2, siteidx_j] += 2 * prefactor_betas
+                        # For the single change of the atomic charge
+                        betas[1 + siteidx_i * 2, 2, siteidx_j] -= prefactor_betas
+                        betas[1 + siteidx_i * 2 + 1, 2, siteidx_j] -= prefactor_betas
+                        # For the single change of the atomic coordinate
+                        betas[1 + 2 * N + siteidx_j * 2, 2, siteidx_j] -= prefactor_betas
+                        betas[1 + 2 * N + siteidx_j * 2 + 1, 2, siteidx_j] -= prefactor_betas
+
+                    # For full-Cartesian coordinate changes
+                    else:
+                        for rdx in range(3):
+                            if rdx != 0:
+                                pos += 2
+
+                            prefactor = (1 / (2.0 * self._delta * R_delta_ang)
+                                        ) / np.math.factorial(2 + shift)
+                            # prefactor = (1 / (2 * (self._delta ** 2))) / np.math.factorial(
+                            #     2 + shift
+                            # )
+                            # Set a prefactor for betas
+                            # betas's prefactor 2 is included in prefactor.
+                            prefactor_betas = 2.0 * prefactor * deltaZ[siteidx_i]
+                            # Set a prefactor for alphas
+                            # Here 2 comes from the duplication of Z and R.
+                            prefactor *= 2 * deltaZ[siteidx_i] * deltaR[siteidx_j, rdx]
+                            # prefactor *= deltaZ[siteidx_i] * deltaR[siteidx_j, 2]
+
+                            # Following alphas are for the seven terms in the mixed derivatives
+                            # with respect to atomic charge and coordinate.
+                            alphas[pos, 2] += prefactor
+                            alphas[pos + 1, 2] += prefactor
+                            # For the raw reference density
+                            alphas[0, 2] += 2 * prefactor
+                            # For the single change of the atomic charge
+                            alphas[1 + siteidx_i * 2 + rdx * 2, 2] -= prefactor
+                            alphas[1 + siteidx_i * 2 + rdx * 2 + 1, 2] -= prefactor
+                            # For the single change of the atomic coordinate
+                            alphas[1 + 2 * N + rdx * 2 + siteidx_j * 2, 2] -= prefactor
+                            alphas[1 + 2 * N + rdx * 2 + siteidx_j * 2 + 1, 2] -= prefactor
+
+                            # Following betas are for the seven terms in the mixed derivatives
+                            # with respect to atomic charge and coordinate.
+                            betas[pos, 2, siteidx_j, rdx] += prefactor_betas
+                            betas[pos + 1, 2, siteidx_j, rdx] += prefactor_betas
+                            # For the raw reference density
+                            betas[0, 2, siteidx_j, rdx] += 2 * prefactor_betas
+                            # For the single change of the atomic charge
+                            betas[1 + siteidx_i * 2, 2, siteidx_j, rdx] -= prefactor_betas
+                            betas[1 + siteidx_i * 2 + 1, 2, siteidx_j, rdx] -= prefactor_betas
+                            # For the single change of the atomic coordinate
+                            betas[1 + 2 * N + rdx * 2 + siteidx_j * 2, 2, siteidx_j, rdx] -= prefactor_betas
+                            betas[1 + 2 * N + rdx * 2 + siteidx_j * 2 + 1, 2, siteidx_j, rdx] -= prefactor_betas
 
         # If this is a calculation of vertical energy derivatives
         if self._calc_der and shift == 1:
@@ -1242,39 +1403,79 @@ class APDFT(object):
             # For energy, the 2nd-order perturbed density of APDFT1 consider
             # the effects of combinatorial changes of atomic charges.
             if 1 in self._orders:
-                # pos is used to specify the position in ver_betas
-                # Position of both atomic and geometry changes is set.
-                pos = 1 + 2 * (N * 2) + 2 * (N * (N - 1)) - 2
+                # For z-Cartesian coordinate changes
+                if self._cartesian == "z":
+                    # pos is used to specify the position in ver_betas
+                    # Position of both atomic and geometry changes is set.
+                    pos = 1 + 2 * (N * 2) + 2 * (N * (N - 1)) - 2
 
-                # For both atomic charge and coordinate changes
-                # TODO: generalization to three Cartesian coordinates
-                # Need to note that the order of loops are different from the case of betas
-                # Loop for the atomic charge change
-                prefactor = (1.0 / (2.0 * self._delta * R_delta_ang)
-                             ) / np.math.factorial(2 + shift - 1)
-                #                                     shift - 1 is required!
-                for siteidx_i in range(N):
-                    # Set a prefactor for ver_betas
-                    prefactor_ver_betas = prefactor * deltaZ[siteidx_i]
-                    # Loop for the atomic coordinate change
-                    for siteidx_j in range(N):
-                        pos += 2
+                    # For both atomic charge and coordinate changes
+                    # Need to note that the order of loops are different from the case of betas
+                    # Loop for the atomic charge change
+                    prefactor = (1.0 / (2.0 * self._delta * R_delta_ang)
+                                ) / np.math.factorial(2 + shift - 1)
+                    #                                     shift - 1 is required!
+                    for siteidx_i in range(N):
+                        # Set a prefactor for ver_betas
+                        prefactor_ver_betas = prefactor * deltaZ[siteidx_i]
+                        # Loop for the atomic coordinate change
+                        for siteidx_j in range(N):
+                            pos += 2
 
-                        # Following ver_betas are for the seven terms in the mixed derivatives
-                        # with respect to atomic charge and coordinate.
-                        ver_betas[pos, 2, siteidx_j] += prefactor_ver_betas
-                        ver_betas[pos + 1, 2, siteidx_j] += prefactor_ver_betas
-                        # For the raw reference density
-                        ver_betas[0, 2, siteidx_j] += 2.0 * prefactor_ver_betas
-                        # For the single change of the atomic charge
-                        ver_betas[1 + siteidx_i * 2, 2, siteidx_j] -= prefactor_ver_betas
-                        ver_betas[1 + siteidx_i * 2 + 1, 2,
-                            siteidx_j] -= prefactor_ver_betas
-                        # For the single change of the atomic coordinate
-                        ver_betas[1 + 2 * N + siteidx_j * 2, 2,
-                            siteidx_j] -= prefactor_ver_betas
-                        ver_betas[1 + 2 * N + siteidx_j * 2 + 1,
-                                  2, siteidx_j] -= prefactor_ver_betas
+                            # Following ver_betas are for the seven terms in the mixed derivatives
+                            # with respect to atomic charge and coordinate.
+                            ver_betas[pos, 2, siteidx_j] += prefactor_ver_betas
+                            ver_betas[pos + 1, 2, siteidx_j] += prefactor_ver_betas
+                            # For the raw reference density
+                            ver_betas[0, 2, siteidx_j] += 2.0 * prefactor_ver_betas
+                            # For the single change of the atomic charge
+                            ver_betas[1 + siteidx_i * 2, 2, siteidx_j] -= prefactor_ver_betas
+                            ver_betas[1 + siteidx_i * 2 + 1, 2,
+                                siteidx_j] -= prefactor_ver_betas
+                            # For the single change of the atomic coordinate
+                            ver_betas[1 + 2 * N + siteidx_j * 2, 2,
+                                siteidx_j] -= prefactor_ver_betas
+                            ver_betas[1 + 2 * N + siteidx_j * 2 + 1,
+                                    2, siteidx_j] -= prefactor_ver_betas
+                # For full-Cartesian coordinate changes
+                else:
+                    # pos is used to specify the position in ver_betas
+                    # Position of both atomic and geometry changes is set.
+                    pos = 1 + 4 * (N * 2) + 4 * (N * (N - 1)) - 2
+
+                    # For both atomic charge and coordinate changes
+                    # Need to note that the order of loops are different from the case of betas
+                    # Loop for the atomic charge change
+                    prefactor = (1.0 / (2.0 * self._delta * R_delta_ang)
+                                ) / np.math.factorial(2 + shift - 1)
+                    #                                     shift - 1 is required!
+                    for siteidx_i in range(N):
+                        # Set a prefactor for ver_betas
+                        prefactor_ver_betas = prefactor * deltaZ[siteidx_i]
+                        # Loop for the atomic coordinate change
+                        for siteidx_j in range(N):
+                            pos += 2
+
+                            for rdx in range(3):
+                                if rdx != 0:
+                                    pos += 2
+
+                                # Following ver_betas are for the seven terms in the mixed derivatives
+                                # with respect to atomic charge and coordinate.
+                                ver_betas[pos, 2, siteidx_j, rdx] += prefactor_ver_betas
+                                ver_betas[pos + 1, 2, siteidx_j, rdx] += prefactor_ver_betas
+                                # For the raw reference density
+                                ver_betas[0, 2, siteidx_j, rdx] += 2.0 * prefactor_ver_betas
+                                # For the single change of the atomic charge
+                                ver_betas[1 + siteidx_i * 2, 2, siteidx_j, rdx] -= prefactor_ver_betas
+                                ver_betas[1 + siteidx_i * 2 + 1, 2,
+                                    siteidx_j, rdx] -= prefactor_ver_betas
+                                # For the single change of the atomic coordinate
+                                ver_betas[1 + 2 * N + 2 * rdx + siteidx_j * 2, 2,
+                                    siteidx_j, rdx] -= prefactor_ver_betas
+                                ver_betas[1 + 2 * N + 2 * rdx + siteidx_j * 2 + 1,
+                                        2, siteidx_j, rdx] -= prefactor_ver_betas
+
 
         if shift == 1 and not self._calc_der:
             return alphas, betas
@@ -2954,23 +3155,40 @@ class APDFT(object):
                 # Force contributions from the target
                 for i in range(len(self._nuclear_numbers)):
                     for j in range(3):
-                        # Z axis
-                        if j == 2:
+                        # For z-Cartesian coordinate changes
+                        if self._cartesian == "z":
+                            # Z axis
+                            if j == 2:
+                                contributions_target_deriv_rho[i, j] = np.multiply(
+                                    np.outer(force_alphas[:, order, i], target),
+                                            epn_matrix_target
+                                    ).sum()
+                        # For full-Cartesian coordinate changes
+                        else:
                             contributions_target_deriv_rho[i, j] = np.multiply(
-                                np.outer(force_alphas[:, order, i], target),
-                                         epn_matrix_target
-                                ).sum()
+                                    np.outer(force_alphas[:, order, i, j], target),
+                                            epn_matrix_target
+                                    ).sum()
 
                 # Force contributions from the reference
                 for i in range(len(self._nuclear_numbers)):
                     for j in range(3):
-                        # Z axis
-                        if j == 2:
+                        # For z-Cartesian coordinate changes
+                        if self._cartesian == "z":
+                            # Z axis
+                            if j == 2:
+                                contributions_reference_deriv_rho[i, j] = -np.multiply(
+                                    np.outer(force_alphas[:, order, i],
+                                            self._nuclear_numbers),
+                                            epn_matrix
+                                    ).sum()
+                        # For full-Cartesian coordinate changes
+                        else:
                             contributions_reference_deriv_rho[i, j] = -np.multiply(
-                                np.outer(force_alphas[:, order, i],
-                                         self._nuclear_numbers),
-                                         epn_matrix
-                                ).sum()
+                                    np.outer(force_alphas[:, order, i, j],
+                                            self._nuclear_numbers),
+                                            epn_matrix
+                                    ).sum()
 
                 # # For check
                 # for i in range(len(self._nuclear_numbers)):
@@ -2989,11 +3207,16 @@ class APDFT(object):
                         (len(self._nuclear_numbers), 3))
                     for i in range(len(self._nuclear_numbers)):
                         for j in range(3):
-                            # Z axis
-                            # TODO: generalization to three Cartesian coordinates
-                            if j == 2:
+                            # For z-Cartesian coordinate changes
+                            if self._cartesian == "z":
+                                # Z axis
+                                if j == 2:
+                                    ver_contributions_deriv_rho[i, j] = np.multiply(
+                                        np.outer(ver_force_alphas[:, order + 1, i], deltaZ_included), ver_epn_matrix).sum()
+                            # For z-Cartesian coordinate changes
+                            else:
                                 ver_contributions_deriv_rho[i, j] = np.multiply(
-                                    np.outer(ver_force_alphas[:, order + 1, i], deltaZ_included), ver_epn_matrix).sum()
+                                    np.outer(ver_force_alphas[:, order + 1, i, j], deltaZ_included), ver_epn_matrix).sum()
 
                     # # For check
                     # print("target", target)
