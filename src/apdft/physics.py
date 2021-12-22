@@ -2615,23 +2615,44 @@ class APDFT(object):
         results = []
         for folder in folders:
             # If this is a calculation of vertical energy derivatives
-            # TODO: generalization to three Cartesian coordinates
-            if self._calc_der and "/r-site" in folder or "/zr-site" in folder:
-                results.append(get_empty_value(propertyname))
+            # For only z-geometry changes
+            if self._cartesian == 'z':
+                if self._calc_der and "/r-site" in folder or "/zr-site" in folder:
+                    results.append(get_empty_value(propertyname))
+                else:
+                    try:
+                        # Properties are obtained.
+                        if functionname == "get_target_hf_ionic_force":
+                            # For "TARGET_IONIC_FORCE"
+                            results.append(function(folder, self._include_atoms))
+                        else:
+                            results.append(function(folder))
+                    except ValueError:
+                        apdft.log.log(
+                            "Calculation with incomplete results.",
+                            level="error",
+                            calulation=folder,
+                        )
+            # For only full-geometry changes
             else:
-                try:
-                    # Properties are obtained.
-                    if functionname == "get_target_hf_ionic_force":
-                        # For "TARGET_IONIC_FORCE"
-                        results.append(function(folder, self._include_atoms))
-                    else:
-                        results.append(function(folder))
-                except ValueError:
-                    apdft.log.log(
-                        "Calculation with incomplete results.",
-                        level="error",
-                        calulation=folder,
-                    )
+                if self._calc_der and "/rX-site" in folder or "/rY-site" in folder or \
+                    "/rZ-site" in folder or "/zrX-site" in folder or "/zrX-site" in folder or \
+                    "/zrY-site" in folder or "/zrZ-site" in folder:
+                        results.append(get_empty_value(propertyname))
+                else:
+                    try:
+                        # Properties are obtained.
+                        if functionname == "get_target_hf_ionic_force":
+                            # For "TARGET_IONIC_FORCE"
+                            results.append(function(folder, self._include_atoms))
+                        else:
+                            results.append(function(folder))
+                    except ValueError:
+                        apdft.log.log(
+                            "Calculation with incomplete results.",
+                            level="error",
+                            calulation=folder,
+                        )
 
         # Only meaningful if all calculations are present.
         if len(results) == len(folders):
