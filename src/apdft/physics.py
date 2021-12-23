@@ -3906,7 +3906,6 @@ class APDFT(object):
         for order in self._orders:
             for atom_pos in range(natoms):
                 # Only Z component is presented.
-                # TODO: generalization to three Cartesian coordinates
                 result_atomic_forces["atomic_force_%s_order%d" % (atom_pos, order)] = \
                     atomic_forces[:, order, atom_pos, 2]
                 result_ele_atomic_forces["ele_atomic_force_%s_order%d" % (atom_pos, order)] = \
@@ -4013,16 +4012,19 @@ class APDFT(object):
         pd.DataFrame(ele_result_dipoles).to_csv("ele_dipoles.csv", index=False)
         pd.DataFrame(nuc_result_dipoles).to_csv("nuc_dipoles.csv", index=False)
 
-        pd.DataFrame(result_atomic_forces).to_csv(
-            "atomic_forces.csv", index=False)
-        pd.DataFrame(result_ele_atomic_forces).to_csv(
-            "ele_atomic_forces.csv", index=False)
+        # If this is a calculation of vertical energy derivatives,
+        # these atomic forces are not accurate.
+        if not self._calc_der:
+            pd.DataFrame(result_atomic_forces).to_csv(
+                "atomic_forces.csv", index=False)
+            pd.DataFrame(result_ele_atomic_forces).to_csv(
+                "ele_atomic_forces.csv", index=False)
+            pd.DataFrame(result_hf_ionic_force_contributions).to_csv(
+                "hf_ionic_force_contributions.csv", index=False)
+            pd.DataFrame(result_deriv_rho_contributions).to_csv(
+                "deriv_rho_contributions.csv", index=False)
         pd.DataFrame(result_nuc_atomic_forces).to_csv(
-            "nuc_atomic_forces.csv", index=False)
-        pd.DataFrame(result_hf_ionic_force_contributions).to_csv(
-            "hf_ionic_force_contributions.csv", index=False)
-        pd.DataFrame(result_deriv_rho_contributions).to_csv(
-            "deriv_rho_contributions.csv", index=False)
+                "nuc_atomic_forces.csv", index=False)
 
         pd.DataFrame(result_hf_ionic_forces).to_csv(
             "hf_ionic_forces.csv", index=False)
