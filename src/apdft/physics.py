@@ -3985,12 +3985,20 @@ class APDFT(object):
             natoms = len(self._coordinates)
             for order in self._orders:
                 for atom_pos in range(natoms):
-                    # Only Z component is presented.
-                    # TODO: generalization to three Cartesian coordinates
-                    result_ver_atomic_forces["ver_atomic_force_%s_order%d" % (
-                        atom_pos, order)] = ver_atomic_forces[:, order, atom_pos, 2]
-                    result_ver_ele_atomic_forces["ver_ele_atomic_force_%s_order%d" % (
-                        atom_pos, order)] = ele_ver_atomic_forces[:, order, atom_pos, 2]
+                    # For z-Cartesian coordinate change
+                    if self._cartesian == 'z':
+                        # Only Z component is presented.
+                        result_ver_atomic_forces["ver_atomic_force_%s_order%d" % (
+                            atom_pos, order)] = ver_atomic_forces[:, order, atom_pos, 2]
+                        result_ver_ele_atomic_forces["ver_ele_atomic_force_%s_order%d" % (
+                            atom_pos, order)] = ele_ver_atomic_forces[:, order, atom_pos, 2]
+                    # For z-Cartesian coordinate change
+                    else:
+                        for didx, dim in enumerate("xyz"):
+                            result_ver_atomic_forces["ver_atomic_force_%s_%s_order%d" % (
+                                atom_pos, dim, order)] = ver_atomic_forces[:, order, atom_pos, didx]
+                            result_ver_ele_atomic_forces["ver_ele_atomic_force_%s_%s_order%d" % (
+                                atom_pos, dim, order)] = ele_ver_atomic_forces[:, order, atom_pos, didx]
 
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
         pd.DataFrame(result_ele_energies).to_csv("ele_energies.csv", index=False)
