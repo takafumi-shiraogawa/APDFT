@@ -36,6 +36,7 @@ class handle_APDFT():
     return
 
   # Set n2.xyz or n2_mod.inp with arbitrary bond length
+  # TODO: generalization to three Cartesian coordinates
   def set_inputs(target1, target2, target_inp):
     with open(str(target_inp)) as fh:
         template = jinja.Template(fh.read())
@@ -47,6 +48,7 @@ class handle_APDFT():
     return template.render(**env)
 
   def gener_inputs(coord):
+    # TODO: generalization to three Cartesian coordinates
     inputfile_ori = handle_APDFT.set_inputs(coord[0], coord[1], "template/n2.xyz")
     inputfile_mod = handle_APDFT.set_inputs(
         coord[0], coord[1], "template/n2_mod.xyz")
@@ -120,6 +122,7 @@ class mod_APDFT(FileIOCalculator):
     # This is a bond length
     coord = np.zeros(len(self.atoms.positions))
 
+    # TODO: generalization to three Cartesian coordinates
     for i in range(len(self.atoms.positions)):
       coord[i] = self.atoms.positions[i, 2]
 
@@ -147,6 +150,7 @@ class mod_APDFT(FileIOCalculator):
     # Obtain results
     pot_energy = handle_APDFT.get_target_value(
         "total_energy_order", dict_total_energy, apdft_order)
+    # TODO: generalization to three Cartesian coordinates
     for i in range(num_atoms):
       atom_forces[i, 2] = handle_APDFT.get_target_value(
           "ver_atomic_force_%s_order" % str(i), dict_atomic_force, apdft_order)
@@ -157,6 +161,7 @@ class mod_APDFT(FileIOCalculator):
     inp_total_energy.close()
     inp_atomic_force.close()
 
+    # TODO: generalization to three Cartesian coordinates
     print("APDFT results:", self.num_opt_step, pot_energy, self.atoms.positions[1, 2] - self.atoms.positions[0, 2])
 
     self.results = {'energy': pot_energy * har_to_ev,
