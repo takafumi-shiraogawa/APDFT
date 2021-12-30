@@ -6,6 +6,7 @@ from . import calculator
 from . import commandline
 from . import settings
 from . import math
+from . import ase
 
 LOG_LEVEL_USAGE = {}
 
