@@ -4,6 +4,7 @@ import jinja2 as jinja
 import csv
 import numpy as np
 from ase.calculators.calculator import FileIOCalculator
+import apdft
 
 # Conversion factor from Angstrom to Bohr
 ang_to_bohr = 1 / 0.52917721067
@@ -35,28 +36,30 @@ class handle_APDFT():
 
     return
 
-  # Set n2.xyz or n2_mod.inp with arbitrary bond length
-  # TODO: generalization to three Cartesian coordinates
-  def set_inputs(target1, target2, target_inp):
-    with open(str(target_inp)) as fh:
-        template = jinja.Template(fh.read())
+  # Read initial geometry of a molecule
+  # The name of the xyz file is init.xyz
+  def read_init_geom():
+    try:
+        nuclear_numbers, coordinates = apdft.read_xyz("init.xyz")
+        return nuclear_numbers, coordinates
+    except FileNotFoundError:
+        apdft.log.log(
+            'Unable to open input file "%s".' % "init.xyz", level="error"
+        )
+        return
 
-    env = {}
-    env["bond_length1"] = target1
-    env["bond_length2"] = target2
+  # Set mol.xyz or mol_mod.inp from the uptdated coordinates
+  def set_inputs(nuclear_numbers, coordinates, target_inp):
+    with open(str(target_inp), mode='w') as fh:
+      print(len(nuclear_numbers), file=fh)
+      print("", file=fh)
+      for i in range(len(nuclear_numbers)):
+        print(nuclear_numbers[i], *coordinates[i], file=fh)
 
-    return template.render(**env)
-
-  def gener_inputs(coord):
-    # TODO: generalization to three Cartesian coordinates
-    inputfile_ori = handle_APDFT.set_inputs(coord[0], coord[1], "template/n2.xyz")
-    inputfile_mod = handle_APDFT.set_inputs(
-        coord[0], coord[1], "template/n2_mod.xyz")
-
-    with open("work/temp/n2.xyz", "w") as inp:
-      inp.write(inputfile_ori)
-    with open("work/temp/n2_mod.xyz", "w") as inp:
-      inp.write(inputfile_mod)
+  # generate inputs of APDFT calculations
+  def gener_inputs(nuclear_numbers, coordinates):
+    handle_APDFT.set_inputs(nuclear_numbers, coordinates, "work/temp/n2.xyz")
+    handle_APDFT.set_inputs(nuclear_numbers, coordinates, "work/temp/n2_mod.xyz")
 
   # Read target energy from the output (energies.csv)
   def get_target_value(target, dict_inp, apdft_order):
@@ -101,6 +104,11 @@ class mod_APDFT(FileIOCalculator):
     FileIOCalculator.__init__(self, *args, label=label, **kwargs)
     self.num_opt_step = num_opt_step
 
+    # Get nuclear numbers
+    # Note that APDFT can work with nuclear numbers
+    # For nuclear coordinates, self.atoms.positions can be used instead.
+    self.nuclear_numbers, coordinates = handle_APDFT.read_init_geom()
+
     if os.path.isdir("work/"):
       shutil.rmtree("work/")
 
@@ -119,14 +127,8 @@ class mod_APDFT(FileIOCalculator):
 
     handle_APDFT.copy_ingredients()
 
-    # This is a bond length
-    coord = np.zeros(len(self.atoms.positions))
-
-    # TODO: generalization to three Cartesian coordinates
-    for i in range(len(self.atoms.positions)):
-      coord[i] = self.atoms.positions[i, 2]
-
-    handle_APDFT.gener_inputs(coord)
+    # handle_APDFT.gener_inputs(coord)
+    handle_APDFT.gener_inputs(self.nuclear_numbers, self.atoms.positions)
 
   # Read calculated energy and atomic forces
   def read_results(self):
