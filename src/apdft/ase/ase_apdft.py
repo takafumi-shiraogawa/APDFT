@@ -152,19 +152,28 @@ class mod_APDFT(FileIOCalculator):
     # Obtain results
     pot_energy = handle_APDFT.get_target_value(
         "total_energy_order", dict_total_energy, apdft_order)
-    # TODO: generalization to three Cartesian coordinates
+
+    # For full-dimensional Cartesian optimization
     for i in range(num_atoms):
-      atom_forces[i, 2] = handle_APDFT.get_target_value(
-          "ver_atomic_force_%s_order" % str(i), dict_atomic_force, apdft_order)
-      inp_atomic_force.close()
-      inp_atomic_force = open("%s/ver_atomic_forces.csv" % path, "r")
-      dict_atomic_force = csv.DictReader(inp_atomic_force)
+      for didx, dim in enumerate("xyz"):
+        atom_forces[i, didx] = handle_APDFT.get_target_value(
+            "ver_atomic_force_%s_%s_order" % (str(i), dim), dict_atomic_force, apdft_order)
+        inp_atomic_force.close()
+        inp_atomic_force = open("%s/ver_atomic_forces.csv" % path, "r")
+        dict_atomic_force = csv.DictReader(inp_atomic_force)
+
+    # # For one-dimensional Cartesian optimization
+    # for i in range(num_atoms):
+    #   atom_forces[i, 2] = handle_APDFT.get_target_value(
+    #       "ver_atomic_force_%s_order" % str(i), dict_atomic_force, apdft_order)
+    #   inp_atomic_force.close()
+    #   inp_atomic_force = open("%s/ver_atomic_forces.csv" % path, "r")
+    #   dict_atomic_force = csv.DictReader(inp_atomic_force)
 
     inp_total_energy.close()
     inp_atomic_force.close()
 
-    # TODO: generalization to three Cartesian coordinates
-    print("APDFT results:", self.num_opt_step, pot_energy, self.atoms.positions[1, 2] - self.atoms.positions[0, 2])
+    print("APDFT results:", self.num_opt_step, pot_energy)
 
     self.results = {'energy': pot_energy * har_to_ev,
                     'forces': atom_forces * hb_to_ea,
