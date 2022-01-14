@@ -1,5 +1,6 @@
 from ase import Atoms
-from ase.optimize import BFGS
+# from ase.optimize import BFGS
+from ase.optimize.bfgslinesearch import BFGSLineSearch
 import apdft as APDFTtool
 import apdft.ase.ase_apdft as APDFT
 import time
@@ -63,7 +64,8 @@ class ASE_OPT():
               positions=coordinates,
               calculator=APDFT.mod_APDFT())
 
-    dyn = BFGS(MOL)
+    # dyn = BFGS(MOL)
+    dyn = BFGSLineSearch(MOL)
     dyn.run(fmax=0.005 * hb_to_ea)
 
     elapsed_time = time.time() - start
