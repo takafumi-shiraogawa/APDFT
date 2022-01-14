@@ -3991,7 +3991,7 @@ class APDFT(object):
                             atom_pos, order)] = ver_atomic_forces[:, order, atom_pos, 2]
                         result_ver_ele_atomic_forces["ver_ele_atomic_force_%s_order%d" % (
                             atom_pos, order)] = ele_ver_atomic_forces[:, order, atom_pos, 2]
-                    # For z-Cartesian coordinate change
+                    # For full-Cartesian coordinate change
                     else:
                         for didx, dim in enumerate("xyz"):
                             result_ver_atomic_forces["ver_atomic_force_%s_%s_order%d" % (
