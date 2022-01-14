@@ -3910,8 +3910,15 @@ class APDFT(object):
                     atomic_forces[:, order, atom_pos, 2]
                 result_ele_atomic_forces["ele_atomic_force_%s_order%d" % (atom_pos, order)] = \
                     ele_atomic_forces[:, order, atom_pos, 2]
-                result_nuc_atomic_forces["nuc_atomic_force_%s_order%d" % (atom_pos, order)] = \
-                    nuc_atomic_forces[:, order, atom_pos, 2]
+                # For z-Cartesian coordinate change
+                if self._cartesian == 'z':
+                    result_nuc_atomic_forces["nuc_atomic_force_%s_order%d" % (atom_pos, order)] = \
+                        nuc_atomic_forces[:, order, atom_pos, 2]
+                # For full-Cartesian coordinate change
+                else:
+                    for didx, dim in enumerate("xyz"):
+                        result_nuc_atomic_forces["nuc_atomic_force_%s_%s_order%d" % (atom_pos, dim, order)] = \
+                            nuc_atomic_forces[:, order, atom_pos, didx]
                 result_hf_ionic_force_contributions["atomic_force_%s_order%d" % (atom_pos, order)] = \
                     hf_ionic_force_contributions[:, order, atom_pos, 2]
                 result_deriv_rho_contributions["atomic_force_%s_order%d" % (atom_pos, order)] = \
