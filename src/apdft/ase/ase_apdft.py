@@ -156,19 +156,25 @@ class mod_APDFT(FileIOCalculator):
     # For full-dimensional Cartesian optimization
     for i in range(num_atoms):
       for didx, dim in enumerate("xyz"):
-        atom_forces[i, didx] = handle_APDFT.get_target_value(
-            "ver_atomic_force_%s_%s_order" % (str(i), dim), dict_atomic_force, apdft_order)
+        try:
+          atom_forces[i, didx] = handle_APDFT.get_target_value(
+              "ver_atomic_force_%s_%s_order" % (str(i), dim), dict_atomic_force, apdft_order)
+        except FileNotFoundError:
+          print(FileNotFoundError)
+        except KeyError:
+          # For z-Cartesian component
+          if didx == 2:
+            inp_atomic_force.close()
+            inp_atomic_force = open("%s/ver_atomic_forces.csv" % path, "r")
+            dict_atomic_force = csv.DictReader(inp_atomic_force)
+            atom_forces[i, 2] = handle_APDFT.get_target_value(
+              "ver_atomic_force_%s_order" % str(i), dict_atomic_force, apdft_order)
+          # For x- and y-Cartesian components
+          else:
+            atom_forces[i, didx] = 0.0
         inp_atomic_force.close()
         inp_atomic_force = open("%s/ver_atomic_forces.csv" % path, "r")
         dict_atomic_force = csv.DictReader(inp_atomic_force)
-
-    # # For one-dimensional Cartesian optimization
-    # for i in range(num_atoms):
-    #   atom_forces[i, 2] = handle_APDFT.get_target_value(
-    #       "ver_atomic_force_%s_order" % str(i), dict_atomic_force, apdft_order)
-    #   inp_atomic_force.close()
-    #   inp_atomic_force = open("%s/ver_atomic_forces.csv" % path, "r")
-    #   dict_atomic_force = csv.DictReader(inp_atomic_force)
 
     inp_total_energy.close()
     inp_atomic_force.close()
