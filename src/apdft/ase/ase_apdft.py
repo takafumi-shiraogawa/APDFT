@@ -180,6 +180,9 @@ class mod_APDFT(FileIOCalculator):
     inp_atomic_force.close()
 
     print("APDFT results:", self.num_opt_step, pot_energy)
+    for i in range(num_atoms):
+      print("APDFT geometry:", self.num_opt_step, self.atoms.positions[i, :])
+    print("APDFT geometry:")
 
     self.results = {'energy': pot_energy * har_to_ev,
                     'forces': atom_forces * hb_to_ea,
