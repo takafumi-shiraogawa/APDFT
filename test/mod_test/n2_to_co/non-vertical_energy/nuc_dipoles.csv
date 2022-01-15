@@ -1,0 +1,4 @@
+targets,nuc_dipole_moment_x,nuc_dipole_moment_y,nuc_dipole_moment_z,nuc_dipole_moment_x_order0,nuc_dipole_moment_y_order0,nuc_dipole_moment_z_order0,nuc_dipole_moment_x_order1,nuc_dipole_moment_y_order1,nuc_dipole_moment_z_order1,nuc_dipole_moment_x_order2,nuc_dipole_moment_y_order2,nuc_dipole_moment_z_order2
+"C,O",0.0,0.0,2.267671350549394,0.0,0.0,2.267671350549394,0.0,0.0,2.267671350549394,0.0,0.0,2.267671350549394
+"N,N",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+"O,C",0.0,0.0,-2.267671350549394,0.0,0.0,-2.267671350549394,0.0,0.0,-2.267671350549394,0.0,0.0,-2.267671350549394
