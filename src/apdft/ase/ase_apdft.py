@@ -153,6 +153,13 @@ class mod_APDFT(FileIOCalculator):
     pot_energy = handle_APDFT.get_target_value(
         "total_energy_order", dict_total_energy, apdft_order)
 
+    # In full and one-dimensional (z) Cartesian coordinate calculations,
+    # outputs of atomic forces are different.
+    # In the one-dimensional calculation, APDFT only calculate z-component
+    # atomic forces.
+    # According to the difference, when the one-dimensional (z) coordinate
+    # calculation is performed, only z-direction force is read for
+    # geometry optimization.
     # For full-dimensional Cartesian optimization
     for i in range(num_atoms):
       for didx, dim in enumerate("xyz"):
