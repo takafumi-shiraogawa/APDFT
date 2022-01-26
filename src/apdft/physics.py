@@ -65,14 +65,14 @@ class Coulomb(object):
         # Set atomic force vectors for all atoms of the molecule
         ret = np.zeros((natoms, 3))
 
-        # Roops for all combinations between atoms
-        # Roop for specifying a target atom for the atomic force
+        # Loops for all combinations between atoms
+        # Loop for specifying a target atom for the atomic force
         for i in range(natoms):
-            # Roop for specifying the other atoms
+            # Loop for specifying the other atoms
             for j in range(natoms):
                 if j == i:
                     continue
-                # Roop for specifying three Cartesian coordinates
+                # Loop for specifying three Cartesian coordinates
                 for k in range(3):
 
                     # Distance between two atoms in the absolute value
@@ -408,7 +408,7 @@ class APDFT(object):
             ):
                 # If this is a calculation of the analytical derivative of potential
                 # energy with respect to nuclear coordinates by a vertical manner,
-                # this roop is skipped
+                # this Loop is skipped
                 if self._calc_der:
                     continue
 
@@ -518,7 +518,7 @@ class APDFT(object):
             ):
                 # If this is a calculation of the analytical derivative of potential
                 # energy with respect to nuclear coordinates by a vertical manner,
-                # this roop is skipped
+                # this Loop is skipped
                 if self._calc_der:
                     continue
 
