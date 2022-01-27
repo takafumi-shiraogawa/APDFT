@@ -185,6 +185,9 @@ class APDFT(object):
         max_deltaz=3,
         include_atoms=None,
         targetlist=None,
+        specify_targets=None,
+        target_atom=None,
+        target_positions=None,
         target_cartesian="z",
         small_deltaZ = 0.05,
         small_deltaR = 0.001,
@@ -202,6 +205,12 @@ class APDFT(object):
         self._nuclear_numbers = np.array(nuclear_numbers)
         self._coordinates = coordinates
         self._cartesian = target_cartesian
+
+        # Specify targets
+        self._specify_targets = specify_targets
+        self._target_atom = target_atom[0]
+        self._target_positions = target_positions
+
         self._delta = small_deltaZ
         self._R_delta = small_deltaR
         self._basepath = basepath
@@ -2734,10 +2743,19 @@ class APDFT(object):
         for shift in range(-self._max_charge, self._max_charge + 1):
             if nprotons + shift < 1:
                 continue
-            # If the number of protons of the system is lower than 0
-            res += apdft.math.IntegerPartitions.partition(
-                nprotons + shift, nsites, around, limit
-            )
+
+            # Specify target molecules in chemical space
+            if not self._specify_targets:
+                # If the number of protons of the system is lower than 0
+                res += apdft.math.IntegerPartitions.partition(
+                    nprotons + shift, nsites, around, limit
+                )
+            else:
+                if shift != 0:
+                    raise NotImplementedError("Error: shift must be 0.")
+                res += apdft.math.IntegerPartitions.arbitrary_partition(
+                    self._nuclear_numbers, self._target_atom, self._target_positions
+                )
 
         # filter for included atoms
         ignore_atoms = list(

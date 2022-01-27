@@ -172,6 +172,27 @@ class Configuration:
             ),
             Option(
                 "apdft",
+                "specifytargets",
+                boolean,
+                False,
+                "Whether to perform target molecule specification.",
+            ),
+            Option(
+                "apdft",
+                "targetatom",
+                intelementrange,
+                None,
+                "A atom type to be mutated, e.g. 6 or C.",
+            ),
+            Option(
+                "apdft",
+                "targetpositions",
+                intelementrange,
+                None,
+                "List of target positions of atoms to be mutated, e.g. 0,1,5,7 or these atom types, e.g. B,C,N..",
+            ),
+            Option(
+                "apdft",
                 "cartesian",
                 str,
                 "z",

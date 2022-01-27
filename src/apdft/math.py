@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import numpy as np
 import functools
+import itertools as it
+import copy
 
 
 class IntegerPartitions(object):
@@ -81,3 +83,52 @@ class IntegerPartitions(object):
             )
         else:
             return IntegerPartitions._do_partition(total, maxelements)
+
+    @staticmethod
+    def arbitrary_partition(nuclear_numbers, target_atom_number, target_atom_positions):
+        """ Get a list of target molecules with mutated atoms with [-1, 0, 1] nuclear number changes
+        Args:
+            nuclear_numbers   : Iterable of N entries. Nuclear numbers are listed. [Integer]
+            target_atom_number : A target atom number. [Integer]
+            target_atom_positions : List begins from 0 [Integer]
+
+		Returns:
+			A list of all partitions as lists.
+        """
+
+        # Exception handling
+        if target_atom_number == 1:
+            raise ValueError("Error: Specification of the mutated atom is invalid.")
+
+        # Set range of mutated atoms
+        range_nuclear_numbers = []
+        range_nuclear_numbers.append(target_atom_number - 1)
+        range_nuclear_numbers.append(target_atom_number)
+        range_nuclear_numbers.append(target_atom_number + 1)
+
+        # Get the number of target atoms
+        num_target_atoms = len(target_atom_positions)
+
+        # Get a sum of number of protons of the target atoms
+        num_target_protons = 0
+        for i in range(num_target_atoms):
+            num_target_protons += nuclear_numbers[target_atom_positions[i]]
+
+        # Copy nuclear numbers of a reference molecule
+        instant_nuclear_numbers = copy.copy(nuclear_numbers)
+
+        # Get a list of target molecules
+        res = []
+        for mol in it.product(range_nuclear_numbers, repeat=num_target_atoms):
+            # It is assumed that a sum of the number of protons of mutated
+            # atoms unchanges.
+            if sum(mol) != num_target_protons:
+                continue
+
+            # Get nuclear numbers of a molecule with mutated atoms
+            for i in range(num_target_atoms):
+                instant_nuclear_numbers[target_atom_positions[i]] = mol[i]
+
+            res.append(list(mol))
+
+        return res
