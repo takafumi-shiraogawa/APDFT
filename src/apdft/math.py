@@ -85,7 +85,7 @@ class IntegerPartitions(object):
             return IntegerPartitions._do_partition(total, maxelements)
 
     @staticmethod
-    def arbitrary_partition(nuclear_numbers, target_atom_number, target_atom_positions):
+    def arbitrary_partition(nuclear_numbers, target_atom_number, target_atom_positions, limit_mutations):
         """ Get a list of target molecules with mutated atoms with [-1, 0, 1] nuclear number changes
         Args:
             nuclear_numbers   : Iterable of N entries. Nuclear numbers are listed. [Integer]
@@ -126,8 +126,16 @@ class IntegerPartitions(object):
                 continue
 
             # Get nuclear numbers of a molecule with mutated atoms
+            diff_Z = 0
             for i in range(num_target_atoms):
                 instant_nuclear_numbers[target_atom_positions[i]] = mol[i]
+
+                diff_Z += abs(mol[i] - nuclear_numbers[target_atom_positions[i]])
+
+            # If the number of mutation atoms exceeds the limit,
+            # it is not included in target molecules.
+            if diff_Z > limit_mutations:
+                continue
 
             res.append(list(instant_nuclear_numbers))
 

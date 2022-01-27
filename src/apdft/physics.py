@@ -2754,8 +2754,7 @@ class APDFT(object):
                 if shift != 0:
                     raise NotImplementedError("Error: shift must be 0.")
                 res += apdft.math.IntegerPartitions.arbitrary_partition(
-                    self._nuclear_numbers, self._target_atom, self._target_positions
-                )
+                    self._nuclear_numbers, self._target_atom, self._target_positions, limit)
 
         # filter for included atoms
         ignore_atoms = list(
