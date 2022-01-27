@@ -129,6 +129,6 @@ class IntegerPartitions(object):
             for i in range(num_target_atoms):
                 instant_nuclear_numbers[target_atom_positions[i]] = mol[i]
 
-            res.append(list(mol))
+            res.append(list(instant_nuclear_numbers))
 
         return res
