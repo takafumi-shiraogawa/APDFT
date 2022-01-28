@@ -100,11 +100,11 @@ class IntegerPartitions(object):
         if target_atom_number == 1:
             raise ValueError("Error: Specification of the mutated atom is invalid.")
 
-        # Set range of mutated atoms
-        range_nuclear_numbers = []
-        range_nuclear_numbers.append(target_atom_number - 1)
-        range_nuclear_numbers.append(target_atom_number)
-        range_nuclear_numbers.append(target_atom_number + 1)
+        # Set target mutated atoms
+        target_nuclear_numbers = []
+        target_nuclear_numbers.append(target_atom_number - 1)
+        target_nuclear_numbers.append(target_atom_number)
+        target_nuclear_numbers.append(target_atom_number + 1)
 
         # Get the number of target atoms
         num_target_atoms = len(target_atom_positions)
@@ -119,18 +119,18 @@ class IntegerPartitions(object):
 
         # Get a list of target molecules
         res = []
-        for mol in it.product(range_nuclear_numbers, repeat=num_target_atoms):
+        for mut_nuclear_numbers in it.product(target_nuclear_numbers, repeat=num_target_atoms):
             # It is assumed that a sum of the number of protons of mutated
             # atoms unchanges.
-            if sum(mol) != num_target_protons:
+            if sum(mut_nuclear_numbers) != num_target_protons:
                 continue
 
             # Get nuclear numbers of a molecule with mutated atoms
             diff_Z = 0
             for i in range(num_target_atoms):
-                instant_nuclear_numbers[target_atom_positions[i]] = mol[i]
+                instant_nuclear_numbers[target_atom_positions[i]] = mut_nuclear_numbers[i]
 
-                diff_Z += abs(mol[i] - nuclear_numbers[target_atom_positions[i]])
+                diff_Z += abs(mut_nuclear_numbers[i] - nuclear_numbers[target_atom_positions[i]])
 
             # If the number of mutation atoms exceeds the limit,
             # it is not included in target molecules.
