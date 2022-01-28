@@ -140,3 +140,75 @@ class IntegerPartitions(object):
             res.append(list(instant_nuclear_numbers))
 
         return res
+
+    @staticmethod
+    def systematic_partition(nuclear_numbers, target_atom_number, target_atom_positions, limit_mutations):
+        """ Get a list of target molecules with mutated atoms with [-1, 0, 1] nuclear number changes
+        Args:
+            nuclear_numbers   : Iterable of N entries. Nuclear numbers are listed. [Integer]
+            target_atom_number : A target atom number. [Integer]
+            target_atom_positions : List begins from 0 [Integer]
+
+		Returns:
+			A list of all partitions as lists.
+        """
+
+        # Exception handling
+        if target_atom_number == 1:
+            raise ValueError("Error: Specification of the mutated atom is invalid.")
+
+        # Set target mutated atoms
+        target_nuclear_numbers = []
+        target_nuclear_numbers.append(target_atom_number - 1)
+        # target_nuclear_numbers.append(target_atom_number)
+        target_nuclear_numbers.append(target_atom_number + 1)
+
+        # Get the number of target atoms
+        num_target_atoms = len(target_atom_positions)
+
+        # Set a list of target molecules
+        res = []
+
+        # Mutation covers from a reference molecule (num_mut = 0)
+        # to molecules with mutated atoms in the limited mutation number.
+        for num_mut_atoms in range(num_target_atoms + 1):
+            # Here mutation atoms should be pair because increase or decrease
+            # of the charge is +1 or -1 and target molecule must be charge neutral.
+            if num_mut_atoms % 2 != 0:
+                continue
+
+            # If the number of mutation atoms exceeds the limit
+            if num_mut_atoms > limit_mutations:
+                break
+
+            # Select mutated atom positions
+            for mut_atom_positions in it.combinations(target_atom_positions, num_mut_atoms):
+
+                # Select atom types of mutated atoms
+                # for mut_nuclear_numbers in it.product(target_nuclear_numbers, repeat=num_mut_atoms):
+                # Because of the neutral charge condition, only atoms with the positive charge change
+                # are specified.
+                # for mut_nuclear_numbers in it.product(target_nuclear_numbers, repeat=num_mut_atoms / 2):
+                positions_mut_atom_positions = []
+                for i in range(num_mut_atoms):
+                    positions_mut_atom_positions.append(i)
+
+                for pos_positions_mut_atom_positions in it.combinations(positions_mut_atom_positions, int(num_mut_atoms / 2)):
+
+                    # Copy nuclear numbers of a reference molecule
+                    instant_nuclear_numbers = copy.copy(nuclear_numbers)
+
+                    # Initialize
+                    mut_nuclear_numbers = [target_nuclear_numbers[0]] * num_mut_atoms
+
+                    # Specify positions of atoms with the positive charge change
+                    for i in range(int(num_mut_atoms / 2)):
+                        mut_nuclear_numbers[pos_positions_mut_atom_positions[i]] = target_nuclear_numbers[1]
+
+                    # Get a target molecule
+                    for i in range(num_mut_atoms):
+                        instant_nuclear_numbers[mut_atom_positions[i]] = mut_nuclear_numbers[i]
+
+                    res.append(list(instant_nuclear_numbers))
+
+        return res
