@@ -2753,8 +2753,19 @@ class APDFT(object):
             else:
                 if shift != 0:
                     raise NotImplementedError("Error: shift must be 0.")
-                res += apdft.math.IntegerPartitions.arbitrary_partition(
-                    self._nuclear_numbers, self._target_atom, self._target_positions, limit)
+                # res += apdft.math.IntegerPartitions.arbitrary_partition(
+                #     self._nuclear_numbers, self._target_atom, self._target_positions, limit)
+                res += apdft.math.IntegerPartitions.systematic_partition(
+                    self._nuclear_numbers, self._target_atom, self._target_positions, limit, self._coordinates)
+
+                # # Check
+                # print("")
+                # print("Target molecules:")
+                # print(res)
+                # print("")
+                # print("The number of target molecules:")
+                # print(len(res))
+                # print("")
 
         # filter for included atoms
         ignore_atoms = list(
