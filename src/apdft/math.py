@@ -3,6 +3,7 @@ import numpy as np
 import functools
 import itertools as it
 import copy
+import apdft
 import apdft.physics as ap
 
 
@@ -236,3 +237,25 @@ class IntegerPartitions(object):
             fh.close()
 
         return res
+
+    @staticmethod
+    def read_target_molecules(input_path = None):
+        """ Read a list of target molecules
+        Args:
+            input_path  : path of input including a file name, e.g., /home/test/target_molecules.inp
+        Returns:
+			A list of all partitions as lists [numpy.ndarrray]
+        """
+
+        # If the input path is given
+        if input_path is not None:
+            with open(input_path, 'r') as fh:
+                targetlist = apdft.commandline.parse_target_list(fh.readlines())
+        # If the input path is not given, target_molecules.inp in the current directory
+        # is used as the input.
+        else:
+            with open('target_molecules.inp', 'r') as fh:
+                targetlist = apdft.commandline.parse_target_list(fh.readlines())
+
+        # TODO: remove redundant conversion
+        return list(targetlist)
