@@ -143,13 +143,14 @@ class IntegerPartitions(object):
         return res
 
     @staticmethod
-    def systematic_partition(nuclear_numbers, target_atom_number, target_atom_positions, limit_mutations, nuclear_coordinates):
+    def systematic_partition(nuclear_numbers, target_atom_number, target_atom_positions, limit_mutations, nuclear_coordinates, mol_identity=True):
         """ Get a list of target molecules with mutated atoms with [-1, 0, 1] nuclear number changes
         Args:
             nuclear_numbers       : Iterable of N entries. Nuclear numbers are listed. [Integer]
             target_atom_number    : A target atom number. [Integer]
             target_atom_positions : List begins from 0 [Integer]
             nuclear_coordinates   : (N, 3) entries. Nuclear coordinates are listed. [Integer]
+            mol_identity          : Wheteher to remove same molecules [boolean]
 
 		Returns:
 			A list of all partitions as lists.
@@ -213,12 +214,14 @@ class IntegerPartitions(object):
                     for i in range(num_mut_atoms):
                         instant_nuclear_numbers[mut_atom_positions[i]] = mut_nuclear_numbers[i]
 
-                    # Evaluate Coulomb interactions of fullsystems and remove same molecules
-                    full_nuc_nuc_ene = np.round(ap.Coulomb.nuclei_nuclei(nuclear_coordinates, instant_nuclear_numbers), decimals=7)
-                    if full_nuc_nuc_ene not in unique_full_nuc_nuc_ene:
-                        unique_full_nuc_nuc_ene.append(full_nuc_nuc_ene)
-                    else:
-                        continue
+                    # Whether to remove same molecules
+                    if mol_identity:
+                        # Evaluate Coulomb interactions of fullsystems and remove same molecules
+                        full_nuc_nuc_ene = np.round(ap.Coulomb.nuclei_nuclei(nuclear_coordinates, instant_nuclear_numbers), decimals=7)
+                        if full_nuc_nuc_ene not in unique_full_nuc_nuc_ene:
+                            unique_full_nuc_nuc_ene.append(full_nuc_nuc_ene)
+                        else:
+                            continue
 
                     res.append(list(instant_nuclear_numbers))
 
