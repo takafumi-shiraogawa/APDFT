@@ -146,8 +146,8 @@ class IntegerPartitions(object):
     def systematic_partition(nuclear_numbers, target_atom_number, target_atom_positions, limit_mutations, nuclear_coordinates):
         """ Get a list of target molecules with mutated atoms with [-1, 0, 1] nuclear number changes
         Args:
-            nuclear_numbers   : Iterable of N entries. Nuclear numbers are listed. [Integer]
-            target_atom_number : A target atom number. [Integer]
+            nuclear_numbers       : Iterable of N entries. Nuclear numbers are listed. [Integer]
+            target_atom_number    : A target atom number. [Integer]
             target_atom_positions : List begins from 0 [Integer]
             nuclear_coordinates   : (N, 3) entries. Nuclear coordinates are listed. [Integer]
 
@@ -193,7 +193,6 @@ class IntegerPartitions(object):
                 # for mut_nuclear_numbers in it.product(target_nuclear_numbers, repeat=num_mut_atoms):
                 # Because of the neutral charge condition, only atoms with the positive charge change
                 # are specified.
-                # for mut_nuclear_numbers in it.product(target_nuclear_numbers, repeat=num_mut_atoms / 2):
                 positions_mut_atom_positions = []
                 for i in range(num_mut_atoms):
                     positions_mut_atom_positions.append(i)
