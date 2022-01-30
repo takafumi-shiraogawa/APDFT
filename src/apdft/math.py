@@ -143,7 +143,8 @@ class IntegerPartitions(object):
         return res
 
     @staticmethod
-    def systematic_partition(nuclear_numbers, target_atom_number, target_atom_positions, limit_mutations, nuclear_coordinates, mol_identity=True):
+    def systematic_partition(nuclear_numbers, target_atom_number, target_atom_positions, \
+        limit_mutations, nuclear_coordinates, mol_identity=True, gener_output=True):
         """ Get a list of target molecules with mutated atoms with [-1, 0, 1] nuclear number changes
         Args:
             nuclear_numbers       : Iterable of N entries. Nuclear numbers are listed. [Integer]
@@ -151,6 +152,7 @@ class IntegerPartitions(object):
             target_atom_positions : List begins from 0 [Integer]
             nuclear_coordinates   : (N, 3) entries. Nuclear coordinates are listed. [Integer]
             mol_identity          : Wheteher to remove same molecules [boolean]
+            gener_output          : Whether to save a list of obtained target molecules [boolean]
 
 		Returns:
 			A list of all partitions as lists.
@@ -224,5 +226,13 @@ class IntegerPartitions(object):
                             continue
 
                     res.append(list(instant_nuclear_numbers))
+
+        # Whether to save a list of obtained target molecules
+        if gener_output:
+            # Generate a list of target molecules (target_molecules.inp)
+            fh = open('target_molecules.inp', 'w')
+            for i in range(len(res)):
+                print(*res[i], sep=',', file=fh)
+            fh.close()
 
         return res
