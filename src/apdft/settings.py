@@ -193,6 +193,13 @@ class Configuration:
             ),
             Option(
                 "apdft",
+                "readtargetpath",
+                str,
+                None,
+                "Path of input including a file name, e.g., /home/test/target_molecules.inp",
+            ),
+            Option(
+                "apdft",
                 "cartesian",
                 str,
                 "z",

@@ -188,6 +188,7 @@ class APDFT(object):
         specify_targets=None,
         target_atom=None,
         target_positions=None,
+        read_target_path=None,
         target_cartesian="z",
         small_deltaZ = 0.05,
         small_deltaR = 0.001,
@@ -210,6 +211,7 @@ class APDFT(object):
         self._specify_targets = specify_targets
         self._target_atom = target_atom[0]
         self._target_positions = target_positions
+        self._read_target_path = read_target_path
 
         self._delta = small_deltaZ
         self._R_delta = small_deltaR
@@ -2755,8 +2757,13 @@ class APDFT(object):
                     raise NotImplementedError("Error: shift must be 0.")
                 # res += apdft.math.IntegerPartitions.arbitrary_partition(
                 #     self._nuclear_numbers, self._target_atom, self._target_positions, limit)
-                res += apdft.math.IntegerPartitions.systematic_partition(
-                    self._nuclear_numbers, self._target_atom, self._target_positions, limit, self._coordinates)
+
+                # If an input file of target molecules is not set
+                if self._read_target_path == "None":
+                    res += apdft.math.IntegerPartitions.systematic_partition(
+                        self._nuclear_numbers, self._target_atom, self._target_positions, limit, self._coordinates)
+                else:
+                    res += apdft.math.IntegerPartitions.read_target_molecules(self._read_target_path)
 
                 # # Check
                 # print("")
