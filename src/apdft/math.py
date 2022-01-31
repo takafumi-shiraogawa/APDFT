@@ -258,4 +258,4 @@ class IntegerPartitions(object):
                 targetlist = apdft.commandline.parse_target_list(fh.readlines())
 
         # TODO: remove redundant conversion
-        return list(targetlist)
+        return list(map(list, targetlist))
