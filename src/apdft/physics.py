@@ -209,7 +209,10 @@ class APDFT(object):
 
         # Specify targets
         self._specify_targets = specify_targets
-        self._target_atom = target_atom[0]
+        if target_atom is not None:
+            self._target_atom = target_atom[0]
+        else:
+            self._target_atom = target_atom
         self._target_positions = target_positions
         self._read_target_path = read_target_path
 
