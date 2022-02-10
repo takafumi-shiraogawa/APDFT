@@ -1,0 +1,8 @@
+A test of target specified APDFT calculation of potential energies and atomic forces.
+
+Procedure
+  1. Perform a calculation in gener_target_list/
+  2. Perform a calculation in calculation/ based on a list of target molecules
+     obtained at the procedure 1.
+
+  Each directory has inputs/ having the inputs.
