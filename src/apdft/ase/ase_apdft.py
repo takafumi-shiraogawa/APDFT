@@ -1,6 +1,5 @@
 import os
 import shutil
-import jinja2 as jinja
 import csv
 import numpy as np
 from ase.calculators.calculator import FileIOCalculator
