@@ -234,6 +234,14 @@ def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
         number_predictions=coverage,
         level="RESULT",
     )
+
+    # For the purpose of generating a list of target molecules (target_molecules.inp)
+    # This is not same with
+    # if conf.apdft_specifytargets and conf.energy_dryrun:
+    # since target_molecules.inp is generated if conf.apdft_readtargetpath is not None.
+    if conf.apdft_specifytargets and conf.apdft_readtargetpath == "None":
+        exit()
+
     if not conf.energy_dryrun:
         derivatives.prepare_general(target_coordinates, conf.debug_validation)
         derivatives.analyse_general(target_coordinates, conf.debug_validation)
