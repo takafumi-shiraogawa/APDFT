@@ -185,7 +185,7 @@ class APDFT(object):
         max_deltaz=3,
         include_atoms=None,
         targetlist=None,
-        specify_targets=None,
+        specify_targets=False,
         target_atom=None,
         target_positions=None,
         read_target_path=None,
