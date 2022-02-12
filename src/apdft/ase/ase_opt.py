@@ -19,6 +19,14 @@ import time
 class ASE_OPT():
   """ implement ASE optimizer."""
 
+  # Conversion factor from Angstrom to Bohr
+  ang_to_bohr = 1 / 0.52917721067
+  # Conversion factor from hartree to eV
+  har_to_ev = 27.21162
+
+  # Hartree / Bohr to eV / Angstrom
+  hb_to_ea = har_to_ev * ang_to_bohr
+
   def get_molstring(nuclear_numbers):
     nuclear_symbols = []
 
@@ -43,15 +51,6 @@ class ASE_OPT():
 
 
   def imp_ase_opt():
-
-    # Conversion factor from Angstrom to Bohr
-    ang_to_bohr = 1 / 0.52917721067
-    # Conversion factor from hartree to eV
-    har_to_ev = 27.21162
-
-    # Hartree / Bohr to eV / Angstrom
-    hb_to_ea = har_to_ev * ang_to_bohr
-
 
     start = time.time()
 
