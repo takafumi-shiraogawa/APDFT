@@ -13,7 +13,7 @@ import time
 # How to use?
 # $ python3 test.py
 # test.py:
-#   import import apdft.ase.ase_opt as ase_opt
+#   import apdft.ase.ase_opt as ase_opt
 #   ase_opt.ASE_OPT.imp_ase_opt()
 
 class ASE_OPT():
