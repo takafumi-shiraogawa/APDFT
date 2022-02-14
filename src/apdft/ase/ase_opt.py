@@ -65,7 +65,7 @@ class ASE_OPT():
 
     # dyn = BFGS(MOL)
     dyn = BFGSLineSearch(MOL)
-    dyn.run(fmax=0.005 * hb_to_ea)
+    dyn.run(fmax=0.005 * ASE_OPT.hb_to_ea)
 
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
