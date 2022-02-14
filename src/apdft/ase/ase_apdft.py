@@ -77,13 +77,7 @@ class handle_APDFT():
     os.makedirs(path)
 
   # Make a work directry to save results
-  def make_work_save(num_opt_step):
-    path = "work/iter-%s" % num_opt_step
-    os.makedirs(path)
-
-  # Make a work directry to save results
   def save_results(num_opt_step):
-    # handle_APDFT.make_work_save(num_opt_step)
 
     path = "work/iter-%s" % num_opt_step
 
