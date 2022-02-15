@@ -1,3 +1,5 @@
+import os
+import shutil
 from ase import Atoms
 # from ase.optimize import BFGS
 from ase.optimize.bfgslinesearch import BFGSLineSearch
@@ -63,9 +65,16 @@ class ASE_OPT():
               positions=coordinates,
               calculator=APDFT.mod_APDFT())
 
+    # Remove an old results of geometry optimization
+    if os.path.isfile('BFGSLineSearch.dat'):
+      os.remove('BFGSLineSearch.dat')
+
     # dyn = BFGS(MOL)
-    dyn = BFGSLineSearch(MOL)
+    dyn = BFGSLineSearch(MOL, logfile="BFGSLineSearch.dat")
     dyn.run(fmax=0.005 * ASE_OPT.hb_to_ea)
+
+    # Move the output of geometry optimization into the working directory.
+    shutil.move("BFGSLineSearch.dat", "./work/")
 
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
