@@ -73,9 +73,6 @@ class ASE_OPT():
     dyn = BFGSLineSearch(MOL, logfile="BFGSLineSearch.dat")
     dyn.run(fmax=0.005 * ASE_OPT.hb_to_ea)
 
-    # Move the output of geometry optimization into the working directory.
-    shutil.move("BFGSLineSearch.dat", "./work/")
-
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
 
