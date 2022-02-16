@@ -1,381 +1,377 @@
-{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-01-15 15:36"}
-{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-01-15 15:36"}
-{"level": "warning", "event": "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.", "timestamp": "2022-01-15 15:36"}
-{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-01-15 15:36"}
-         704257 function calls (645432 primitive calls) in 1.399 seconds
+{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-02-16 19:52"}
+{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-02-16 19:52"}
+{"level": "warning", "event": "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.", "timestamp": "2022-02-16 19:52"}
+{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-02-16 19:52"}
+         709292 function calls (650467 primitive calls) in 1.491 seconds
 
    Ordered by: cumulative time
    List reduced from 3572 to 30 due to restriction <30>
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-    649/2    0.003    0.000    1.057    0.529 <frozen importlib._bootstrap>:1002(_find_and_load)
-    649/2    0.002    0.000    1.057    0.529 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
-    615/2    0.002    0.000    1.057    0.528 <frozen importlib._bootstrap>:659(_load_unlocked)
-    524/2    0.002    0.000    1.057    0.528 <frozen importlib._bootstrap_external>:844(exec_module)
-    834/2    0.001    0.000    1.056    0.528 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
-    418/1    0.001    0.000    1.056    1.056 {built-in method builtins.__import__}
-   885/36    0.002    0.000    1.056    0.029 {built-in method builtins.exec}
-        1    0.000    0.000    1.055    1.055 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
-   660/63    0.001    0.000    0.998    0.016 <frozen importlib._bootstrap>:1033(_handle_fromlist)
-      524    0.005    0.000    0.580    0.001 <frozen importlib._bootstrap_external>:916(get_code)
-      528    0.002    0.000    0.511    0.001 <frozen importlib._bootstrap_external>:1036(get_data)
-      528    0.491    0.001    0.491    0.001 {built-in method io.open_code}
-        1    0.000    0.000    0.489    0.489 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
-        1    0.000    0.000    0.483    0.483 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
-        1    0.000    0.000    0.482    0.482 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
-        1    0.000    0.000    0.344    0.344 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:14(entry_cli)
-        1    0.000    0.000    0.322    0.322 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:151(mode_energies_geometries)
-        1    0.001    0.001    0.318    0.318 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:332(prepare_general)
-       17    0.001    0.000    0.282    0.017 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:85(get_input_general)
-        1    0.000    0.000    0.282    0.282 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
-        1    0.000    0.000    0.280    0.280 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
-       17    0.005    0.000    0.214    0.013 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:23(_format_basis)
-        1    0.000    0.000    0.213    0.213 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
-       17    0.006    0.000    0.209    0.012 /usr/local/lib/python3.9/site-packages/basis_set_exchange/api.py:92(get_basis)
-       34    0.000    0.000    0.175    0.005 /usr/local/lib/python3.9/site-packages/basis_set_exchange/memo.py:51(__call__)
-        1    0.000    0.000    0.161    0.161 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
-        1    0.000    0.000    0.160    0.160 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
-        1    0.000    0.000    0.148    0.148 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
-        1    0.000    0.000    0.148    0.148 /usr/local/lib/python3.9/site-packages/jsonschema/__init__.py:1(<module>)
-        1    0.000    0.000    0.145    0.145 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/__init__.py:1(<module>)
+    649/2    0.003    0.000    1.154    0.577 <frozen importlib._bootstrap>:1002(_find_and_load)
+    649/2    0.002    0.000    1.154    0.577 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
+    615/2    0.002    0.000    1.153    0.576 <frozen importlib._bootstrap>:659(_load_unlocked)
+    524/2    0.001    0.000    1.153    0.576 <frozen importlib._bootstrap_external>:844(exec_module)
+    834/2    0.001    0.000    1.152    0.576 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
+    418/1    0.001    0.000    1.152    1.152 {built-in method builtins.__import__}
+   885/36    0.002    0.000    1.151    0.032 {built-in method builtins.exec}
+        1    0.000    0.000    1.151    1.151 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
+   660/63    0.001    0.000    1.034    0.016 <frozen importlib._bootstrap>:1033(_handle_fromlist)
+      524    0.005    0.000    0.684    0.001 <frozen importlib._bootstrap_external>:916(get_code)
+      528    0.002    0.000    0.619    0.001 <frozen importlib._bootstrap_external>:1036(get_data)
+      528    0.600    0.001    0.600    0.001 {built-in method io.open_code}
+        1    0.000    0.000    0.508    0.508 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
+        1    0.000    0.000    0.503    0.503 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
+        1    0.000    0.000    0.502    0.502 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
+        1    0.000    0.000    0.341    0.341 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:14(entry_cli)
+        1    0.000    0.000    0.333    0.333 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:155(mode_energies_geometries)
+        1    0.001    0.001    0.329    0.329 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:346(prepare_general)
+       17    0.001    0.000    0.303    0.018 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:85(get_input_general)
+        1    0.000    0.000    0.294    0.294 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
+        1    0.000    0.000    0.276    0.276 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
+        1    0.000    0.000    0.271    0.271 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
+       17    0.006    0.000    0.237    0.014 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:23(_format_basis)
+       17    0.007    0.000    0.231    0.014 /usr/local/lib/python3.9/site-packages/basis_set_exchange/api.py:92(get_basis)
+        1    0.000    0.000    0.199    0.199 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
+        1    0.000    0.000    0.198    0.198 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
+       34    0.000    0.000    0.194    0.006 /usr/local/lib/python3.9/site-packages/basis_set_exchange/memo.py:51(__call__)
+        1    0.000    0.000    0.168    0.168 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
+        1    0.000    0.000    0.167    0.167 /usr/local/lib/python3.9/site-packages/jsonschema/__init__.py:1(<module>)
+  615/612    0.001    0.000    0.151    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
 
 
-{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-01-15 15:37"}
-{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-01-15 15:37"}
-{"level": "warning", "event": "Input folder exists. Reusing existing data.", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "value": -113.06304809312701, "kind": "total_energy", "target": [6, "8"], "targetname": "C,O", "order0": -109.81326354041471, "order1": -113.06304809312701, "event": "Energy calculated", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "value": -109.37228253152298, "kind": "total_energy", "target": [7, "7"], "targetname": "N,N", "order0": -109.37228253152298, "order1": -109.37228253152298, "event": "Energy calculated", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "value": -113.06304809312695, "kind": "total_energy", "target": [8, "6"], "targetname": "O,C", "order0": -109.81326354041465, "order1": -113.06304809312695, "event": "Energy calculated", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "kind": "total_dipole", "value": [5.404717946165556e-15, -1.3582198782051983e-15, -0.04872030911058278], "target": [6, "8"], "targetname": "C,O", "order0": [2.9834100964652153e-16, 2.2083195575256475e-17, 2.26767135054898], "order1": [5.404717946165556e-15, -1.3582198782051983e-15, -0.04872030911058278], "event": "Dipole calculated", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "kind": "total_dipole", "value": [2.9834100964652153e-16, 2.2083195575256475e-17, -4.137179422832038e-13], "target": [7, "7"], "targetname": "N,N", "order0": [2.9834100964652153e-16, 2.2083195575256475e-17, -4.137179422832038e-13], "order1": [2.9834100964652153e-16, 2.2083195575256475e-17, -4.137179422832038e-13], "event": "Dipole calculated", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "kind": "total_dipole", "value": [-4.808035926872513e-15, 1.4023862693557112e-15, 0.048720309109755], "target": [8, "6"], "targetname": "O,C", "order0": [2.9834100964652153e-16, 2.2083195575256475e-17, -2.267671350549808], "order1": [-4.808035926872513e-15, 1.4023862693557112e-15, 0.048720309109755], "event": "Dipole calculated", "timestamp": "2022-01-15 15:37"}
-{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-01-15 15:37"}
-         421768 function calls (411900 primitive calls) in 1.923 seconds
+{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-02-16 19:53"}
+{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-02-16 19:53"}
+{"level": "warning", "event": "Input folder exists. Reusing existing data.", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "value": -113.06304809312655, "kind": "total_energy", "target": [6, "8"], "targetname": "C,O", "order0": -109.81326354041471, "order1": -113.06304809312655, "event": "Energy calculated", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "value": -109.37228253152298, "kind": "total_energy", "target": [7, "7"], "targetname": "N,N", "order0": -109.37228253152298, "order1": -109.37228253152298, "event": "Energy calculated", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "value": -113.06304809312735, "kind": "total_energy", "target": [8, "6"], "targetname": "O,C", "order0": -109.8132635404146, "order1": -113.06304809312735, "event": "Energy calculated", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "kind": "total_dipole", "value": [5.404717946165496e-15, -1.3582198782056493e-15, -0.04872030911060543], "target": [6, "8"], "targetname": "C,O", "order0": [2.983410096465157e-16, 2.208319557528024e-17, 2.267671350548982], "order1": [5.404717946165496e-15, -1.3582198782056493e-15, -0.04872030911060543], "event": "Dipole calculated", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "kind": "total_dipole", "value": [2.983410096465157e-16, 2.208319557528024e-17, -4.121636300487286e-13], "target": [7, "7"], "targetname": "N,N", "order0": [2.983410096465157e-16, 2.208319557528024e-17, -4.121636300487286e-13], "order1": [2.983410096465157e-16, 2.208319557528024e-17, -4.121636300487286e-13], "event": "Dipole calculated", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "kind": "total_dipole", "value": [-4.808035926872464e-15, 1.40238626935621e-15, 0.0487203091097812], "target": [8, "6"], "targetname": "O,C", "order0": [2.983410096465157e-16, 2.208319557528024e-17, -2.267671350549806], "order1": [-4.808035926872464e-15, 1.40238626935621e-15, 0.0487203091097812], "event": "Dipole calculated", "timestamp": "2022-02-16 19:53"}
+{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-02-16 19:53"}
+         426990 function calls (417118 primitive calls) in 1.678 seconds
 
    Ordered by: cumulative time
    List reduced from 3615 to 30 due to restriction <30>
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-    650/3    0.005    0.000    1.826    0.609 <frozen importlib._bootstrap>:1002(_find_and_load)
-    650/3    0.003    0.000    1.826    0.609 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
-    616/3    0.003    0.000    1.825    0.608 <frozen importlib._bootstrap>:659(_load_unlocked)
-    525/3    0.002    0.000    1.825    0.608 <frozen importlib._bootstrap_external>:844(exec_module)
-    835/3    0.001    0.000    1.823    0.608 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
-    418/1    0.001    0.000    1.823    1.823 {built-in method builtins.__import__}
-    852/3    0.003    0.000    1.806    0.602 {built-in method builtins.exec}
-        1    0.000    0.000    1.805    1.805 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
-  862/265    0.002    0.000    1.664    0.006 <frozen importlib._bootstrap>:1033(_handle_fromlist)
-      525    0.007    0.000    1.185    0.002 <frozen importlib._bootstrap_external>:916(get_code)
-      529    0.004    0.000    1.089    0.002 <frozen importlib._bootstrap_external>:1036(get_data)
-        1    0.000    0.000    0.951    0.951 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
-      529    0.943    0.002    0.943    0.002 {built-in method io.open_code}
-        1    0.000    0.000    0.924    0.924 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
-        1    0.000    0.000    0.922    0.922 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
-        1    0.000    0.000    0.507    0.507 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
-        1    0.000    0.000    0.364    0.364 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
-        1    0.000    0.000    0.310    0.310 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
-        1    0.000    0.000    0.261    0.261 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
-        1    0.000    0.000    0.260    0.260 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
-        1    0.000    0.000    0.253    0.253 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/__init__.py:1(<module>)
-        1    0.000    0.000    0.251    0.251 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/generic.py:1(<module>)
-        1    0.000    0.000    0.237    0.237 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
-        1    0.000    0.000    0.236    0.236 /usr/local/lib/python3.9/site-packages/jsonschema/__init__.py:1(<module>)
-  616/613    0.002    0.000    0.198    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
-        1    0.000    0.000    0.196    0.196 /usr/local/lib/python3.9/site-packages/pandas/core/arrays/__init__.py:1(<module>)
-    84/50    0.000    0.000    0.194    0.004 <frozen importlib._bootstrap_external>:1179(exec_module)
-    84/50    0.022    0.000    0.194    0.004 {built-in method _imp.exec_dynamic}
-    84/82    0.000    0.000    0.177    0.002 <frozen importlib._bootstrap_external>:1171(create_module)
-    84/82    0.174    0.002    0.177    0.002 {built-in method _imp.create_dynamic}
+    650/3    0.004    0.000    1.583    0.528 <frozen importlib._bootstrap>:1002(_find_and_load)
+    650/3    0.003    0.000    1.583    0.528 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
+    616/3    0.003    0.000    1.582    0.527 <frozen importlib._bootstrap>:659(_load_unlocked)
+    525/3    0.002    0.000    1.582    0.527 <frozen importlib._bootstrap_external>:844(exec_module)
+    835/3    0.001    0.000    1.580    0.527 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
+    418/1    0.001    0.000    1.579    1.579 {built-in method builtins.__import__}
+    852/3    0.002    0.000    1.565    0.522 {built-in method builtins.exec}
+        1    0.000    0.000    1.564    1.564 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
+  862/265    0.002    0.000    1.416    0.005 <frozen importlib._bootstrap>:1033(_handle_fromlist)
+      525    0.006    0.000    0.900    0.002 <frozen importlib._bootstrap_external>:916(get_code)
+      529    0.003    0.000    0.829    0.002 <frozen importlib._bootstrap_external>:1036(get_data)
+      529    0.805    0.002    0.805    0.002 {built-in method io.open_code}
+        1    0.000    0.000    0.784    0.784 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
+        1    0.000    0.000    0.758    0.758 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
+        1    0.000    0.000    0.756    0.756 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
+        1    0.000    0.000    0.415    0.415 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
+        1    0.000    0.000    0.336    0.336 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
+        1    0.000    0.000    0.322    0.322 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
+        1    0.000    0.000    0.277    0.277 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
+        1    0.000    0.000    0.276    0.276 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
+  616/613    0.001    0.000    0.263    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
+    84/82    0.000    0.000    0.244    0.003 <frozen importlib._bootstrap_external>:1171(create_module)
+    84/82    0.240    0.003    0.243    0.003 {built-in method _imp.create_dynamic}
+        1    0.000    0.000    0.240    0.240 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
+        1    0.000    0.000    0.239    0.239 /usr/local/lib/python3.9/site-packages/jsonschema/__init__.py:1(<module>)
+        1    0.000    0.000    0.201    0.201 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/__init__.py:1(<module>)
+        1    0.000    0.000    0.200    0.200 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/generic.py:1(<module>)
+    84/50    0.000    0.000    0.198    0.004 <frozen importlib._bootstrap_external>:1179(exec_module)
+    84/50    0.022    0.000    0.197    0.004 {built-in method _imp.exec_dynamic}
+        1    0.000    0.000    0.180    0.180 /usr/local/lib/python3.9/site-packages/pandas/core/arrays/__init__.py:1(<module>)
 
 
-APDFT results: 1 -113.06304809312701
+APDFT results: 1 -113.06304809312655
 APDFT geometry: 1 [0. 0. 0.]
 APDFT geometry: 1 [0.  0.  1.2]
 APDFT geometry:
-                Step[ FC]     Time          Energy          fmax
-BFGSLineSearch:    0[  0] 15:37:22    -3076.628701        8.7971
-{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-01-15 15:37"}
-{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-01-15 15:37"}
-{"level": "warning", "event": "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.", "timestamp": "2022-01-15 15:37"}
-{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-01-15 15:37"}
-         704261 function calls (645436 primitive calls) in 1.460 seconds
+{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-02-16 19:53"}
+{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-02-16 19:53"}
+{"level": "warning", "event": "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.", "timestamp": "2022-02-16 19:53"}
+{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-02-16 19:53"}
+         709312 function calls (650487 primitive calls) in 1.421 seconds
 
    Ordered by: cumulative time
    List reduced from 3572 to 30 due to restriction <30>
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-    649/2    0.004    0.000    1.119    0.560 <frozen importlib._bootstrap>:1002(_find_and_load)
-    649/2    0.002    0.000    1.119    0.559 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
-    615/2    0.003    0.000    1.119    0.559 <frozen importlib._bootstrap>:659(_load_unlocked)
-    524/2    0.002    0.000    1.119    0.559 <frozen importlib._bootstrap_external>:844(exec_module)
-    834/2    0.001    0.000    1.118    0.559 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
-    418/1    0.001    0.000    1.118    1.118 {built-in method builtins.__import__}
-   885/36    0.002    0.000    1.118    0.031 {built-in method builtins.exec}
-        1    0.000    0.000    1.117    1.117 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
-   660/63    0.001    0.000    1.011    0.016 <frozen importlib._bootstrap>:1033(_handle_fromlist)
-      524    0.005    0.000    0.647    0.001 <frozen importlib._bootstrap_external>:916(get_code)
-      528    0.003    0.000    0.573    0.001 <frozen importlib._bootstrap_external>:1036(get_data)
-      528    0.553    0.001    0.553    0.001 {built-in method io.open_code}
-        1    0.000    0.000    0.489    0.489 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
-        1    0.000    0.000    0.484    0.484 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
-        1    0.000    0.000    0.483    0.483 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
-        1    0.000    0.000    0.344    0.344 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:14(entry_cli)
-        1    0.000    0.000    0.339    0.339 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:151(mode_energies_geometries)
-        1    0.001    0.001    0.337    0.337 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:332(prepare_general)
-        1    0.000    0.000    0.311    0.311 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
-       17    0.001    0.000    0.299    0.018 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:85(get_input_general)
-        1    0.000    0.000    0.290    0.290 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
-        1    0.000    0.000    0.240    0.240 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
-       17    0.005    0.000    0.236    0.014 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:23(_format_basis)
-       17    0.007    0.000    0.231    0.014 /usr/local/lib/python3.9/site-packages/basis_set_exchange/api.py:92(get_basis)
-       34    0.000    0.000    0.195    0.006 /usr/local/lib/python3.9/site-packages/basis_set_exchange/memo.py:51(__call__)
-        1    0.000    0.000    0.180    0.180 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
-        1    0.000    0.000    0.179    0.179 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
-        1    0.000    0.000    0.152    0.152 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/__init__.py:1(<module>)
-        1    0.000    0.000    0.151    0.151 /usr/local/lib/python3.9/site-packages/numpy/core/__init__.py:1(<module>)
-        1    0.000    0.000    0.151    0.151 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/generic.py:1(<module>)
+    649/2    0.003    0.000    1.102    0.551 <frozen importlib._bootstrap>:1002(_find_and_load)
+    649/2    0.002    0.000    1.102    0.551 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
+    615/2    0.003    0.000    1.102    0.551 <frozen importlib._bootstrap>:659(_load_unlocked)
+    524/2    0.002    0.000    1.102    0.551 <frozen importlib._bootstrap_external>:844(exec_module)
+    834/2    0.001    0.000    1.101    0.551 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
+    418/1    0.001    0.000    1.101    1.101 {built-in method builtins.__import__}
+   885/36    0.002    0.000    1.101    0.031 {built-in method builtins.exec}
+        1    0.000    0.000    1.101    1.101 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
+   660/63    0.001    0.000    0.994    0.016 <frozen importlib._bootstrap>:1033(_handle_fromlist)
+      524    0.005    0.000    0.619    0.001 <frozen importlib._bootstrap_external>:916(get_code)
+      528    0.003    0.000    0.548    0.001 <frozen importlib._bootstrap_external>:1036(get_data)
+      528    0.529    0.001    0.529    0.001 {built-in method io.open_code}
+        1    0.000    0.000    0.473    0.473 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
+        1    0.000    0.000    0.468    0.468 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
+        1    0.000    0.000    0.466    0.466 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
+        1    0.000    0.000    0.322    0.322 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:14(entry_cli)
+        1    0.000    0.000    0.316    0.316 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:155(mode_energies_geometries)
+        1    0.001    0.001    0.314    0.314 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:346(prepare_general)
+        1    0.000    0.000    0.302    0.302 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
+       17    0.001    0.000    0.294    0.017 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:85(get_input_general)
+        1    0.000    0.000    0.269    0.269 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
+        1    0.000    0.000    0.233    0.233 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
+       17    0.005    0.000    0.231    0.014 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:23(_format_basis)
+       17    0.007    0.000    0.225    0.013 /usr/local/lib/python3.9/site-packages/basis_set_exchange/api.py:92(get_basis)
+       34    0.000    0.000    0.190    0.006 /usr/local/lib/python3.9/site-packages/basis_set_exchange/memo.py:51(__call__)
+  615/612    0.001    0.000    0.166    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
+        1    0.000    0.000    0.165    0.165 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
+        1    0.000    0.000    0.164    0.164 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
+        1    0.000    0.000    0.154    0.154 /usr/local/lib/python3.9/site-packages/numpy/core/__init__.py:1(<module>)
+        1    0.000    0.000    0.151    0.151 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
 
 
-{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-01-15 15:37"}
-{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-01-15 15:37"}
-{"level": "warning", "event": "Input folder exists. Reusing existing data.", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "value": -112.53159056497036, "kind": "total_energy", "target": [6, "8"], "targetname": "C,O", "order0": -109.54018003393905, "order1": -112.53159056497036, "event": "Energy calculated", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "value": -108.88031356371502, "kind": "total_energy", "target": [7, "7"], "targetname": "N,N", "order0": -108.88031356371502, "order1": -108.88031356371502, "event": "Energy calculated", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "value": -112.53159056497098, "kind": "total_energy", "target": [8, "6"], "targetname": "O,C", "order0": -109.54018003393922, "order1": -112.53159056497098, "event": "Energy calculated", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "kind": "total_dipole", "value": [7.243906445791312e-15, 3.127858797159864e-15, 0.38886046060748924], "target": [6, "8"], "targetname": "C,O", "order0": [1.860394765315102e-16, -1.2189971152306472e-16, 1.51545811936801], "order1": [7.243906445791312e-15, 3.127858797159864e-15, 0.38886046060748924], "event": "Dipole calculated", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "kind": "total_dipole", "value": [1.860394765315102e-16, -1.2189971152306472e-16, -1.6658470935147773e-13], "target": [7, "7"], "targetname": "N,N", "order0": [1.860394765315102e-16, -1.2189971152306472e-16, -1.6658470935147773e-13], "order1": [1.860394765315102e-16, -1.2189971152306472e-16, -1.6658470935147773e-13], "event": "Dipole calculated", "timestamp": "2022-01-15 15:37"}
-{"level": "RESULT", "kind": "total_dipole", "value": [-6.871827492728292e-15, -3.3716582202059932e-15, -0.3888604606078223], "target": [8, "6"], "targetname": "O,C", "order0": [1.860394765315102e-16, -1.2189971152306472e-16, -1.515458119368343], "order1": [-6.871827492728292e-15, -3.3716582202059932e-15, -0.3888604606078223], "event": "Dipole calculated", "timestamp": "2022-01-15 15:37"}
-{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-01-15 15:37"}
-         421767 function calls (411899 primitive calls) in 1.804 seconds
+{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-02-16 19:53"}
+{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-02-16 19:53"}
+{"level": "warning", "event": "Input folder exists. Reusing existing data.", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "value": -112.53159057373577, "kind": "total_energy", "target": [6, "8"], "targetname": "C,O", "order0": -109.54018003422115, "order1": -112.53159057373577, "event": "Energy calculated", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "value": -108.88031356405952, "kind": "total_energy", "target": [7, "7"], "targetname": "N,N", "order0": -108.88031356405952, "order1": -108.88031356405952, "event": "Energy calculated", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "value": -112.53159057373514, "kind": "total_energy", "target": [8, "6"], "targetname": "O,C", "order0": -109.54018003422098, "order1": -112.53159057373514, "event": "Energy calculated", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "kind": "total_dipole", "value": [1.1139902074181667e-15, -8.426887939065233e-15, 0.3888604447998967], "target": [6, "8"], "targetname": "C,O", "order0": [-6.623313513365288e-18, 4.4713885874474383e-17, 1.5154581195119012], "order1": [1.1139902074181667e-15, -8.426887939065233e-15, 0.3888604447998967], "event": "Dipole calculated", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "kind": "total_dipole", "value": [-6.623313513365288e-18, 4.4713885874474383e-17, -1.7161402507404055e-14], "target": [7, "7"], "targetname": "N,N", "order0": [-6.623313513365288e-18, 4.4713885874474383e-17, -1.7161402507404055e-14], "order1": [-6.623313513365288e-18, 4.4713885874474383e-17, -1.7161402507404055e-14], "event": "Dipole calculated", "timestamp": "2022-02-16 19:53"}
+{"level": "RESULT", "kind": "total_dipole", "value": [-1.1272368344448972e-15, 8.516315710814182e-15, -0.38886044479993176], "target": [8, "6"], "targetname": "O,C", "order0": [-6.623313513365288e-18, 4.4713885874474383e-17, -1.5154581195119363], "order1": [-1.1272368344448972e-15, 8.516315710814182e-15, -0.38886044479993176], "event": "Dipole calculated", "timestamp": "2022-02-16 19:53"}
+{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-02-16 19:53"}
+         426985 function calls (417113 primitive calls) in 1.608 seconds
 
    Ordered by: cumulative time
    List reduced from 3615 to 30 due to restriction <30>
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-    650/3    0.005    0.000    1.725    0.575 <frozen importlib._bootstrap>:1002(_find_and_load)
-    650/3    0.003    0.000    1.725    0.575 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
-    616/3    0.003    0.000    1.724    0.575 <frozen importlib._bootstrap>:659(_load_unlocked)
-    525/3    0.002    0.000    1.724    0.575 <frozen importlib._bootstrap_external>:844(exec_module)
-    835/3    0.001    0.000    1.699    0.566 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
-    418/1    0.001    0.000    1.698    1.698 {built-in method builtins.__import__}
-    852/3    0.003    0.000    1.698    0.566 {built-in method builtins.exec}
-        1    0.000    0.000    1.697    1.697 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
-  862/265    0.002    0.000    1.528    0.006 <frozen importlib._bootstrap>:1033(_handle_fromlist)
-      525    0.007    0.000    1.071    0.002 <frozen importlib._bootstrap_external>:916(get_code)
-      529    0.004    0.000    0.977    0.002 <frozen importlib._bootstrap_external>:1036(get_data)
-        1    0.000    0.000    0.918    0.918 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
-        1    0.000    0.000    0.908    0.908 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
-        1    0.000    0.000    0.906    0.906 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
-      529    0.828    0.002    0.828    0.002 {built-in method io.open_code}
-        1    0.000    0.000    0.540    0.540 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
-        1    0.000    0.000    0.321    0.321 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
-        1    0.000    0.000    0.304    0.304 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
-        1    0.000    0.000    0.282    0.282 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/__init__.py:1(<module>)
-        1    0.000    0.000    0.262    0.262 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/generic.py:1(<module>)
-        1    0.000    0.000    0.257    0.257 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
-        1    0.000    0.000    0.256    0.256 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
-  616/613    0.002    0.000    0.234    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
-        1    0.000    0.000    0.216    0.216 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
-        1    0.000    0.000    0.215    0.215 /usr/local/lib/python3.9/site-packages/jsonschema/__init__.py:1(<module>)
-    84/82    0.000    0.000    0.214    0.003 <frozen importlib._bootstrap_external>:1171(create_module)
-    84/82    0.210    0.003    0.213    0.003 {built-in method _imp.create_dynamic}
-        1    0.000    0.000    0.201    0.201 /usr/local/lib/python3.9/site-packages/pandas/core/arrays/__init__.py:1(<module>)
-    84/50    0.000    0.000    0.195    0.004 <frozen importlib._bootstrap_external>:1179(exec_module)
-    84/50    0.021    0.000    0.195    0.004 {built-in method _imp.exec_dynamic}
+    650/3    0.004    0.000    1.510    0.503 <frozen importlib._bootstrap>:1002(_find_and_load)
+    650/3    0.003    0.000    1.510    0.503 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
+    616/3    0.003    0.000    1.510    0.503 <frozen importlib._bootstrap>:659(_load_unlocked)
+    525/3    0.002    0.000    1.509    0.503 <frozen importlib._bootstrap_external>:844(exec_module)
+    835/3    0.001    0.000    1.495    0.498 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
+    418/1    0.001    0.000    1.494    1.494 {built-in method builtins.__import__}
+    852/3    0.003    0.000    1.494    0.498 {built-in method builtins.exec}
+        1    0.000    0.000    1.493    1.493 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
+  862/265    0.001    0.000    1.358    0.005 <frozen importlib._bootstrap>:1033(_handle_fromlist)
+      525    0.006    0.000    0.920    0.002 <frozen importlib._bootstrap_external>:916(get_code)
+      529    0.003    0.000    0.836    0.002 <frozen importlib._bootstrap_external>:1036(get_data)
+      529    0.814    0.002    0.814    0.002 {built-in method io.open_code}
+        1    0.000    0.000    0.699    0.699 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
+        1    0.000    0.000    0.692    0.692 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
+        1    0.000    0.000    0.690    0.690 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
+        1    0.000    0.000    0.396    0.396 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
+        1    0.000    0.000    0.340    0.340 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
+        1    0.000    0.000    0.333    0.333 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
+        1    0.000    0.000    0.255    0.255 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
+        1    0.000    0.000    0.254    0.254 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
+        1    0.000    0.000    0.237    0.237 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
+        1    0.000    0.000    0.236    0.236 /usr/local/lib/python3.9/site-packages/jsonschema/__init__.py:1(<module>)
+        1    0.000    0.000    0.199    0.199 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/__init__.py:1(<module>)
+        1    0.000    0.000    0.198    0.198 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/generic.py:1(<module>)
+  616/613    0.001    0.000    0.192    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
+    84/82    0.000    0.000    0.173    0.002 <frozen importlib._bootstrap_external>:1171(create_module)
+    84/82    0.169    0.002    0.173    0.002 {built-in method _imp.create_dynamic}
+        1    0.000    0.000    0.149    0.149 /usr/local/lib/python3.9/site-packages/pandas/core/arrays/__init__.py:1(<module>)
+        1    0.000    0.000    0.146    0.146 /usr/local/lib/python3.9/site-packages/jsonschema/exceptions.py:1(<module>)
+        1    0.000    0.000    0.137    0.137 /usr/local/lib/python3.9/site-packages/pandas/core/frame.py:1(<module>)
 
 
-APDFT results: 2 -112.53159056497036
+APDFT results: 2 -112.53159057373577
 APDFT geometry: 2 [0.        0.        0.1980541]
 APDFT geometry: 2 [0. 0. 1.]
 APDFT geometry:
-{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-01-15 15:37"}
-{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-01-15 15:37"}
-{"level": "warning", "event": "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.", "timestamp": "2022-01-15 15:37"}
-{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-01-15 15:37"}
-         704255 function calls (645430 primitive calls) in 1.412 seconds
+{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-02-16 19:53"}
+{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-02-16 19:53"}
+{"level": "warning", "event": "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.", "timestamp": "2022-02-16 19:53"}
+{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-02-16 19:53"}
+         709292 function calls (650467 primitive calls) in 1.377 seconds
 
    Ordered by: cumulative time
    List reduced from 3572 to 30 due to restriction <30>
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-    649/2    0.004    0.000    1.092    0.546 <frozen importlib._bootstrap>:1002(_find_and_load)
-    649/2    0.002    0.000    1.092    0.546 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
-    615/2    0.003    0.000    1.092    0.546 <frozen importlib._bootstrap>:659(_load_unlocked)
-    524/2    0.002    0.000    1.091    0.546 <frozen importlib._bootstrap_external>:844(exec_module)
-    834/2    0.001    0.000    1.091    0.546 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
-    418/1    0.001    0.000    1.091    1.091 {built-in method builtins.__import__}
-   885/36    0.002    0.000    1.074    0.030 {built-in method builtins.exec}
-        1    0.000    0.000    1.074    1.074 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
-   660/63    0.001    0.000    0.997    0.016 <frozen importlib._bootstrap>:1033(_handle_fromlist)
-      524    0.005    0.000    0.584    0.001 <frozen importlib._bootstrap_external>:916(get_code)
-      528    0.002    0.000    0.511    0.001 <frozen importlib._bootstrap_external>:1036(get_data)
-      528    0.491    0.001    0.491    0.001 {built-in method io.open_code}
-        1    0.000    0.000    0.482    0.482 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
-        1    0.000    0.000    0.477    0.477 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
-        1    0.000    0.000    0.476    0.476 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
-        1    0.000    0.000    0.323    0.323 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:14(entry_cli)
-        1    0.000    0.000    0.318    0.318 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:151(mode_energies_geometries)
-        1    0.001    0.001    0.316    0.316 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:332(prepare_general)
-        1    0.000    0.000    0.310    0.310 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
-       17    0.001    0.000    0.295    0.017 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:85(get_input_general)
-        1    0.000    0.000    0.283    0.283 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
+    649/2    0.003    0.000    1.058    0.529 <frozen importlib._bootstrap>:1002(_find_and_load)
+    649/2    0.002    0.000    1.058    0.529 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
+    615/2    0.002    0.000    1.057    0.529 <frozen importlib._bootstrap>:659(_load_unlocked)
+    524/2    0.001    0.000    1.057    0.529 <frozen importlib._bootstrap_external>:844(exec_module)
+    834/2    0.001    0.000    1.057    0.528 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
+    418/1    0.001    0.000    1.057    1.057 {built-in method builtins.__import__}
+   885/36    0.002    0.000    1.057    0.029 {built-in method builtins.exec}
+        1    0.000    0.000    1.056    1.056 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
+   660/63    0.001    0.000    0.965    0.015 <frozen importlib._bootstrap>:1033(_handle_fromlist)
+      524    0.005    0.000    0.601    0.001 <frozen importlib._bootstrap_external>:916(get_code)
+      528    0.003    0.000    0.531    0.001 <frozen importlib._bootstrap_external>:1036(get_data)
+      528    0.512    0.001    0.512    0.001 {built-in method io.open_code}
+        1    0.000    0.000    0.458    0.458 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
+        1    0.000    0.000    0.453    0.453 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
+        1    0.000    0.000    0.452    0.452 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
+        1    0.000    0.000    0.322    0.322 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:14(entry_cli)
+        1    0.000    0.000    0.316    0.316 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:155(mode_energies_geometries)
+        1    0.001    0.001    0.314    0.314 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:346(prepare_general)
+       17    0.001    0.000    0.293    0.017 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:85(get_input_general)
+        1    0.000    0.000    0.268    0.268 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
+        1    0.000    0.000    0.259    0.259 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
+        1    0.000    0.000    0.236    0.236 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
        17    0.005    0.000    0.231    0.014 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:23(_format_basis)
-       17    0.006    0.000    0.225    0.013 /usr/local/lib/python3.9/site-packages/basis_set_exchange/api.py:92(get_basis)
-        1    0.000    0.000    0.210    0.210 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
+       17    0.007    0.000    0.226    0.013 /usr/local/lib/python3.9/site-packages/basis_set_exchange/api.py:92(get_basis)
        34    0.000    0.000    0.190    0.006 /usr/local/lib/python3.9/site-packages/basis_set_exchange/memo.py:51(__call__)
-  615/612    0.001    0.000    0.170    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
-        1    0.000    0.000    0.159    0.159 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
-        1    0.000    0.000    0.159    0.159 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
-    84/82    0.000    0.000    0.154    0.002 <frozen importlib._bootstrap_external>:1171(create_module)
-    84/82    0.148    0.002    0.153    0.002 {built-in method _imp.create_dynamic}
+        1    0.000    0.000    0.181    0.181 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
+        1    0.000    0.000    0.181    0.181 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
+        1    0.000    0.000    0.151    0.151 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
+        1    0.000    0.000    0.150    0.150 /usr/local/lib/python3.9/site-packages/jsonschema/__init__.py:1(<module>)
+        1    0.000    0.000    0.144    0.144 /usr/local/lib/python3.9/site-packages/numpy/core/__init__.py:1(<module>)
 
 
-{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-01-15 15:38"}
-{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-01-15 15:38"}
-{"level": "warning", "event": "Input folder exists. Reusing existing data.", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "value": -113.07785880967828, "kind": "total_energy", "target": [6, "8"], "targetname": "C,O", "order0": -109.86730992909321, "order1": -113.07785880967828, "event": "Energy calculated", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "value": -109.39486683793757, "kind": "total_energy", "target": [7, "7"], "targetname": "N,N", "order0": -109.39486683793757, "order1": -109.39486683793757, "event": "Energy calculated", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "value": -113.07785880967737, "kind": "total_energy", "target": [8, "6"], "targetname": "O,C", "order0": -109.86730992909321, "order1": -113.07785880967737, "event": "Energy calculated", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "kind": "total_dipole", "value": [-6.849813617018438e-15, -5.581633970802037e-16, 0.023598662698736117], "target": [6, "8"], "targetname": "C,O", "order0": [2.9641515069830103e-16, -8.699038160896819e-17, 2.116657050807745], "order1": [-6.849813617018438e-15, -5.581633970802037e-16, 0.023598662698736117], "event": "Dipole calculated", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "kind": "total_dipole", "value": [2.9641515069830103e-16, -8.699038160896819e-17, -4.031269675713878e-14], "target": [7, "7"], "targetname": "N,N", "order0": [2.9641515069830103e-16, -8.699038160896819e-17, -4.031269675713878e-14], "order1": [2.9641515069830103e-16, -8.699038160896819e-17, -4.031269675713878e-14], "event": "Dipole calculated", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "kind": "total_dipole", "value": [7.44264391841504e-15, 3.841826338622673e-16, -0.02359866269881694], "target": [8, "6"], "targetname": "O,C", "order0": [2.9641515069830103e-16, -8.699038160896819e-17, -2.116657050807826], "order1": [7.44264391841504e-15, 3.841826338622673e-16, -0.02359866269881694], "event": "Dipole calculated", "timestamp": "2022-01-15 15:38"}
-{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-01-15 15:38"}
-         421769 function calls (411901 primitive calls) in 1.818 seconds
+{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-02-16 19:54"}
+{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-02-16 19:54"}
+{"level": "warning", "event": "Input folder exists. Reusing existing data.", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "value": -113.07785872302011, "kind": "total_energy", "target": [6, "8"], "targetname": "C,O", "order0": -109.86730995508688, "order1": -113.07785872302011, "event": "Energy calculated", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "value": -109.3948668443342, "kind": "total_energy", "target": [7, "7"], "targetname": "N,N", "order0": -109.3948668443342, "order1": -109.3948668443342, "event": "Energy calculated", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "value": -113.07785872301903, "kind": "total_energy", "target": [8, "6"], "targetname": "O,C", "order0": -109.86730995508671, "order1": -113.07785872301903, "event": "Energy calculated", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "kind": "total_dipole", "value": [7.824072106452488e-15, 8.292689748155176e-16, 0.02359911395920422], "target": [6, "8"], "targetname": "C,O", "order0": [-2.9787928301470704e-16, 1.3707931570206587e-16, 2.11665696300918], "order1": [7.824072106452488e-15, 8.292689748155176e-16, 0.02359911395920422], "event": "Dipole calculated", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "kind": "total_dipole", "value": [-2.9787928301470704e-16, 1.3707931570206587e-16, 2.424783464294311e-13], "target": [7, "7"], "targetname": "N,N", "order0": [-2.9787928301470704e-16, 1.3707931570206587e-16, 2.424783464294311e-13], "order1": [-2.9787928301470704e-16, 1.3707931570206587e-16, 2.424783464294311e-13], "event": "Dipole calculated", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "kind": "total_dipole", "value": [-8.419830672481902e-15, -5.551103434113859e-16, -0.023599113958719276], "target": [8, "6"], "targetname": "O,C", "order0": [-2.9787928301470704e-16, 1.3707931570206587e-16, -2.116656963008695], "order1": [-8.419830672481902e-15, -5.551103434113859e-16, -0.023599113958719276], "event": "Dipole calculated", "timestamp": "2022-02-16 19:54"}
+{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-02-16 19:54"}
+         426988 function calls (417116 primitive calls) in 1.677 seconds
 
    Ordered by: cumulative time
    List reduced from 3615 to 30 due to restriction <30>
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-    650/3    0.005    0.000    1.725    0.575 <frozen importlib._bootstrap>:1002(_find_and_load)
-    650/3    0.003    0.000    1.725    0.575 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
-    616/3    0.003    0.000    1.725    0.575 <frozen importlib._bootstrap>:659(_load_unlocked)
-    525/3    0.002    0.000    1.724    0.575 <frozen importlib._bootstrap_external>:844(exec_module)
-    835/3    0.001    0.000    1.722    0.574 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
-    418/1    0.001    0.000    1.722    1.722 {built-in method builtins.__import__}
-    852/3    0.003    0.000    1.705    0.568 {built-in method builtins.exec}
-        1    0.000    0.000    1.704    1.704 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
-  862/265    0.002    0.000    1.556    0.006 <frozen importlib._bootstrap>:1033(_handle_fromlist)
-      525    0.007    0.000    1.053    0.002 <frozen importlib._bootstrap_external>:916(get_code)
-      529    0.004    0.000    0.955    0.002 <frozen importlib._bootstrap_external>:1036(get_data)
-        1    0.000    0.000    0.870    0.870 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
-        1    0.000    0.000    0.843    0.843 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
-        1    0.000    0.000    0.841    0.841 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
-      529    0.814    0.002    0.814    0.002 {built-in method io.open_code}
-        1    0.000    0.000    0.479    0.479 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
-        1    0.000    0.000    0.365    0.365 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
-        1    0.000    0.000    0.311    0.311 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
-        1    0.000    0.000    0.276    0.276 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
-        1    0.000    0.000    0.275    0.275 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
-        1    0.000    0.000    0.257    0.257 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/__init__.py:1(<module>)
-        1    0.000    0.000    0.255    0.255 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/generic.py:1(<module>)
-  616/613    0.002    0.000    0.244    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
-        1    0.000    0.000    0.227    0.227 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
-        1    0.000    0.000    0.226    0.226 /usr/local/lib/python3.9/site-packages/jsonschema/__init__.py:1(<module>)
-    84/82    0.000    0.000    0.223    0.003 <frozen importlib._bootstrap_external>:1171(create_module)
-    84/82    0.219    0.003    0.222    0.003 {built-in method _imp.create_dynamic}
-    84/50    0.000    0.000    0.176    0.004 <frozen importlib._bootstrap_external>:1179(exec_module)
-    84/50    0.021    0.000    0.176    0.004 {built-in method _imp.exec_dynamic}
-        1    0.000    0.000    0.170    0.170 /usr/local/lib/python3.9/site-packages/pandas/core/arrays/__init__.py:1(<module>)
+    650/3    0.004    0.000    1.583    0.528 <frozen importlib._bootstrap>:1002(_find_and_load)
+    650/3    0.003    0.000    1.583    0.528 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
+    616/3    0.003    0.000    1.583    0.528 <frozen importlib._bootstrap>:659(_load_unlocked)
+    525/3    0.002    0.000    1.582    0.527 <frozen importlib._bootstrap_external>:844(exec_module)
+    835/3    0.001    0.000    1.581    0.527 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
+    418/1    0.001    0.000    1.580    1.580 {built-in method builtins.__import__}
+    852/3    0.003    0.000    1.580    0.527 {built-in method builtins.exec}
+        1    0.000    0.000    1.579    1.579 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
+  862/265    0.002    0.000    1.413    0.005 <frozen importlib._bootstrap>:1033(_handle_fromlist)
+      525    0.006    0.000    0.942    0.002 <frozen importlib._bootstrap_external>:916(get_code)
+      529    0.003    0.000    0.874    0.002 <frozen importlib._bootstrap_external>:1036(get_data)
+      529    0.851    0.002    0.851    0.002 {built-in method io.open_code}
+        1    0.000    0.000    0.787    0.787 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
+        1    0.000    0.000    0.781    0.781 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
+        1    0.000    0.000    0.763    0.763 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
+        1    0.000    0.000    0.415    0.415 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
+        1    0.000    0.000    0.341    0.341 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
+        1    0.000    0.000    0.333    0.333 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
+        1    0.000    0.000    0.275    0.275 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
+        1    0.000    0.000    0.274    0.274 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
+        1    0.000    0.000    0.242    0.242 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
+        1    0.000    0.000    0.241    0.241 /usr/local/lib/python3.9/site-packages/jsonschema/__init__.py:1(<module>)
+  616/613    0.001    0.000    0.222    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
+        1    0.000    0.000    0.213    0.213 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/__init__.py:1(<module>)
+        1    0.000    0.000    0.212    0.212 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/generic.py:1(<module>)
+    84/82    0.000    0.000    0.202    0.002 <frozen importlib._bootstrap_external>:1171(create_module)
+    84/82    0.198    0.002    0.202    0.002 {built-in method _imp.create_dynamic}
+    84/50    0.000    0.000    0.188    0.004 <frozen importlib._bootstrap_external>:1179(exec_module)
+    84/50    0.020    0.000    0.188    0.004 {built-in method _imp.exec_dynamic}
+        1    0.000    0.000    0.152    0.152 /usr/local/lib/python3.9/site-packages/jsonschema/exceptions.py:1(<module>)
 
 
-APDFT results: 3 -113.07785880967828
-APDFT geometry: 3 [0.         0.         0.03976133]
-APDFT geometry: 3 [0.         0.         1.15984801]
+APDFT results: 3 -113.07785872302011
+APDFT geometry: 3 [0.         0.         0.03976136]
+APDFT geometry: 3 [0.         0.         1.15984798]
 APDFT geometry:
-BFGSLineSearch:    1[  2] 15:38:19    -3077.031724        0.6258
-{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-01-15 15:38"}
-{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-01-15 15:38"}
-{"level": "warning", "event": "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.", "timestamp": "2022-01-15 15:38"}
-{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-01-15 15:38"}
-         704264 function calls (645439 primitive calls) in 1.425 seconds
+{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-02-16 19:54"}
+{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-02-16 19:54"}
+{"level": "warning", "event": "At least one of the QM calculations has not been performed yet. Please run all QM calculations first.", "timestamp": "2022-02-16 19:54"}
+{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-02-16 19:54"}
+         709315 function calls (650490 primitive calls) in 1.419 seconds
 
    Ordered by: cumulative time
    List reduced from 3572 to 30 due to restriction <30>
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-    649/2    0.004    0.000    1.090    0.545 <frozen importlib._bootstrap>:1002(_find_and_load)
-    649/2    0.003    0.000    1.090    0.545 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
-    615/2    0.003    0.000    1.089    0.545 <frozen importlib._bootstrap>:659(_load_unlocked)
-    524/2    0.002    0.000    1.089    0.545 <frozen importlib._bootstrap_external>:844(exec_module)
-    834/2    0.001    0.000    1.089    0.544 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
-    418/1    0.001    0.000    1.089    1.089 {built-in method builtins.__import__}
-   885/36    0.002    0.000    1.088    0.030 {built-in method builtins.exec}
-        1    0.000    0.000    1.088    1.088 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
-   660/63    0.001    0.000    0.997    0.016 <frozen importlib._bootstrap>:1033(_handle_fromlist)
-      524    0.005    0.000    0.558    0.001 <frozen importlib._bootstrap_external>:916(get_code)
-      528    0.002    0.000    0.481    0.001 <frozen importlib._bootstrap_external>:1036(get_data)
+    649/2    0.003    0.000    1.103    0.552 <frozen importlib._bootstrap>:1002(_find_and_load)
+    649/2    0.002    0.000    1.103    0.552 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
+    615/2    0.003    0.000    1.103    0.551 <frozen importlib._bootstrap>:659(_load_unlocked)
+    524/2    0.002    0.000    1.103    0.551 <frozen importlib._bootstrap_external>:844(exec_module)
+    834/2    0.001    0.000    1.103    0.551 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
+    418/1    0.001    0.000    1.102    1.102 {built-in method builtins.__import__}
+   885/36    0.002    0.000    1.102    0.031 {built-in method builtins.exec}
+        1    0.000    0.000    1.102    1.102 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
+   660/63    0.001    0.000    0.976    0.015 <frozen importlib._bootstrap>:1033(_handle_fromlist)
+      524    0.005    0.000    0.587    0.001 <frozen importlib._bootstrap_external>:916(get_code)
+      528    0.002    0.000    0.513    0.001 <frozen importlib._bootstrap_external>:1036(get_data)
+      528    0.493    0.001    0.493    0.001 {built-in method io.open_code}
         1    0.000    0.000    0.477    0.477 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
         1    0.000    0.000    0.472    0.472 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
         1    0.000    0.000    0.471    0.471 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
-      528    0.463    0.001    0.463    0.001 {built-in method io.open_code}
-        1    0.000    0.000    0.338    0.338 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:14(entry_cli)
-        1    0.000    0.000    0.332    0.332 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:151(mode_energies_geometries)
-        1    0.001    0.001    0.330    0.330 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:332(prepare_general)
-       17    0.001    0.000    0.308    0.018 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:85(get_input_general)
-        1    0.000    0.000    0.289    0.289 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
-        1    0.000    0.000    0.274    0.274 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
-       17    0.006    0.000    0.241    0.014 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:23(_format_basis)
-       17    0.007    0.000    0.235    0.014 /usr/local/lib/python3.9/site-packages/basis_set_exchange/api.py:92(get_basis)
-        1    0.000    0.000    0.212    0.212 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
-       34    0.000    0.000    0.198    0.006 /usr/local/lib/python3.9/site-packages/basis_set_exchange/memo.py:51(__call__)
-  615/612    0.001    0.000    0.178    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
-        1    0.000    0.000    0.161    0.161 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
-    84/82    0.000    0.000    0.161    0.002 <frozen importlib._bootstrap_external>:1171(create_module)
-    84/82    0.157    0.002    0.161    0.002 {built-in method _imp.create_dynamic}
-        1    0.000    0.000    0.160    0.160 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
+        1    0.000    0.000    0.318    0.318 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:14(entry_cli)
+        1    0.000    0.000    0.313    0.313 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:155(mode_energies_geometries)
+        1    0.001    0.001    0.311    0.311 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:346(prepare_general)
+        1    0.000    0.000    0.298    0.298 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
+       17    0.001    0.000    0.291    0.017 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:85(get_input_general)
+        1    0.000    0.000    0.275    0.275 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
+        1    0.000    0.000    0.237    0.237 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
+       17    0.005    0.000    0.228    0.013 /Users/takafumishiraogawa/Program/APDFT/src/apdft/calculator/pyscf.py:23(_format_basis)
+       17    0.007    0.000    0.223    0.013 /usr/local/lib/python3.9/site-packages/basis_set_exchange/api.py:92(get_basis)
+  615/612    0.001    0.000    0.199    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
+       34    0.000    0.000    0.187    0.005 /usr/local/lib/python3.9/site-packages/basis_set_exchange/memo.py:51(__call__)
+        1    0.000    0.000    0.184    0.184 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
+    84/82    0.000    0.000    0.183    0.002 <frozen importlib._bootstrap_external>:1171(create_module)
+        1    0.000    0.000    0.183    0.183 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
+    84/82    0.164    0.002    0.183    0.002 {built-in method _imp.create_dynamic}
 
 
-{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-01-15 15:38"}
-{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-01-15 15:38"}
-{"level": "warning", "event": "Input folder exists. Reusing existing data.", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "value": -113.07790127763329, "kind": "total_energy", "target": [6, "8"], "targetname": "C,O", "order0": -109.87036988780838, "order1": -113.07790127763329, "event": "Energy calculated", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "value": -109.39552745023997, "kind": "total_energy", "target": [7, "7"], "targetname": "N,N", "order0": -109.39552745023997, "order1": -109.39552745023997, "event": "Energy calculated", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "value": -113.07790127763295, "kind": "total_energy", "target": [8, "6"], "targetname": "O,C", "order0": -109.8703698878085, "order1": -113.07790127763295, "event": "Energy calculated", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "kind": "total_dipole", "value": [-7.015292801495148e-15, -4.402460271997616e-15, 0.029290827536041952], "target": [6, "8"], "targetname": "C,O", "order0": [-3.173070496090502e-16, -1.4670593033982226e-16, 2.1059617272645226], "order1": [-7.015292801495148e-15, -4.402460271997616e-15, 0.029290827536041952], "event": "Dipole calculated", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "kind": "total_dipole", "value": [-3.173070496090502e-16, -1.4670593033982226e-16, 3.6358681907225354e-13], "target": [7, "7"], "targetname": "N,N", "order0": [-3.173070496090502e-16, -1.4670593033982226e-16, 3.6358681907225354e-13], "order1": [-3.173070496090502e-16, -1.4670593033982226e-16, 3.6358681907225354e-13], "event": "Dipole calculated", "timestamp": "2022-01-15 15:38"}
-{"level": "RESULT", "kind": "total_dipole", "value": [6.3806787022770474e-15, 4.109048411317972e-15, -0.029290827535314534], "target": [8, "6"], "targetname": "O,C", "order0": [-3.173070496090502e-16, -1.4670593033982226e-16, -2.105961727263795], "order1": [6.3806787022770474e-15, 4.109048411317972e-15, -0.029290827535314534], "event": "Dipole calculated", "timestamp": "2022-01-15 15:38"}
-{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-01-15 15:38"}
-         421766 function calls (411898 primitive calls) in 1.486 seconds
+{"level": "info", "event": "Mode \"energies_geometries\"", "timestamp": "2022-02-16 19:54"}
+{"number_calculations": 17, "number_predictions": 3, "level": "RESULT", "event": "Cost estimated.", "timestamp": "2022-02-16 19:54"}
+{"level": "warning", "event": "Input folder exists. Reusing existing data.", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "value": -113.07790093856534, "kind": "total_energy", "target": [6, "8"], "targetname": "C,O", "order0": -109.87040069443879, "order1": -113.07790093856534, "event": "Energy calculated", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "value": -109.39553345088436, "kind": "total_energy", "target": [7, "7"], "targetname": "N,N", "order0": -109.39553345088436, "order1": -109.39553345088436, "event": "Energy calculated", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "value": -113.07790093856391, "kind": "total_energy", "target": [8, "6"], "targetname": "O,C", "order0": -109.87040069443873, "order1": -113.07790093856391, "event": "Energy calculated", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "kind": "total_dipole", "value": [5.283911110395918e-16, 6.443429647219469e-15, 0.029349478264511397], "target": [6, "8"], "targetname": "C,O", "order0": [1.1881402537195198e-16, 8.589654892881614e-17, 2.105851716608003], "order1": [5.283911110395918e-16, 6.443429647219469e-15, 0.029349478264511397], "event": "Dipole calculated", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "kind": "total_dipole", "value": [1.1881402537195198e-16, 8.589654892881614e-17, 3.04288387022178e-14], "target": [7, "7"], "targetname": "N,N", "order0": [1.1881402537195198e-16, 8.589654892881614e-17, 3.04288387022178e-14], "order1": [1.1881402537195198e-16, 8.589654892881614e-17, 3.04288387022178e-14], "event": "Dipole calculated", "timestamp": "2022-02-16 19:54"}
+{"level": "RESULT", "kind": "total_dipole", "value": [-2.907630602956878e-16, -6.271636549361837e-15, -0.029349478264450113], "target": [8, "6"], "targetname": "O,C", "order0": [1.1881402537195198e-16, 8.589654892881614e-17, -2.105851716607942], "order1": [-2.907630602956878e-16, -6.271636549361837e-15, -0.029349478264450113], "event": "Dipole calculated", "timestamp": "2022-02-16 19:54"}
+{"warningcount": 1, "level": "warning", "event": "This run had warnings. The results might be incomplete at worst. In absence of errors, existing results are ok.", "timestamp": "2022-02-16 19:54"}
+         426987 function calls (417115 primitive calls) in 1.613 seconds
 
    Ordered by: cumulative time
    List reduced from 3615 to 30 due to restriction <30>
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-    650/3    0.004    0.000    1.394    0.465 <frozen importlib._bootstrap>:1002(_find_and_load)
-    650/3    0.003    0.000    1.394    0.465 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
-    616/3    0.003    0.000    1.394    0.465 <frozen importlib._bootstrap>:659(_load_unlocked)
-    525/3    0.002    0.000    1.393    0.464 <frozen importlib._bootstrap_external>:844(exec_module)
-    835/3    0.001    0.000    1.392    0.464 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
-    418/1    0.001    0.000    1.391    1.391 {built-in method builtins.__import__}
-    852/3    0.003    0.000    1.391    0.464 {built-in method builtins.exec}
-        1    0.000    0.000    1.391    1.391 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
-  862/265    0.002    0.000    1.261    0.005 <frozen importlib._bootstrap>:1033(_handle_fromlist)
-      525    0.006    0.000    0.811    0.002 <frozen importlib._bootstrap_external>:916(get_code)
-      529    0.003    0.000    0.723    0.001 <frozen importlib._bootstrap_external>:1036(get_data)
-      529    0.700    0.001    0.700    0.001 {built-in method io.open_code}
-        1    0.000    0.000    0.625    0.625 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
-        1    0.000    0.000    0.616    0.616 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
-        1    0.000    0.000    0.615    0.615 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
-        1    0.000    0.000    0.359    0.359 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
-        1    0.000    0.000    0.339    0.339 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
-        1    0.000    0.000    0.295    0.295 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
-        1    0.000    0.000    0.238    0.238 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
-        1    0.000    0.000    0.237    0.237 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
-        1    0.000    0.000    0.201    0.201 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
-        1    0.000    0.000    0.200    0.200 /usr/local/lib/python3.9/site-packages/jsonschema/__init__.py:1(<module>)
-        1    0.000    0.000    0.191    0.191 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/__init__.py:1(<module>)
-        1    0.000    0.000    0.190    0.190 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/generic.py:1(<module>)
-  616/613    0.001    0.000    0.169    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
-    84/82    0.000    0.000    0.149    0.002 <frozen importlib._bootstrap_external>:1171(create_module)
-    84/82    0.145    0.002    0.148    0.002 {built-in method _imp.create_dynamic}
-        1    0.000    0.000    0.147    0.147 /usr/local/lib/python3.9/site-packages/numpy/core/__init__.py:1(<module>)
-        1    0.000    0.000    0.138    0.138 /usr/local/lib/python3.9/site-packages/pandas/core/arrays/__init__.py:1(<module>)
-        1    0.000    0.000    0.134    0.134 /usr/local/lib/python3.9/site-packages/jsonschema/exceptions.py:1(<module>)
+    650/3    0.004    0.000    1.536    0.512 <frozen importlib._bootstrap>:1002(_find_and_load)
+    650/3    0.003    0.000    1.536    0.512 <frozen importlib._bootstrap>:967(_find_and_load_unlocked)
+    616/3    0.003    0.000    1.535    0.512 <frozen importlib._bootstrap>:659(_load_unlocked)
+    525/3    0.002    0.000    1.535    0.512 <frozen importlib._bootstrap_external>:844(exec_module)
+    835/3    0.001    0.000    1.510    0.503 <frozen importlib._bootstrap>:220(_call_with_frames_removed)
+    418/1    0.001    0.000    1.510    1.510 {built-in method builtins.__import__}
+    852/3    0.002    0.000    1.509    0.503 {built-in method builtins.exec}
+        1    0.000    0.000    1.509    1.509 /Users/takafumishiraogawa/Program/APDFT/src/apdft/__init__.py:2(<module>)
+  862/265    0.002    0.000    1.378    0.005 <frozen importlib._bootstrap>:1033(_handle_fromlist)
+      525    0.006    0.000    0.876    0.002 <frozen importlib._bootstrap_external>:916(get_code)
+      529    0.003    0.000    0.793    0.001 <frozen importlib._bootstrap_external>:1036(get_data)
+      529    0.772    0.001    0.772    0.001 {built-in method io.open_code}
+        1    0.000    0.000    0.721    0.721 /Users/takafumishiraogawa/Program/APDFT/src/apdft/commandline.py:2(<module>)
+        1    0.000    0.000    0.714    0.714 /Users/takafumishiraogawa/Program/APDFT/src/apdft/physics.py:2(<module>)
+        1    0.000    0.000    0.713    0.713 /usr/local/lib/python3.9/site-packages/pandas/__init__.py:3(<module>)
+        1    0.000    0.000    0.407    0.407 /usr/local/lib/python3.9/site-packages/pandas/core/api.py:3(<module>)
+        1    0.000    0.000    0.347    0.347 /usr/local/lib/python3.9/site-packages/numpy/__init__.py:1(<module>)
+        1    0.000    0.000    0.304    0.304 /usr/local/lib/python3.9/site-packages/basis_set_exchange/__init__.py:1(<module>)
+  616/613    0.001    0.000    0.252    0.000 <frozen importlib._bootstrap>:558(module_from_spec)
+        1    0.000    0.000    0.245    0.245 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/__init__.py:1(<module>)
+        1    0.000    0.000    0.244    0.244 /usr/local/lib/python3.9/site-packages/basis_set_exchange/readers/read.py:1(<module>)
+    84/82    0.000    0.000    0.233    0.003 <frozen importlib._bootstrap_external>:1171(create_module)
+    84/82    0.229    0.003    0.233    0.003 {built-in method _imp.create_dynamic}
+        1    0.000    0.000    0.226    0.226 /usr/local/lib/python3.9/site-packages/basis_set_exchange/validator.py:1(<module>)
+        1    0.000    0.000    0.225    0.225 /usr/local/lib/python3.9/site-packages/jsonschema/__init__.py:1(<module>)
+        1    0.000    0.000    0.209    0.209 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/__init__.py:1(<module>)
+        1    0.000    0.000    0.207    0.207 /usr/local/lib/python3.9/site-packages/pandas/core/groupby/generic.py:1(<module>)
+    84/50    0.000    0.000    0.153    0.003 <frozen importlib._bootstrap_external>:1179(exec_module)
+    84/50    0.020    0.000    0.152    0.003 {built-in method _imp.exec_dynamic}
+        1    0.000    0.000    0.150    0.150 /usr/local/lib/python3.9/site-packages/pandas/core/arrays/__init__.py:1(<module>)
 
 
-APDFT results: 4 -113.07790127763329
-APDFT geometry: 4 [0.         0.         0.03779373]
-APDFT geometry: 4 [0.         0.         1.15222069]
+APDFT results: 4 -113.07790093856534
+APDFT geometry: 4 [0.        0.        0.0377033]
+APDFT geometry: 4 [0.         0.         1.15207204]
 APDFT geometry:
-BFGSLineSearch:    2[  3] 15:38:51    -3077.032880        0.2163
-elapsed_time:120.26970314979553[sec]
+elapsed_time:118.67969298362732[sec]
