@@ -52,7 +52,7 @@ class ASE_OPT():
     return ''.join(nuclear_symbols)
 
 
-  def imp_ase_opt():
+  def imp_ase_opt(fmax_au=0.005):
 
     start = time.time()
 
@@ -71,7 +71,7 @@ class ASE_OPT():
 
     # dyn = BFGS(MOL)
     dyn = BFGSLineSearch(MOL, logfile="BFGSLineSearch.dat")
-    dyn.run(fmax=0.005 * ASE_OPT.hb_to_ea)
+    dyn.run(fmax=fmax_au * ASE_OPT.hb_to_ea)
 
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
