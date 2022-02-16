@@ -94,6 +94,7 @@ if method == "HF":
 
 if method == "CCSD":
     calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
+    calc.max_cycle = 1000
     hfe = calc.kernel(verbose=0)
     mycc = pyscf.cc.CCSD(calc).run()
     # Unrelaxed density matrix is evaluated in the MO basis
