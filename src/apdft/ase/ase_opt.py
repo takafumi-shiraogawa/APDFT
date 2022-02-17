@@ -10,7 +10,7 @@ import time
 # Input
 # init.xyz : initial coordinates of optimization
 # template/ : it is used in APDFT interface (APDFT here) and contains
-#             apdft.conf imp_mod_cli1.sh imp_mod_cli2.sh n2.xyz n2_mod.xyz
+#             apdft.conf imp_mod_cli1.sh imp_mod_cli2.sh
 
 # How to use?
 # $ python3 test.py
