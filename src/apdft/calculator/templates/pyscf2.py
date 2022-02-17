@@ -60,33 +60,41 @@ def add_qmmm(calc, mol, deltaZ):
 
 
 if method == "HF":
-    # Set SCF calculation condition
-    calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
-    # kernel() function is the simple way to call HF driver.
-    # verbose is the output level.
-    hfe = calc.kernel(verbose=0)
-    # One-particle density matrix in AO representation:
-    # MO occupation number
-    # * MO coefficients
-    # * conjugated MO coefficients
-    dm1_ao = calc.make_rdm1()
-    total_energy = calc.e_tot
-    # Calculate nuclear-nuclear repulsion energy of
-    # of the reference molecule and
-    # Enn = calc.energy_nuc()
-    # of the target molecular geometry
-    # target_Enn = target_mol.energy_nuc()
+    # If this is *NOT* a calculation of the reference molecule,
+    # calculate analytical gradients.
+    if (np.count_nonzero(deltaZ) != 0) or (mol.atom != original_mol.atom) or (target_mol.atom != original_mol.atom):
+        # Set SCF calculation condition
+        calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
+        # kernel() function is the simple way to call HF driver.
+        # verbose is the output level.
+        calc.max_cycle = 1000
+        hfe = calc.kernel(verbose=0)
+        # One-particle density matrix in AO representation:
+        # MO occupation number
+        # * MO coefficients
+        # * conjugated MO coefficients
+        dm1_ao = calc.make_rdm1()
+        total_energy = calc.e_tot
+        # Calculate nuclear-nuclear repulsion energy of
+        # of the reference molecule and
+        # Enn = calc.energy_nuc()
+        # of the target molecular geometry
+        # target_Enn = target_mol.energy_nuc()
 
     # If this is a calculation of the reference molecule,
     # calculate analytical gradients.
-    # TODO: modulate this routine since this procedure performs HF twice
-    #       in HF and mycc.
-    # TODO: here the last condition is redundant, and modification is possible
-    if np.count_nonzero(deltaZ) == 0 and mol.atom == original_mol.atom \
-        and target_mol.atom == original_mol.atom:
+    # TODO: analytical gradient calculation is performed regardless of a configuration of APDFT;
+    #       that is, for the purpose of energy calculations, it is redundant and should be removed.
+    else:
         # Because this calculation does not use QM/MM, standard HF can be used instead.
-        mf_scf = pyscf.scf.RHF(mol).run()
-        grad_scf = pyscf.grad.RHF(mf_scf).kernel()
+        mf_scf = pyscf.scf.RHF(mol)
+        mf_scf.max_cycle = 1000
+        mf_scf.run()
+        dm1_ao = mf_scf.make_rdm1()
+        total_energy = mf_scf.e_tot
+
+        mf_scf_grad = mf_scf.nuc_grad_method()
+        grad_scf = mf_scf_grad.kernel()
 
         for site in includeonly:
             # derivative of total energy
