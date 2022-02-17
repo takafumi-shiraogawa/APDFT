@@ -58,6 +58,7 @@ class handle_APDFT():
   # generate inputs of APDFT calculations
   def gener_inputs(nuclear_numbers, coordinates):
     handle_APDFT.set_inputs(nuclear_numbers, coordinates, "work/temp/mol.xyz")
+    handle_APDFT.set_inputs(nuclear_numbers, coordinates, "work/temp/mol_mod.xyz")
 
   # Read target energy from the output (energies.csv)
   def get_target_value(target, dict_inp, apdft_order):
