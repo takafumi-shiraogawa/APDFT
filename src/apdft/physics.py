@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from sys import float_repr_style
 import numpy as np
 import basis_set_exchange as bse
 import apdft
