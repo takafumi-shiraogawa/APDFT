@@ -44,20 +44,20 @@ def read_xyz(fn):
         coordinates.append([float(_) for _ in parts[1:4]])
     return np.array(nuclear_numbers), np.array(coordinates)
 
-# Copy inputs of an APDFT calculation from template/ to the target directry
-def copy_ingredients(copy_directry):
+# Copy inputs of an APDFT calculation from template/ to the target directory
+def copy_ingredients(copy_directory):
 
   # Copy imp_mod_cli1.sh
   copyfile = "template/imp_mod_cli1.sh"
-  shutil.copy(copyfile, copy_directry)
+  shutil.copy(copyfile, copy_directory)
 
   # Copy imp_mod_cli2.sh
   copyfile = "template/imp_mod_cli2.sh"
-  shutil.copy(copyfile, copy_directry)
+  shutil.copy(copyfile, copy_directory)
 
   # Copy imp_mod_cli2.sh
   copyfile = "template/apdft.conf"
-  shutil.copy(copyfile, copy_directry)
+  shutil.copy(copyfile, copy_directory)
 
   return
 
@@ -339,7 +339,7 @@ for bias_shift_idx in range(len(sigma) + 1):
         str(bias_shift_idx), str(geom_opt_idx))
     os.makedirs(path)
 
-    # Copy inputs of the APDFT calculation in the working directry
+    # Copy inputs of the APDFT calculation in the working directory
     copy_ingredients(path)
 
     # Set *.xyz
