@@ -15,23 +15,23 @@ hb_to_ea = har_to_ev * ang_to_bohr
 
 class handle_APDFT():
 
-  # Copy inputs of an APDFT calculation from template/ to the target directry
+  # Copy inputs of an APDFT calculation from template/ to the target directory
   def copy_ingredients():
 
-    # Set a target directry
-    copy_directry = "work/temp"
+    # Set a target directory
+    copy_directory = "work/temp"
 
     # Copy imp_mod_cli1.sh
     copyfile = "template/imp_mod_cli1.sh"
-    shutil.copy(copyfile, copy_directry)
+    shutil.copy(copyfile, copy_directory)
 
     # Copy imp_mod_cli2.sh
     copyfile = "template/imp_mod_cli2.sh"
-    shutil.copy(copyfile, copy_directry)
+    shutil.copy(copyfile, copy_directory)
 
     # Copy imp_mod_cli2.sh
     copyfile = "template/apdft.conf"
-    shutil.copy(copyfile, copy_directry)
+    shutil.copy(copyfile, copy_directory)
 
     return
 
@@ -71,12 +71,12 @@ class handle_APDFT():
       else:
         raise ValueError("Error in reading target values!")
 
-  # Make a work directry
+  # Make a work directory
   def make_work():
     path = "work/temp"
     os.makedirs(path)
 
-  # Make a work directry to save results
+  # Make a work directory to save results
   def save_results(num_opt_step):
 
     path = "work/iter-%s" % num_opt_step
