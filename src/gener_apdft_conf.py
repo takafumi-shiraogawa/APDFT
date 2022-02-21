@@ -4,7 +4,7 @@
 # for finite differential in the perturbed electron density
 
 # Requirements:
-# In the curent directry,
+# In the curent directory,
 # ./order.inp
 # ./template/
 #   apdft.conf.template
@@ -22,7 +22,7 @@ import jinja2 as jinja
 # Get apdft.conf with variables of fractional numbers for
 # finite differential in the perturbed electron density
 def gener_inputs(deltaZ, deltaR):
-  # Obtain path of the current directry.
+  # Obtain path of the current directory.
   # basedir = os.path.dirname(os.path.abspath(__file__))
   # with open("%s/template/apdft.conf.template" % basedir) as fh:
   with open("template/apdft.conf.template") as fh:
@@ -39,28 +39,28 @@ def copy_ingredients(order1, order2):
   # basedir = os.path.dirname(os.path.abspath(__file__))
   # copyfile = "%s/template/commands.sh" % basedir
 
-  # Set a target directry
-  copy_directry = "QM/delta-%s-%s" % (str(order1), str(order2))
+  # Set a target directory
+  copy_directory = "QM/delta-%s-%s" % (str(order1), str(order2))
 
   # Copy commands.sh
   copyfile = "template/commands.sh"
-  shutil.copy(copyfile, copy_directry)
+  shutil.copy(copyfile, copy_directory)
 
   # Copy imp_mod_cli1.sh
   copyfile = "template/imp_mod_cli1.sh"
-  shutil.copy(copyfile, copy_directry)
+  shutil.copy(copyfile, copy_directory)
 
   # Copy imp_mod_cli2.sh
   copyfile = "template/imp_mod_cli2.sh"
-  shutil.copy(copyfile, copy_directry)
+  shutil.copy(copyfile, copy_directory)
 
   # Copy n2.xyz
   copyfile = "template/n2.xyz"
-  shutil.copy(copyfile, copy_directry)
+  shutil.copy(copyfile, copy_directory)
 
   # Copy n2_mod.xyz
   copyfile = "template/n2_mod.xyz"
-  shutil.copy(copyfile, copy_directry)
+  shutil.copy(copyfile, copy_directory)
 
   return
 
