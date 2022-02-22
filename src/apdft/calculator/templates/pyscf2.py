@@ -68,7 +68,7 @@ if method == "HF":
         # kernel() function is the simple way to call HF driver.
         # verbose is the output level.
         calc.max_cycle = 1000
-        hfe = calc.kernel(verbose=0)
+        calc.kernel(verbose=0)
         # One-particle density matrix in AO representation:
         # MO occupation number
         # * MO coefficients
