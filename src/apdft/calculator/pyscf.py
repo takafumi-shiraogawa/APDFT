@@ -10,7 +10,7 @@ import functools
 
 
 class PyscfCalculator(apc.Calculator):
-    _methods = {"CCSD": "CCSD", "HF": "HF"}
+    _methods = {"CCSD": "CCSD", "HF": "HF", "PBE": "PBE", "PBE0": "PBE0", "B3LYP": "B3LYP"}
 
     @staticmethod
     def _format_coordinates(nuclear_numbers, coordinates):
