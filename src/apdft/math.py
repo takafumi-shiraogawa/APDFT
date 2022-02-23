@@ -201,6 +201,7 @@ class IntegerPartitions(object):
                 for i in range(num_mut_atoms):
                     positions_mut_atom_positions.append(i)
 
+                # Select positive mutation positions
                 for pos_positions_mut_atom_positions in it.combinations(positions_mut_atom_positions, int(num_mut_atoms / 2)):
 
                     # Copy nuclear numbers of a reference molecule
