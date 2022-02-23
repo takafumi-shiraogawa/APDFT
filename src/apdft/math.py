@@ -207,7 +207,7 @@ class IntegerPartitions(object):
                     # Copy nuclear numbers of a reference molecule
                     instant_nuclear_numbers = copy.copy(nuclear_numbers)
 
-                    # Initialize
+                    # Initialize with negative mutations
                     mut_nuclear_numbers = [target_nuclear_numbers[0]] * num_mut_atoms
 
                     # Specify positions of atoms with the positive charge change
