@@ -179,13 +179,6 @@ class Configuration:
             ),
             Option(
                 "apdft",
-                "targetatom",
-                intelementrange,
-                None,
-                "A atom type to be mutated, e.g. 6 or C.",
-            ),
-            Option(
-                "apdft",
                 "targetpositions",
                 intelementrange,
                 None,

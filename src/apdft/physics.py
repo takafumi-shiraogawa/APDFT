@@ -185,7 +185,6 @@ class APDFT(object):
         include_atoms=None,
         targetlist=None,
         specify_targets=False,
-        target_atom=None,
         target_positions=None,
         read_target_path=None,
         target_cartesian="z",
@@ -208,10 +207,6 @@ class APDFT(object):
 
         # Specify targets
         self._specify_targets = specify_targets
-        if target_atom is not None:
-            self._target_atom = target_atom[0]
-        else:
-            self._target_atom = target_atom
         self._target_positions = target_positions
         self._read_target_path = read_target_path
 
@@ -2763,7 +2758,7 @@ class APDFT(object):
                 # If an input file of target molecules is not set
                 if self._read_target_path == "None":
                     res += apdft.math.IntegerPartitions.systematic_partition(
-                        self._nuclear_numbers, self._target_atom, self._target_positions, limit, self._coordinates)
+                        self._nuclear_numbers, self._target_positions, limit, self._coordinates)
                 else:
                     res += apdft.math.IntegerPartitions.read_target_molecules(self._read_target_path)
 

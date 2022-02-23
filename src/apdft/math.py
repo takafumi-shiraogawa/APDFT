@@ -144,12 +144,11 @@ class IntegerPartitions(object):
         return res
 
     @staticmethod
-    def systematic_partition(nuclear_numbers, target_atom_number, target_atom_positions, \
+    def systematic_partition(nuclear_numbers, target_atom_positions, \
         limit_mutations, nuclear_coordinates, mol_identity=True, gener_output=True):
         """ Get a list of target molecules with mutated atoms with [-1, 0, 1] nuclear number changes
         Args:
             nuclear_numbers       : Iterable of N entries. Nuclear numbers are listed. [Integer]
-            target_atom_number    : A target atom number. [Integer]
             target_atom_positions : List begins from 0 [Integer]
             nuclear_coordinates   : (N, 3) entries. Nuclear coordinates are listed. [Integer]
             mol_identity          : Wheteher to remove same molecules [boolean]
@@ -159,15 +158,10 @@ class IntegerPartitions(object):
 			A list of all partitions as lists.
         """
 
-        # Exception handling
-        if target_atom_number == 1:
-            raise ValueError("Error: Specification of the mutated atom is invalid.")
-
-        # Set target mutated atoms
-        target_nuclear_numbers = []
-        target_nuclear_numbers.append(target_atom_number - 1)
-        # target_nuclear_numbers.append(target_atom_number)
-        target_nuclear_numbers.append(target_atom_number + 1)
+        # Set changes of nuclear numbers
+        change_nuclear_numbers = []
+        change_nuclear_numbers.append(-1)
+        change_nuclear_numbers.append(1)
 
         # Get the number of target atoms
         num_target_atoms = len(target_atom_positions)
@@ -208,15 +202,15 @@ class IntegerPartitions(object):
                     instant_nuclear_numbers = copy.copy(nuclear_numbers)
 
                     # Initialize with negative mutations
-                    mut_nuclear_numbers = [target_nuclear_numbers[0]] * num_mut_atoms
+                    mut_nuclear_numbers = [change_nuclear_numbers[0]] * num_mut_atoms
 
                     # Specify positions of atoms with the positive charge change
                     for i in range(int(num_mut_atoms / 2)):
-                        mut_nuclear_numbers[pos_positions_mut_atom_positions[i]] = target_nuclear_numbers[1]
+                        mut_nuclear_numbers[pos_positions_mut_atom_positions[i]] = change_nuclear_numbers[1]
 
                     # Get a target molecule
                     for i in range(num_mut_atoms):
-                        instant_nuclear_numbers[mut_atom_positions[i]] = mut_nuclear_numbers[i]
+                        instant_nuclear_numbers[mut_atom_positions[i]] += mut_nuclear_numbers[i]
 
                     # Whether to remove same molecules
                     if mol_identity:
