@@ -209,8 +209,13 @@ class IntegerPartitions(object):
                         mut_nuclear_numbers[pos_positions_mut_atom_positions[i]] = change_nuclear_numbers[1]
 
                     # Get a target molecule
+                    flag_He_checker = False
                     for i in range(num_mut_atoms):
+                        if instant_nuclear_numbers[mut_atom_positions[i]] == 1 and mut_nuclear_numbers[i] == 1:
+                            flag_He_checker = True
                         instant_nuclear_numbers[mut_atom_positions[i]] += mut_nuclear_numbers[i]
+                    if flag_He_checker:
+                        continue
 
                     # Whether to remove same molecules
                     if mol_identity:
