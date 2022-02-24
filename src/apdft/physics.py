@@ -2477,6 +2477,7 @@ class APDFT(object):
                         calculation=folder,
                     )
 
+            # if self._calc_der:
             else:
                 if "/zr-site" in folder:
                     res = 0.0
