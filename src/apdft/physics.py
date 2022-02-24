@@ -228,8 +228,9 @@ class APDFT(object):
         if include_atoms is None:
             self._include_atoms = list(range(len(self._nuclear_numbers)))
         else:
-            if self._calc_der and (self._coordinates != self._target_positions):
-                raise NotImplementedError("In the non-vertical calculation, a function of specifying atoms is not implemented yet.")
+            if not self._calc_der:
+                # Importantly note that I do not check the case of nonvertical derivative calculations.
+                raise NotImplementedError("A function of specifying atoms is not implemented yet in this option.")
             included = []
             for part in include_atoms:
                 if isinstance(part, int):
@@ -2394,6 +2395,11 @@ class APDFT(object):
         positions_all_atoms = list(range(len(self._nuclear_numbers)))
         all_N = len(positions_all_atoms)
 
+        # For specifying atoms in an ad-hoc manner
+        # This is not a smart method.
+        if self._calc_der and (N != all_N):
+            self._include_atoms = positions_all_atoms
+
         # folders have the dimension of the number of the computed densities
         # (QM calculations)
         if self._calc_der and (N != all_N):
@@ -2401,6 +2407,7 @@ class APDFT(object):
             actual_folders = self.get_folder_order_general()
         else:
             folders = self.get_folder_order_general()
+            actual_folders = folders
 
         # If this is a calculation of vertical energy derivatives
         if self._calc_der and (N != all_N):
@@ -2408,6 +2415,7 @@ class APDFT(object):
             actual_ver_folders = self.get_ver_folder_order_general()
         else:
             ver_folders = self.get_ver_folder_order_general()
+            actual_ver_folders = ver_folders
 
         # Dimension is (the number of QM calculations, the number of atoms).
         #              (the types of densities)
@@ -2655,15 +2663,26 @@ class APDFT(object):
         # order 0
         # "up" is meaningless here.
         # Read EPN
-        coeff[pos, :], coeff2[pos, :] = get_epn(folders[pos], 0, "up", 0)
+        if folders[pos] in actual_folders:
+            coeff[pos, :], coeff2[pos, :] = get_epn(folders[pos], 0, "up", 0)
+        else:
+            coeff[pos, :] = 0.0
+            coeff2[pos, :] = 0.0
 
         # If this is a calculation of vertical energy derivatives
         if self._calc_der:
-            ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
-                ver_folders[ver_pos], 0, "up", 0)
+            if ver_folders[ver_pos] in actual_ver_folders:
+                ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                    ver_folders[ver_pos], 0, "up", 0)
+            else:
+                ver_coeff[ver_pos, :] = 0.0
+                ver_coeff2[ver_pos, :] = 0.0
 
         # Read ionic force
-        force_coeff[pos, :, :] = get_ionic_force(folders[pos], 0, "up", 0)
+        if folders[pos] in actual_folders:
+            force_coeff[pos, :, :] = get_ionic_force(folders[pos], 0, "up", 0)
+        else:
+            force_coeff[pos, :, :] = 0.0
 
         # For the next order
         pos += 1
@@ -2678,16 +2697,30 @@ class APDFT(object):
             # For the atomic charge change
             for site in self._include_atoms:
                 # Read EPNs
-                coeff[pos, :], coeff2[pos, :] = get_epn(
-                    folders[pos], 1, "up", [site])
-                coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
-                    folders[pos + 1], 1, "dn", [site])
+                if folders[pos] in actual_folders:
+                    coeff[pos, :], coeff2[pos, :] = get_epn(
+                        folders[pos], 1, "up", [site])
+                else:
+                    coeff[pos, :] = 0.0
+                    coeff2[pos, :] = 0.0
+                if folders[pos + 1] in actual_folders:
+                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                        folders[pos + 1], 1, "dn", [site])
+                else:
+                    coeff[pos + 1, :] = 0.0
+                    coeff2[pos + 1, :] = 0.0
 
                 # Read ionic forces
-                force_coeff[pos, :, :] = get_ionic_force(
-                    folders[pos], 1, "up", [site])
-                force_coeff[pos + 1, :, :] = get_ionic_force(
-                    folders[pos + 1], 1, "dn", [site])
+                if folders[pos] in actual_folders:
+                    force_coeff[pos, :, :] = get_ionic_force(
+                        folders[pos], 1, "up", [site])
+                else:
+                    force_coeff[pos, :, :] = 0.0
+                if folders[pos + 1] in actual_folders:
+                    force_coeff[pos + 1, :, :] = get_ionic_force(
+                        folders[pos + 1], 1, "dn", [site])
+                else:
+                    force_coeff[pos + 1, :, :] = 0.0
 
                 # For the next site
                 pos += 2
@@ -2697,16 +2730,30 @@ class APDFT(object):
                 # For three-Cartesian coordinate changes
                 if self._cartesian == 'z':
                     # Read EPNs
-                    coeff[pos, :], coeff2[pos, :] = get_epn(
-                        folders[pos], 1, "up", [site])
-                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
-                        folders[pos + 1], 1, "dn", [site])
+                    if folders[pos] in actual_folders:
+                        coeff[pos, :], coeff2[pos, :] = get_epn(
+                            folders[pos], 1, "up", [site])
+                    else:
+                        coeff[pos, :] = 0.0
+                        coeff2[pos, :] = 0.0
+                    if folders[pos + 1] in actual_folders:
+                        coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                            folders[pos + 1], 1, "dn", [site])
+                    else:
+                        coeff[pos + 1, :] = 0.0
+                        coeff2[pos + 1, :] = 0.0
 
                     # Read ionic forces
-                    force_coeff[pos, :, :] = get_ionic_force(
-                        folders[pos], 1, "up", [site])
-                    force_coeff[pos + 1, :, :] = get_ionic_force(
-                        folders[pos + 1], 1, "dn", [site])
+                    if folders[pos] in actual_folders:
+                        force_coeff[pos, :, :] = get_ionic_force(
+                            folders[pos], 1, "up", [site])
+                    else:
+                        force_coeff[pos, :, :] = 0.0
+                    if folders[pos + 1] in actual_folders:
+                        force_coeff[pos + 1, :, :] = get_ionic_force(
+                            folders[pos + 1], 1, "dn", [site])
+                    else:
+                        force_coeff[pos + 1, :, :] = 0.0
 
                     # For the next site
                     pos += 2
@@ -2715,16 +2762,30 @@ class APDFT(object):
                 else:
                     for rdx in range(3):
                         # Read EPNs
-                        coeff[pos, :], coeff2[pos, :] = get_epn(
-                            folders[pos], 1, "up", [site])
-                        coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
-                            folders[pos + 1], 1, "dn", [site])
+                        if folders[pos] in actual_folders:
+                            coeff[pos, :], coeff2[pos, :] = get_epn(
+                                folders[pos], 1, "up", [site])
+                        else:
+                            coeff[pos, :] = 0.0
+                            coeff2[pos, :] = 0.0
+                        if folders[pos + 1] in actual_folders:
+                            coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                                folders[pos + 1], 1, "dn", [site])
+                        else:
+                            coeff[pos + 1, :] = 0.0
+                            coeff2[pos + 1, :] = 0.0
 
                         # Read ionic forces
-                        force_coeff[pos, :, :] = get_ionic_force(
-                            folders[pos], 1, "up", [site])
-                        force_coeff[pos + 1, :, :] = get_ionic_force(
-                            folders[pos + 1], 1, "dn", [site])
+                        if folders[pos] in actual_folders:
+                            force_coeff[pos, :, :] = get_ionic_force(
+                                folders[pos], 1, "up", [site])
+                        else:
+                            force_coeff[pos, :, :] = 0.0
+                        if folders[pos + 1] in actual_folders:
+                            force_coeff[pos + 1, :, :] = get_ionic_force(
+                                folders[pos + 1], 1, "dn", [site])
+                        else:
+                            force_coeff[pos + 1, :, :] = 0.0
 
                         # For the next site
                         pos += 2
@@ -2736,10 +2797,18 @@ class APDFT(object):
                 # For the atomic charge change
                 for site in self._include_atoms:
                     # Read EPNs for vertical energy derivatives
-                    ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
-                        ver_folders[ver_pos], 1, "up", [site])
-                    ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
-                        ver_folders[ver_pos + 1], 1, "dn", [site])
+                    if ver_folders[ver_pos] in actual_ver_folders:
+                        ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                            ver_folders[ver_pos], 1, "up", [site])
+                    else:
+                        ver_coeff[ver_pos, :] = 0.0
+                        ver_coeff2[ver_pos, :] = 0.0
+                    if ver_folders[ver_pos + 1] in actual_ver_folders:
+                        ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                            ver_folders[ver_pos + 1], 1, "dn", [site])
+                    else:
+                        ver_coeff[ver_pos + 1, :] = 0.0
+                        ver_coeff2[ver_pos + 1, :] = 0.0
 
                     # For the next site
                     ver_pos += 2
@@ -2761,10 +2830,18 @@ class APDFT(object):
                     else:
                         for rdx in range(3):
                             # Read EPNs for vertical energy derivatives
-                            ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
-                                ver_folders[ver_pos], 1, "up", [site])
-                            ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
-                                ver_folders[ver_pos + 1], 1, "dn", [site])
+                            if ver_folders[ver_pos] in actual_ver_folders:
+                                ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                                    ver_folders[ver_pos], 1, "up", [site])
+                            else:
+                                ver_coeff[ver_pos, :] = 0.0
+                                ver_coeff2[ver_pos, :] = 0.0
+                            if ver_folders[ver_pos + 1] in actual_ver_folders:
+                                ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                                    ver_folders[ver_pos + 1], 1, "dn", [site])
+                            else:
+                                ver_coeff[ver_pos + 1, :] = 0.0
+                                ver_coeff2[ver_pos + 1, :] = 0.0
 
                             # For the next site
                             ver_pos += 2
@@ -2778,16 +2855,30 @@ class APDFT(object):
                         continue
 
                     # Read EPNs
-                    coeff[pos, :], coeff2[pos, :] = get_epn(
-                        folders[pos], 2, "up", [site_i, site_j])
-                    coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
-                        folders[pos + 1], 2, "dn", [site_i, site_j])
+                    if folders[pos] in actual_folders:
+                        coeff[pos, :], coeff2[pos, :] = get_epn(
+                            folders[pos], 2, "up", [site_i, site_j])
+                    else:
+                        coeff[pos, :] = 0.0
+                        coeff2[pos, :] = 0.0
+                    if folders[pos + 1] in actual_folders:
+                        coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                            folders[pos + 1], 2, "dn", [site_i, site_j])
+                    else:
+                        coeff[pos + 1, :] = 0.0
+                        coeff2[pos + 1, :] = 0.0
 
                     # Read ionic forces
-                    force_coeff[pos, :, :] = get_ionic_force(
-                        folders[pos], 2, "up", [site_i, site_j])
-                    force_coeff[pos + 1, :, :] = get_ionic_force(
-                        folders[pos + 1], 2, "dn", [site_i, site_j])
+                    if folders[pos] in actual_folders:
+                        force_coeff[pos, :, :] = get_ionic_force(
+                            folders[pos], 2, "up", [site_i, site_j])
+                    else:
+                        force_coeff[pos, :, :] = 0.0
+                    if folders[pos + 1] in actual_folders:
+                        force_coeff[pos + 1, :, :] = get_ionic_force(
+                            folders[pos + 1], 2, "dn", [site_i, site_j])
+                    else:
+                        force_coeff[pos + 1, :, :] = 0.0
 
                     # For the next site
                     pos += 2
@@ -2801,16 +2892,30 @@ class APDFT(object):
                     # For z-Cartesian coordinate changes
                     if self._cartesian == "z":
                         # Read EPNs
-                        coeff[pos, :], coeff2[pos, :] = get_epn(
-                            folders[pos], 2, "up", [site_i, site_j])
-                        coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
-                            folders[pos + 1], 2, "dn", [site_i, site_j])
+                        if folders[pos] in actual_folders:
+                            coeff[pos, :], coeff2[pos, :] = get_epn(
+                                folders[pos], 2, "up", [site_i, site_j])
+                        else:
+                            coeff[pos, :] = 0.0
+                            coeff2[pos, :] = 0.0
+                        if folders[pos + 1] in actual_folders:
+                            coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                                folders[pos + 1], 2, "dn", [site_i, site_j])
+                        else:
+                            coeff[pos + 1, :] = 0.0
+                            coeff2[pos + 1, :] = 0.0
 
                         # Read ionic forces
-                        force_coeff[pos, :, :] = get_ionic_force(
-                            folders[pos], 2, "up", [site_i, site_j])
-                        force_coeff[pos + 1, :, :] = get_ionic_force(
-                            folders[pos + 1], 2, "dn", [site_i, site_j])
+                        if folders[pos] in actual_folders:
+                            force_coeff[pos, :, :] = get_ionic_force(
+                                folders[pos], 2, "up", [site_i, site_j])
+                        else:
+                            force_coeff[pos, :, :] = 0.0
+                        if folders[pos + 1] in actual_folders:
+                            force_coeff[pos + 1, :, :] = get_ionic_force(
+                                folders[pos + 1], 2, "dn", [site_i, site_j])
+                        else:
+                            force_coeff[pos + 1, :, :] = 0.0
 
                         # For the next site
                         pos += 2
@@ -2819,16 +2924,30 @@ class APDFT(object):
                     else:
                         for rdx in range(3):
                             # Read EPNs
-                            coeff[pos, :], coeff2[pos, :] = get_epn(
-                                folders[pos], 2, "up", [site_i, site_j])
-                            coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
-                                folders[pos + 1], 2, "dn", [site_i, site_j])
+                            if folders[pos] in actual_folders:
+                                coeff[pos, :], coeff2[pos, :] = get_epn(
+                                    folders[pos], 2, "up", [site_i, site_j])
+                            else:
+                                coeff[pos, :] = 0.0
+                                coeff2[pos, :] = 0.0
+                            if folders[pos + 1] in actual_folders:
+                                coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                                    folders[pos + 1], 2, "dn", [site_i, site_j])
+                            else:
+                                coeff[pos + 1, :] = 0.0
+                                coeff2[pos + 1, :] = 0.0
 
                             # Read ionic forces
-                            force_coeff[pos, :, :] = get_ionic_force(
-                                folders[pos], 2, "up", [site_i, site_j])
-                            force_coeff[pos + 1, :, :] = get_ionic_force(
-                                folders[pos + 1], 2, "dn", [site_i, site_j])
+                            if folders[pos] in actual_folders:
+                                force_coeff[pos, :, :] = get_ionic_force(
+                                    folders[pos], 2, "up", [site_i, site_j])
+                            else:
+                                force_coeff[pos, :, :] = 0.0
+                            if folders[pos + 1] in actual_folders:
+                                force_coeff[pos + 1, :, :] = get_ionic_force(
+                                    folders[pos + 1], 2, "dn", [site_i, site_j])
+                            else:
+                                force_coeff[pos + 1, :, :] = 0.0
 
                             # For the next site
                             pos += 2
@@ -2841,16 +2960,30 @@ class APDFT(object):
                     # For z-Cartesian coordinate changes
                     if self._cartesian == "z":
                         # Read EPNs
-                        coeff[pos, :], coeff2[pos, :] = get_epn(
-                            folders[pos], 2, "up", [site_i, site_j])
-                        coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
-                            folders[pos + 1], 2, "dn", [site_i, site_j])
+                        if folders[pos] in actual_folders:
+                            coeff[pos, :], coeff2[pos, :] = get_epn(
+                                folders[pos], 2, "up", [site_i, site_j])
+                        else:
+                            coeff[pos, :] = 0.0
+                            coeff2[pos, :] = 0.0
+                        if folders[pos + 1] in actual_folders:
+                            coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                                folders[pos + 1], 2, "dn", [site_i, site_j])
+                        else:
+                            coeff[pos + 1, :] = 0.0
+                            coeff2[pos + 1, :] = 0.0
 
                         # Read ionic forces
-                        force_coeff[pos, :, :] = get_ionic_force(
-                            folders[pos], 2, "up", [site_i, site_j])
-                        force_coeff[pos + 1, :, :] = get_ionic_force(
-                            folders[pos + 1], 2, "dn", [site_i, site_j])
+                        if folders[pos] in actual_folders:
+                            force_coeff[pos, :, :] = get_ionic_force(
+                                folders[pos], 2, "up", [site_i, site_j])
+                        else:
+                            force_coeff[pos, :, :] = 0.0
+                        if folders[pos + 1] in actual_folders:
+                            force_coeff[pos + 1, :, :] = get_ionic_force(
+                                folders[pos + 1], 2, "dn", [site_i, site_j])
+                        else:
+                            force_coeff[pos + 1, :, :] = 0.0
 
                         # For the next site
                         pos += 2
@@ -2859,16 +2992,30 @@ class APDFT(object):
                     else:
                         for rdx in range(3):
                             # Read EPNs
-                            coeff[pos, :], coeff2[pos, :] = get_epn(
-                                folders[pos], 2, "up", [site_i, site_j])
-                            coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
-                                folders[pos + 1], 2, "dn", [site_i, site_j])
+                            if folders[pos] in actual_folders:
+                                coeff[pos, :], coeff2[pos, :] = get_epn(
+                                    folders[pos], 2, "up", [site_i, site_j])
+                            else:
+                                coeff[pos, :] = 0.0
+                                coeff2[pos, :] = 0.0
+                            if folders[pos + 1] in actual_folders:
+                                coeff[pos + 1, :], coeff2[pos + 1, :] = get_epn(
+                                    folders[pos + 1], 2, "dn", [site_i, site_j])
+                            else:
+                                coeff[pos + 1, :] = 0.0
+                                coeff2[pos + 1, :] = 0.0
 
                             # Read ionic forces
-                            force_coeff[pos, :, :] = get_ionic_force(
-                                folders[pos], 2, "up", [site_i, site_j])
-                            force_coeff[pos + 1, :, :] = get_ionic_force(
-                                folders[pos + 1], 2, "dn", [site_i, site_j])
+                            if folders[pos] in actual_folders:
+                                force_coeff[pos, :, :] = get_ionic_force(
+                                    folders[pos], 2, "up", [site_i, site_j])
+                            else:
+                                force_coeff[pos, :, :] = 0.0
+                            if folders[pos + 1] in actual_folders:
+                                force_coeff[pos + 1, :, :] = get_ionic_force(
+                                    folders[pos + 1], 2, "dn", [site_i, site_j])
+                            else:
+                                force_coeff[pos + 1, :, :] = 0.0
 
                             # For the next site
                             pos += 2
@@ -2901,10 +3048,18 @@ class APDFT(object):
                             continue
 
                         # Read EPNs for vertical energy derivatives
-                        ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
-                            ver_folders[ver_pos], 2, "up", [site_i, site_j])
-                        ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
-                            ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                        if ver_folders[ver_pos] in actual_ver_folders:
+                            ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                                ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                        else:
+                            ver_coeff[ver_pos, :] = 0.0
+                            ver_coeff2[ver_pos, :] = 0.0
+                        if ver_folders[ver_pos + 1] in actual_ver_folders:
+                            ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                                ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                        else:
+                            ver_coeff[ver_pos + 1, :] = 0.0
+                            ver_coeff2[ver_pos + 1, :] = 0.0
 
                         # For the next site
                         ver_pos += 2
@@ -2918,10 +3073,18 @@ class APDFT(object):
                         # For z-Cartesian coordinate changes
                         if self._cartesian == "z":
                             # Read EPNs for vertical energy derivatives
-                            ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
-                                ver_folders[ver_pos], 2, "up", [site_i, site_j])
-                            ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
-                                ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                            if ver_folders[ver_pos] in actual_ver_folders:
+                                ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                                    ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                            else:
+                                ver_coeff[ver_pos, :] = 0.0
+                                ver_coeff2[ver_pos, :] = 0.0
+                            if ver_folders[ver_pos + 1] in actual_ver_folders:
+                                ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                                    ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                            else:
+                                ver_coeff[ver_pos + 1, :] = 0.0
+                                ver_coeff2[ver_pos + 1, :] = 0.0
 
                             # For the next site
                             ver_pos += 2
@@ -2930,10 +3093,18 @@ class APDFT(object):
                         else:
                             for rdx in range(3):
                                 # Read EPNs for vertical energy derivatives
-                                ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
-                                    ver_folders[ver_pos], 2, "up", [site_i, site_j])
-                                ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
-                                    ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                                if ver_folders[ver_pos] in actual_ver_folders:
+                                    ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                                        ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                                else:
+                                    ver_coeff[ver_pos, :] = 0.0
+                                    ver_coeff2[ver_pos, :] = 0.0
+                                if ver_folders[ver_pos + 1] in actual_ver_folders:
+                                    ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                                        ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                                else:
+                                    ver_coeff[ver_pos + 1, :] = 0.0
+                                    ver_coeff2[ver_pos + 1, :] = 0.0
 
                                 # For the next site
                                 ver_pos += 2
@@ -2947,10 +3118,18 @@ class APDFT(object):
                         # For z-Cartesian coordinate changes
                         if self._cartesian == "z":
                             # Read EPNs for vertical energy derivatives
-                            ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
-                                ver_folders[ver_pos], 2, "up", [site_i, site_j])
-                            ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
-                                ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                            if ver_folders[ver_pos] in actual_ver_folders:
+                                ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                                    ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                            else:
+                                ver_coeff[ver_pos, :] = 0.0
+                                ver_coeff2[ver_pos, :] = 0.0
+                            if ver_folders[ver_pos + 1] in actual_ver_folders:
+                                ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                                    ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                            else:
+                                ver_coeff[ver_pos + 1, :] = 0.0
+                                ver_coeff2[ver_pos + 1, :] = 0.0
 
                             # For the next site
                             ver_pos += 2
@@ -2959,10 +3138,18 @@ class APDFT(object):
                         else:
                             for rdx in range(3):
                                 # Read EPNs for vertical energy derivatives
-                                ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
-                                    ver_folders[ver_pos], 2, "up", [site_i, site_j])
-                                ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
-                                    ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                                if ver_folders[ver_pos] in actual_ver_folders:
+                                    ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
+                                        ver_folders[ver_pos], 2, "up", [site_i, site_j])
+                                else:
+                                    ver_coeff[ver_pos, :] = 0.0
+                                    ver_coeff2[ver_pos, :] = 0.0
+                                if ver_folders[ver_pos + 1] in actual_ver_folders:
+                                    ver_coeff[ver_pos + 1, :], ver_coeff2[ver_pos + 1, :] = get_epn(
+                                        ver_folders[ver_pos + 1], 2, "dn", [site_i, site_j])
+                                else:
+                                    ver_coeff[ver_pos + 1, :] = 0.0
+                                    ver_coeff2[ver_pos + 1, :] = 0.0
 
                                 # For the next site
                                 ver_pos += 2
