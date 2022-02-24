@@ -3729,7 +3729,18 @@ class APDFT(object):
         # Dimension of atomic_forces_reference is
         # (the number of atoms, three Cartesian coordinates)
         if self._calc_der:
+            positions_all_atoms = list(range(len(self._nuclear_numbers)))
+            if self._calc_der and (set(self._include_atoms) != set(positions_all_atoms)):
+                flag_spec_atoms = True
+                temp_include_atoms = self._include_atoms.copy()
+                self._include_atoms = positions_all_atoms
+            else:
+                flag_spec_atoms = False
+
             atomic_forces_reference = -self.get_reference_energy_derivatives()
+
+            if flag_spec_atoms:
+                self._include_atoms = temp_include_atoms
 
         # Dipole matrix
         dipole_matrix = self.get_linear_density_matrix_general("TARGET_ELECTRONIC_DIPOLE")
