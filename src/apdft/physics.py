@@ -3772,6 +3772,10 @@ class APDFT(object):
         # get target predictions
         # target is target nuclear charges of atoms
         for targetidx, target in enumerate(targets):
+            if self._calc_der and (set(self._include_atoms) != set(positions_all_atoms)):
+                positions_all_atoms = list(range(len(self._nuclear_numbers)))
+                self._include_atoms = positions_all_atoms.copy()
+
             deltaZ = target - self._nuclear_numbers
 
             deltaZ_included = deltaZ[self._include_atoms]
