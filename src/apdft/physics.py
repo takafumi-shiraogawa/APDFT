@@ -352,6 +352,14 @@ class APDFT(object):
                 "Target molecular coordinate is not given.", level="error"
             )
 
+        positions_all_atoms = list(range(len(self._nuclear_numbers)))
+
+        # Specify atoms
+        if self._calc_der and set(self._include_atoms) != set(positions_all_atoms):
+            spec_atoms = positions_all_atoms
+        else:
+            spec_atoms = self._include_atoms
+
         commands = []
 
         for order in self._orders:
@@ -402,7 +410,7 @@ class APDFT(object):
                         self._nuclear_numbers,
                         charges,
                         None,
-                        includeonly=self._include_atoms,
+                        includeonly=spec_atoms,
                     )
                     with open("%s/run.inp" % path, "w") as fh:
                         fh.write(inputfile)
@@ -461,7 +469,7 @@ class APDFT(object):
                             self._nuclear_numbers,
                             self._nuclear_numbers,
                             None,
-                            includeonly=self._include_atoms,
+                            includeonly=spec_atoms,
                         )
                         with open("%s/run.inp" % path, "w") as fh:
                             fh.write(inputfile)
@@ -512,7 +520,7 @@ class APDFT(object):
                                 self._nuclear_numbers,
                                 self._nuclear_numbers,
                                 None,
-                                includeonly=self._include_atoms,
+                                includeonly=spec_atoms,
                             )
                             with open("%s/run.inp" % path, "w") as fh:
                                 fh.write(inputfile)
@@ -578,7 +586,7 @@ class APDFT(object):
                             self._nuclear_numbers,
                             charges,
                             None,
-                            includeonly=self._include_atoms,
+                            includeonly=spec_atoms,
                         )
                         with open("%s/run.inp" % path, "w") as fh:
                             fh.write(inputfile)
@@ -635,7 +643,7 @@ class APDFT(object):
                                 self._nuclear_numbers,
                                 charges,
                                 None,
-                                includeonly=self._include_atoms,
+                                includeonly=spec_atoms,
                             )
                             with open("%s/run.inp" % path, "w") as fh:
                                 fh.write(inputfile)
@@ -645,8 +653,6 @@ class APDFT(object):
                                         self._coordinates, self._nuclear_numbers, charges, None
                                     )
                                 )
-
-            positions_all_atoms = list(range(len(self._nuclear_numbers)))
 
             # If this is a calculation of the analytical derivative of potential
             # energy with respect to nuclear coordinates by a vertical manner
@@ -714,7 +720,7 @@ class APDFT(object):
                                 self._nuclear_numbers,
                                 charges,
                                 None,
-                                includeonly=self._include_atoms,
+                                includeonly=spec_atoms,
                             )
                             with open("%s/run.inp" % path, "w") as fh:
                                 fh.write(inputfile)
@@ -771,7 +777,7 @@ class APDFT(object):
                                     self._nuclear_numbers,
                                     charges,
                                     None,
-                                    includeonly=self._include_atoms,
+                                    includeonly=spec_atoms,
                                 )
                                 with open("%s/run.inp" % path, "w") as fh:
                                     fh.write(inputfile)
@@ -2395,11 +2401,6 @@ class APDFT(object):
         positions_all_atoms = list(range(len(self._nuclear_numbers)))
         all_N = len(positions_all_atoms)
 
-        # For specifying atoms in an ad-hoc manner
-        # This is not a smart method.
-        if self._calc_der and (N != all_N):
-            self._include_atoms = positions_all_atoms
-
         # folders have the dimension of the number of the computed densities
         # (QM calculations)
         if self._calc_der and (N != all_N):
@@ -2416,6 +2417,13 @@ class APDFT(object):
         else:
             ver_folders = self.get_ver_folder_order_general()
             actual_ver_folders = ver_folders
+
+        # For specifying atoms in an ad-hoc manner
+        # This is not a smart method.
+        if self._calc_der and (N != all_N):
+            self._include_atoms = positions_all_atoms
+
+        N = all_N
 
         # Dimension is (the number of QM calculations, the number of atoms).
         #              (the types of densities)
@@ -3680,13 +3688,6 @@ class APDFT(object):
             self._nuclear_numbers, is_reference_molecule=True
         )
 
-        # If this is a calculation of vertical energy derivatives,
-        # analytical energy derivatives of a reference molecule are extracted.
-        # Dimension of atomic_forces_reference is
-        # (the number of atoms, three Cartesian coordinates)
-        if self._calc_der:
-            atomic_forces_reference = -self.get_reference_energy_derivatives()
-
         # Dimension of epn_matrix is
         # (the number of QM calculations, the number of atoms).
         # epn_matrix, epn_matrix_target = self.get_epn_matrix_general()
@@ -3700,6 +3701,13 @@ class APDFT(object):
         # Release a memory
         del ionic_force_matrix
         gc.collect()
+
+        # If this is a calculation of vertical energy derivatives,
+        # analytical energy derivatives of a reference molecule are extracted.
+        # Dimension of atomic_forces_reference is
+        # (the number of atoms, three Cartesian coordinates)
+        if self._calc_der:
+            atomic_forces_reference = -self.get_reference_energy_derivatives()
 
         # Dipole matrix
         dipole_matrix = self.get_linear_density_matrix_general("TARGET_ELECTRONIC_DIPOLE")
