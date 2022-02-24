@@ -2771,17 +2771,18 @@ class APDFT(object):
                 # print(len(res))
                 # print("")
 
-        # filter for included atoms
-        ignore_atoms = list(
-            set(range(len(self._nuclear_numbers))) - set(self._include_atoms)
-        )
-        if len(self._include_atoms) != len(self._nuclear_numbers):
-            res = [
-                _
-                for _ in res
-                if [_[idx] for idx in ignore_atoms]
-                == [self._nuclear_numbers[idx] for idx in ignore_atoms]
-            ]
+        if not self._specify_targets:
+            # filter for included atoms
+            ignore_atoms = list(
+                set(range(len(self._nuclear_numbers))) - set(self._include_atoms)
+            )
+            if len(self._include_atoms) != len(self._nuclear_numbers):
+                res = [
+                    _
+                    for _ in res
+                    if [_[idx] for idx in ignore_atoms]
+                    == [self._nuclear_numbers[idx] for idx in ignore_atoms]
+                ]
         return res
 
     def estimate_cost_and_coverage(self):
