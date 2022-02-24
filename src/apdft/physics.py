@@ -2392,13 +2392,22 @@ class APDFT(object):
     def get_property_matrix_general(self):
         """ Collects :math:`\int_Omega rho_i(\mathbf{r}) /|\mathbf{r}-\mathbf{R}_I|`. """
         N = len(self._include_atoms)
+
+        positions_all_atoms = list(range(len(self._nuclear_numbers)))
+        all_N = len(positions_all_atoms)
+
         # folders have the dimension of the number of the computed densities
         # (QM calculations)
-        folders = self.get_all_folder_order_general()
+        if self._calc_der and (N != all_N):
+            folders = self.get_all_folder_order_general()
+        else:
+            folders = self.get_folder_order_general()
 
         # If this is a calculation of vertical energy derivatives
-        if self._calc_der:
+        if self._calc_der and (N != all_N):
             ver_folders = self.get_all_ver_folder_order_general()
+        else:
+            ver_folders = self.get_ver_folder_order_general()
 
         # Dimension is (the number of QM calculations, the number of atoms).
         #              (the types of densities)
