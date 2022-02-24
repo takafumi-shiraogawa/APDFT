@@ -2420,7 +2420,7 @@ class APDFT(object):
 
         # For specifying atoms in an ad-hoc manner
         # This is not a smart method.
-        if self._calc_der and (N != all_N):
+        if self._calc_der and (set(self._include_atoms) != set(positions_all_atoms)):
             flag_spec_atoms = True
             temp_include_atoms = self._include_atoms.copy()
             self._include_atoms = positions_all_atoms
