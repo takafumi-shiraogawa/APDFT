@@ -671,9 +671,8 @@ class APDFT(object):
                     positions_all_atoms, repeat=order + 1
                 ):
                     if len(combination_rz) == 2:
-                        if combination_rz[0] not in self._include_atoms or \
-                            combination_rz[1] not in self._include_atoms:
-                                continue
+                        if combination_rz[0] not in self._include_atoms:
+                            continue
 
                     # For z-Cartesian coordinate changes
                     if self._cartesian == "z":
