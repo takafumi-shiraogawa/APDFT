@@ -2421,7 +2421,11 @@ class APDFT(object):
         # For specifying atoms in an ad-hoc manner
         # This is not a smart method.
         if self._calc_der and (N != all_N):
+            flag_spec_atoms = True
+            temp_include_atoms = self._include_atoms.copy()
             self._include_atoms = positions_all_atoms
+        else:
+            flag_spec_atoms = False
 
         N = all_N
 
@@ -3183,6 +3187,10 @@ class APDFT(object):
         #     print("ver_coeff - ver_coeff2")
         #     print(ver_coeff - ver_coeff2)
         #     print('')
+
+        # Recover self._include_atoms
+        if flag_spec_atoms:
+            self._include_atoms = temp_include_atoms
 
         # If this is not a calculation of vertical energy derivatives
         if not self._calc_der:
