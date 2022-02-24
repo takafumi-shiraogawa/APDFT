@@ -643,6 +643,8 @@ class APDFT(object):
                                     )
                                 )
 
+            positions_all_atoms = list(range(len(self._nuclear_numbers)))
+
             # If this is a calculation of the analytical derivative of potential
             # energy with respect to nuclear coordinates by a vertical manner
             if self._calc_der:
@@ -657,8 +659,13 @@ class APDFT(object):
                 #   APDFT3 <- del^3_rho / (del_R * del_Z * del_Z)
                 #       e.g., QM/order-3/rz-site-*-*-*-up
                 for combination_rz in it.product(
-                    self._include_atoms, repeat=order + 1
+                    positions_all_atoms, repeat=order + 1
                 ):
+                    if len(combination_rz) == 2:
+                        if combination_rz[0] not in self._include_atoms or \
+                            combination_rz[1] not in self._include_atoms:
+                                continue
+
                     # For z-Cartesian coordinate changes
                     if self._cartesian == "z":
                         # For nuclear mixed changes of nuclear charge and coordinate
