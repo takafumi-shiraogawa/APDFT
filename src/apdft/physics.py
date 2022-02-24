@@ -2399,11 +2399,10 @@ class APDFT(object):
         N = len(self._include_atoms)
 
         positions_all_atoms = list(range(len(self._nuclear_numbers)))
-        all_N = len(positions_all_atoms)
 
         # folders have the dimension of the number of the computed densities
         # (QM calculations)
-        if self._calc_der and (N != all_N):
+        if self._calc_der and (set(self._include_atoms) != set(positions_all_atoms)):
             folders = self.get_all_folder_order_general()
             actual_folders = self.get_folder_order_general()
         else:
@@ -2411,7 +2410,7 @@ class APDFT(object):
             actual_folders = folders
 
         # If this is a calculation of vertical energy derivatives
-        if self._calc_der and (N != all_N):
+        if self._calc_der and (set(self._include_atoms) != set(positions_all_atoms)):
             ver_folders = self.get_all_ver_folder_order_general()
             actual_ver_folders = self.get_ver_folder_order_general()
         else:
@@ -2427,6 +2426,7 @@ class APDFT(object):
         else:
             flag_spec_atoms = False
 
+        all_N = len(positions_all_atoms)
         N = all_N
 
         # Dimension is (the number of QM calculations, the number of atoms).
