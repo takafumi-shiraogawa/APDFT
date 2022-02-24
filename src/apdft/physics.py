@@ -1870,7 +1870,7 @@ class APDFT(object):
             if self._cartesian == "z":
                 for site_i in self._include_atoms:
                     # Loop for the atomic position change
-                    for site_j in self._include_atoms:
+                    for site_j in positions_all_atoms:
                         folders.append(
                             "%s/QM/order-2/rz-site-%d-%d-up/"
                             % (self._basepath, site_i, site_j)
@@ -1883,7 +1883,7 @@ class APDFT(object):
             else:
                 for site_i in self._include_atoms:
                     # Loop for the atomic position change
-                    for site_j in self._include_atoms:
+                    for site_j in positions_all_atoms:
                         for didx, dim in enumerate("XYZ"):
                             folders.append(
                                 "%s/QM/order-2/r%sz-site-%d-%d-up/"
