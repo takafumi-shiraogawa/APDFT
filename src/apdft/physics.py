@@ -1768,6 +1768,8 @@ class APDFT(object):
 
         Returns: List of strings, the folder names."""
 
+        positions_all_atoms = list(range(len(self._nuclear_numbers)))
+
         # Folders for a calculation of vertical energy derivatives
         folders = []
 
@@ -1787,14 +1789,16 @@ class APDFT(object):
             # For the atomic position change
             # For z-Cartesian coordinate changes
             if self._cartesian == "z":
-                for site in self._include_atoms:
+                # for site in self._include_atoms:
+                for site in positions_all_atoms:
                     folders.append("%s/QM/order-1/rz-site-%d-up/" %
                                    (self._basepath, site))
                     folders.append("%s/QM/order-1/rz-site-%d-dn/" %
                                    (self._basepath, site))
             # For full-Cartesian coordinate changes
             else:
-                for site in self._include_atoms:
+                # for site in self._include_atoms:
+                for site in positions_all_atoms:
                     for didx, dim in enumerate("XYZ"):
                         folders.append("%s/QM/order-1/r%sz-site-%d-up/" %
                                        (self._basepath, dim, site))
@@ -2394,12 +2398,14 @@ class APDFT(object):
         # (QM calculations)
         if self._calc_der and (N != all_N):
             folders = self.get_all_folder_order_general()
+            actual_folders = self.get_folder_order_general()
         else:
             folders = self.get_folder_order_general()
 
         # If this is a calculation of vertical energy derivatives
         if self._calc_der and (N != all_N):
             ver_folders = self.get_all_ver_folder_order_general()
+            actual_ver_folders = self.get_ver_folder_order_general()
         else:
             ver_folders = self.get_ver_folder_order_general()
 
