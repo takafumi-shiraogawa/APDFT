@@ -228,6 +228,8 @@ class APDFT(object):
         if include_atoms is None:
             self._include_atoms = list(range(len(self._nuclear_numbers)))
         else:
+            if self._calc_der and (self._coordinates != self._target_positions):
+                raise NotImplementedError("In the non-vertical calculation, a function of specifying atoms is not implemented yet.")
             included = []
             for part in include_atoms:
                 if isinstance(part, int):
@@ -967,14 +969,6 @@ class APDFT(object):
             raise ValueError(
                 "Mismatch of array lengths: %d dZ values for %d nuclei."
                 % (len(deltaZ), N)
-            )
-
-        # This function can not specify included atoms.
-        # TODO: generalization to specify atoms.
-        if N != len(self._nuclear_numbers):
-            raise ValueError(
-                "Cannot specify atoms in the energies_geometries mode: %d included atoms for %d atoms."
-                % (N, len(self._nuclear_numbers))
             )
 
         # order 0
