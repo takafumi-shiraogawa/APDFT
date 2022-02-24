@@ -3352,10 +3352,10 @@ class APDFT(object):
             #       0 is added for now.
             # For z-Cartesian coordinate changes
             if self._cartesian == "z":
-                cost += sum({0: 2 * all_N , 1: 2 * N * N, 2: 0}[_] for _ in self._orders)
+                cost += sum({0: 2 * all_N , 1: 2 * N * all_N, 2: 0}[_] for _ in self._orders)
             # For full-Cartesian coordinate changes
             else:
-                cost += sum({0: 3 * (2 * all_N), 1: 3 * (2 * N * N), 2: 0}[_] for _ in self._orders)
+                cost += sum({0: 3 * (2 * all_N), 1: 3 * (2 * N * all_N), 2: 0}[_] for _ in self._orders)
 
 
         # The number of candidates does not change with nuclear charge transformations
