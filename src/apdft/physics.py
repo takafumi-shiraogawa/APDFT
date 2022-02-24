@@ -3480,9 +3480,13 @@ class APDFT(object):
         if self._calc_der and (set(self._include_atoms) != set(positions_all_atoms)):
             folders = self.get_all_folder_order_general()
             actual_folders = self.get_folder_order_general()
+            flag_spec_atoms = True
+            temp_include_atoms = self._include_atoms.copy()
+            self._include_atoms = positions_all_atoms
         else:
             folders = self.get_folder_order_general()
             actual_folders = folders
+            flag_spec_atoms = False
 
         results = []
         for folder in folders:
@@ -3531,6 +3535,10 @@ class APDFT(object):
                             )
                 else:
                     results.append(get_empty_value(propertyname))
+
+        # Recover self._include_atoms
+        if flag_spec_atoms:
+            self._include_atoms = temp_include_atoms
 
         # Only meaningful if all calculations are present.
         if len(results) == len(folders):
