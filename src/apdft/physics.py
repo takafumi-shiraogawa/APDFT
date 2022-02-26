@@ -164,14 +164,14 @@ class Coulomb(object):
         """ Calculate eigenvalues of a matrix. """
         return np.sort(np.linalg.eigvals(matrix))[::-1]
 
-    def get_distance_mols_with_coulomb_matrix(nuclear_number_1, nuclear_number_2, coord):
+    def gener_eigenvalues_from_coulomb_matrix(nuclear_number, coord):
+        """ Calculate eigenvalues of a Coulomb matrix. """
+        coulomb_matrix = Coulomb.gener_coulomb_matrix(nuclear_number, coord)
+
+        return Coulomb.gener_eigenvalues_from_matrix(coulomb_matrix)
+
+    def get_distance_mols_with_coulomb_matrix(eigen_value_1, eigen_value_2):
         """ Calculate a distance in chemical space represented by Coulomb matrices. """
-        coulomb_mat_1 = Coulomb.gener_coulomb_matrix(nuclear_number_1, coord)
-        coulomb_mat_2 = Coulomb.gener_coulomb_matrix(nuclear_number_2, coord)
-
-        eigen_value_1 = Coulomb.get_eigenvalues_from_matrix(coulomb_mat_1)
-        eigen_value_2 = Coulomb.get_eigenvalues_from_matrix(coulomb_mat_2)
-
         mol_dist = np.sqrt(np.sum((eigen_value_1 - eigen_value_2) ** 2))
 
         return mol_dist
