@@ -160,6 +160,10 @@ class Coulomb(object):
 
         return sort_coulomb_mat
 
+    def gener_eigenvalues_from_matrix(matrix):
+        """ Calculate eigenvalues of a matrix. """
+        return np.sort(np.linalg.eigvals(matrix))[::-1]
+
 class Dipoles(object):
     """ Collects functions regarding the calculation of dipole moments. This code follows the physics convention of the sign: the dipole moment vector points from the negative charge center to the positive charge center."""
 
