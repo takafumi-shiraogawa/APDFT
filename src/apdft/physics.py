@@ -93,6 +93,31 @@ class Coulomb(object):
 
             return distance
 
+    def gener_coulomb_matrix(nuclear_number, coord):
+        """ Generate a Coulomb matrix. """
+        # Get the number of atoms
+        num_atom = len(nuclear_number)
+
+        # Set a Coulomb matrix.
+        coulomb_mat = np.zeros((num_atom, num_atom))
+
+        # Calculate a Coulomb matrix, not sorted one
+        for i in range(num_atom):
+            for j in range(num_atom):
+                z_i = nuclear_number[i]
+                z_j = nuclear_number[j]
+
+                if i == j:
+                    coulomb_mat[i, j] = 0.5 * z_i ** 2.4
+                elif i > j:
+                    distance = Coulomb.get_dist(coord, i, j)
+                    coulomb_mat[i, j] = z_i * z_j / distance
+                    coulomb_mat[j, i] = coulomb_mat[i, j]
+                else:
+                    continue
+
+        return coulomb_mat
+
     def gener_sort_coulomb_matrix(nuclear_number, coord):
         """ Generate a sorted Coulomb matrix.
         Args:
@@ -106,22 +131,7 @@ class Coulomb(object):
 
         # Set a Coulomb matrix.
         # Double precision may be not suffucient for large molecules.
-        sort_coulomb_mat = np.zeros((num_atom, num_atom))
-
-        # Calculate a Coulomb matrix, not sorted one
-        for i in range(num_atom):
-            for j in range(num_atom):
-                z_i = nuclear_number[i]
-                z_j = nuclear_number[j]
-
-                if i == j:
-                    sort_coulomb_mat[i, j] = 0.5 * z_i ** 2.4
-                elif i > j:
-                    distance = Coulomb.get_dist(coord, i, j)
-                    sort_coulomb_mat[i, j] = z_i * z_j / distance
-                    sort_coulomb_mat[j, i] = sort_coulomb_mat[i, j]
-                else:
-                    continue
+        sort_coulomb_mat = Coulomb.gener_coulomb_matrix(nuclear_number, coord)
 
         # Set norms of rows of the Coulomb matrix
         norm_rows_coulomb_mat = np.zeros(num_atom)
