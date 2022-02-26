@@ -164,6 +164,18 @@ class Coulomb(object):
         """ Calculate eigenvalues of a matrix. """
         return np.sort(np.linalg.eigvals(matrix))[::-1]
 
+    def get_distance_mols_with_coulomb_matrix(nuclear_number_1, nuclear_number_2, coord):
+        """ Calculate a distance in chemical space represented by Coulomb matrices. """
+        coulomb_mat_1 = Coulomb.gener_coulomb_matrix(nuclear_number_1, coord)
+        coulomb_mat_2 = Coulomb.gener_coulomb_matrix(nuclear_number_2, coord)
+
+        eigen_value_1 = Coulomb.get_eigenvalues_from_matrix(coulomb_mat_1)
+        eigen_value_2 = Coulomb.get_eigenvalues_from_matrix(coulomb_mat_2)
+
+        mol_dist = np.sqrt(np.sum((eigen_value_1 - eigen_value_2) ** 2))
+
+        return mol_dist
+
 class Dipoles(object):
     """ Collects functions regarding the calculation of dipole moments. This code follows the physics convention of the sign: the dipole moment vector points from the negative charge center to the positive charge center."""
 
