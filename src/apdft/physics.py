@@ -172,9 +172,7 @@ class Coulomb(object):
 
     def get_distance_mols_with_coulomb_matrix(eigen_value_1, eigen_value_2):
         """ Calculate a distance in chemical space represented by Coulomb matrices. """
-        mol_dist = np.sqrt(np.sum((eigen_value_1 - eigen_value_2) ** 2))
-
-        return mol_dist
+        return np.sqrt(np.sum((eigen_value_1 - eigen_value_2) ** 2))
 
 class Dipoles(object):
     """ Collects functions regarding the calculation of dipole moments. This code follows the physics convention of the sign: the dipole moment vector points from the negative charge center to the positive charge center."""

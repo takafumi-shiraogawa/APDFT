@@ -181,8 +181,7 @@ class IntegerPartitions(object):
             if num_mut_atoms > limit_mutations:
                 break
 
-            # For full Coulomb interactions
-            unique_full_nuc_nuc_ene = []
+            unique_eigen_value = []
 
             # Select mutated atom positions
             for mut_atom_positions in it.combinations(target_atom_positions, num_mut_atoms):
@@ -219,14 +218,25 @@ class IntegerPartitions(object):
 
                     # Whether to remove same molecules
                     if mol_identity:
-                        # Evaluate Coulomb interactions of fullsystems and remove same molecules
-                        full_nuc_nuc_ene = np.round(ap.Coulomb.nuclei_nuclei(nuclear_coordinates, instant_nuclear_numbers), decimals=7)
-                        if full_nuc_nuc_ene not in unique_full_nuc_nuc_ene:
-                            unique_full_nuc_nuc_ene.append(full_nuc_nuc_ene)
+                        # Eigenvalues of Coulomb matrices
+                        flag_unique_mol = False
+                        this_eigen_value = ap.Coulomb.gener_eigenvalues_from_coulomb_matrix(
+                            instant_nuclear_numbers, nuclear_coordinates)
+                        if len(unique_eigen_value) != 0:
+                            for idx, eigen_value in enumerate(unique_eigen_value):
+                                dist = ap.Coulomb.get_distance_mols_with_coulomb_matrix(this_eigen_value, eigen_value)
+                                if dist < 0.02:
+                                    flag_unique_mol = False
+                                    break
+                                else:
+                                    flag_unique_mol = True
+                                    continue
                         else:
-                            continue
+                            flag_unique_mol = True
 
-                    res.append(list(instant_nuclear_numbers))
+                    if flag_unique_mol:
+                        unique_eigen_value.append(this_eigen_value)
+                        res.append(list(instant_nuclear_numbers))
 
         # Whether to save a list of obtained target molecules
         if gener_output:
