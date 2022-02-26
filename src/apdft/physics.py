@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from distutils.ccompiler import gen_preprocess_options
 import numpy as np
 import basis_set_exchange as bse
 import apdft
@@ -83,6 +84,41 @@ class Coulomb(object):
                     ret[i, k] += charges[i] * charges[j] * vec_d / (abs_d ** 3.0)
         return ret
 
+    def get_dist(coord, pos_atom_1, pos_atom_2):
+        """ Calculate a distance between two atoms """
+
+        pos_1 = np.array(coord[pos_atom_1])
+        pos_2 = np.array(coord[pos_atom_2])
+        distance = np.sqrt(np.sum((pos_1 - pos_2) ** 2.0))
+
+        return distance
+
+    def gener_sort_coulomb_matrix(nuclear_number, coord):
+        """ Generate sorted Coulomb matrix.
+        TODO: Sort algorithm should be implemented
+        Args:
+            nuclear_number : a (the number of atoms) array of nuclear numbers. [Integer]
+            coord          : a (the number of atoms, 3) array of nuclear positions. [Real]
+        Returns:
+            sort_coulomb_mat : a (the number of atoms, the number of atoms) array of a sorted Coulomb matrix. [Real]
+        """
+        sort_coulomb_mat = np.zeros((len(nuclear_number), len(nuclear_number)))
+        for i in range(len(nuclear_number)):
+            for j in range(len(nuclear_number)):
+                z_i = nuclear_number[i]
+                z_j = nuclear_number[j]
+
+                if i == j:
+                    sort_coulomb_mat[i, j] = 0.5 * z_i ** 2.4
+
+                elif i > j:
+                    distance = Coulomb.get_dist(coord, i, j)
+                    sort_coulomb_mat[i, j] = z_i * z_j / distance
+                    sort_coulomb_mat[j, i] = sort_coulomb_mat[i, j]
+                else:
+                    continue
+
+        return sort_coulomb_mat
 
 class Dipoles(object):
     """ Collects functions regarding the calculation of dipole moments. This code follows the physics convention of the sign: the dipole moment vector points from the negative charge center to the positive charge center."""
