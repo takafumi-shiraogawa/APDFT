@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+import os
+import shutil
 import numpy as np
 import functools
 import itertools as it
 import copy
 import apdft
 import apdft.physics as ap
+import apdft.proc_output as apo
 
 
 class IntegerPartitions(object):
@@ -145,7 +148,7 @@ class IntegerPartitions(object):
 
     @staticmethod
     def systematic_partition(nuclear_numbers, target_atom_positions, \
-        limit_mutations, nuclear_coordinates, mol_identity=True, gener_output=True):
+        limit_mutations, nuclear_coordinates, mol_identity=True, gener_output=True, gener_coord=True):
         """ Get a list of target molecules with mutated atoms with [-1, 0, 1] nuclear number changes
         Args:
             nuclear_numbers       : Iterable of N entries. Nuclear numbers are listed. [Integer]
@@ -245,6 +248,17 @@ class IntegerPartitions(object):
             for i in range(len(res)):
                 print(*res[i], sep=',', file=fh)
             fh.close()
+
+        # Whether to save geometry outputs of target molecules
+        if gener_coord:
+            if os.path.isdir("./target_geom/"):
+                shutil.rmtree("./target_geom/")
+            os.mkdir("./target_geom/")
+
+            pre_name = "./target_geom/geom_target"
+            for idx, target in enumerate(res):
+                name = "%s%s" % (pre_name, str(idx + 1))
+                apo.Geom_Output.gjf_output(target, nuclear_coordinates, name)
 
         return res
 
