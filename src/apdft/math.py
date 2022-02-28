@@ -172,6 +172,9 @@ class IntegerPartitions(object):
         # Set a list of target molecules
         res = []
 
+        # Count processed molecules
+        count_proc_mol = 0
+
         # Mutation covers from a reference molecule (num_mut = 0)
         # to molecules with mutated atoms in the limited mutation number.
         for num_mut_atoms in range(num_target_atoms + 1):
@@ -199,6 +202,7 @@ class IntegerPartitions(object):
 
                 # Select positive mutation positions
                 for pos_positions_mut_atom_positions in it.combinations(positions_mut_atom_positions, int(num_mut_atoms / 2)):
+                    count_proc_mol += 1
 
                     # Copy nuclear numbers of a reference molecule
                     instant_nuclear_numbers = copy.copy(nuclear_numbers)
@@ -241,6 +245,10 @@ class IntegerPartitions(object):
                     if flag_unique_mol:
                         unique_eigen_value.append(this_eigen_value)
                         res.append(list(instant_nuclear_numbers))
+
+                        with open('num_target_mol.dat', mode='w') as fh:
+                            print("Processed molecules:", count_proc_mol, file=fh)
+                            print("Unique molecules:", len(res), file=fh)
 
         # Whether to save a list of obtained target molecules
         if gener_output:
