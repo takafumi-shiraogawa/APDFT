@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from distutils.ccompiler import gen_preprocess_options
 import numpy as np
 import basis_set_exchange as bse
 import apdft
