@@ -233,7 +233,7 @@ class IntegerPartitions(object):
                             for idx, eigen_value in enumerate(unique_eigen_value):
                                 dist = ap.Coulomb.get_distance_mols_with_coulomb_matrix(this_eigen_value, eigen_value)
                                 # This is possibly used in a PRR article
-                                if dist < 0.02:
+                                if dist < 0.01:
                                     flag_unique_mol = False
                                     break
                                 else:
