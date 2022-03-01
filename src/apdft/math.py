@@ -9,6 +9,9 @@ import apdft
 import apdft.physics as ap
 import apdft.proc_output as apo
 
+# Conversion factor from Angstrom to Bohr
+angstrom = 1 / 0.52917721067
+
 path_data = os.path.dirname(__file__).replace('src/apdft', 'src/apdft/mini_qml')
 print(path_data)
 mini_qml_files = os.listdir(path_data)
@@ -240,7 +243,7 @@ class IntegerPartitions(object):
                                 instant_nuclear_numbers, nuclear_coordinates)
                         else:
                             this_eigen_value = amr.generate_eigenvalue_coulomb_matrix(
-                                instant_nuclear_numbers, nuclear_coordinates, len(nuclear_coordinates))
+                                instant_nuclear_numbers, nuclear_coordinates * angstrom, len(nuclear_coordinates))
                         if len(unique_eigen_value) != 0:
                             for idx, eigen_value in enumerate(unique_eigen_value):
                                 dist = ap.Coulomb.get_distance_mols_with_coulomb_matrix(this_eigen_value, eigen_value)
