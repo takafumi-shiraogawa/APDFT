@@ -32,10 +32,10 @@ I need to change the version.
 $ pip3 uninstall structlog
 $ pip3 install structlog==19.1.0
 $ pip3 install pandas
-Moreover, I confirmed that the latest version of PySCF (v1.7.6) does not work properly for APDFT,
-and the old one needed to be used.
+PySCF (v1.7.6) works properly for APDFT.
+If one needs, the command is
 $ pip3 uninstall pyscf
-$ pip3 install pyscf==1.6.5
+$ pip3 install pyscf==1.7.6
 The paths were setted in .bash_profile by adding
 export PATH=$PATH:/Users/takafumishiraogawa/Program/gAPDFT/src/
 export PYTHONPATH=$PYTHONPATH:/Users/takafumishiraogawa/Program/gAPDFT/src/
