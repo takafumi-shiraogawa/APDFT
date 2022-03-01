@@ -20,12 +20,6 @@
 ! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
 
-module representations
-
-    implicit none
-
-contains
-
 subroutine fgenerate_eigenvalue_coulomb_matrix(atomic_charges, coordinates, nmax, sorted_eigenvalues)
 
     implicit none
@@ -108,4 +102,3 @@ subroutine fgenerate_eigenvalue_coulomb_matrix(atomic_charges, coordinates, nmax
 
 
 end subroutine fgenerate_eigenvalue_coulomb_matrix
-
