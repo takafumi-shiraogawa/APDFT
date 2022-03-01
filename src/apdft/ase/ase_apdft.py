@@ -1,4 +1,5 @@
 import os
+import platform
 import shutil
 import csv
 import numpy as np
@@ -89,8 +90,15 @@ class handle_APDFT():
 class mod_APDFT(FileIOCalculator):
   implemented_properties = ['energy', 'forces']
 
+  name_os = platform.system()
+  if name_os == 'Darwin':
+    num_smp_core = 8
+  else:
+    num_smp_core = os.cpu_count()
+
   # command = "( cd work/temp && bash imp_mod_cli1.sh && bash commands.sh && bash imp_mod_cli2.sh )"
-  command = "( cd work/temp && bash imp_mod_cli1.sh && div_QM.py 8 && bash imp_mod_cli2.sh)"
+  command = "( cd work/temp && bash imp_mod_cli1.sh && div_QM.py %s && bash imp_mod_cli2.sh )" % str(num_smp_core)
+
   discard_results_on_any_change = True
 
   def __init__(self, *args, label='APDFT', num_opt_step = None, **kwargs):
