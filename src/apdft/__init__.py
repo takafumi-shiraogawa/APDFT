@@ -7,6 +7,7 @@ from . import commandline
 from . import settings
 from . import math
 from . import ase
+from . import mini_qml
 
 LOG_LEVEL_USAGE = {}
 

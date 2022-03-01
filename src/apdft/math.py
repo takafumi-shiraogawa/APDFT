@@ -9,6 +9,14 @@ import apdft
 import apdft.physics as ap
 import apdft.proc_output as apo
 
+path_data = os.path.dirname(__file__).replace('src/apdft', 'src/apdft/mini_qml')
+print(path_data)
+mini_qml_files = os.listdir(path_data)
+flag_mini_qml = False
+for idx, file in enumerate(mini_qml_files):
+    if ".so" in file:
+        flag_mini_qml = True
+        import apdft.mini_qml.representations as amr
 
 class IntegerPartitions(object):
     @staticmethod
@@ -227,8 +235,12 @@ class IntegerPartitions(object):
                     if mol_identity:
                         # Eigenvalues of Coulomb matrices
                         flag_unique_mol = False
-                        this_eigen_value = ap.Coulomb.gener_eigenvalues_from_coulomb_matrix(
-                            instant_nuclear_numbers, nuclear_coordinates)
+                        if not flag_mini_qml:
+                            this_eigen_value = ap.Coulomb.gener_eigenvalues_from_coulomb_matrix(
+                                instant_nuclear_numbers, nuclear_coordinates)
+                        else:
+                            this_eigen_value = amr.generate_eigenvalue_coulomb_matrix(
+                                instant_nuclear_numbers, nuclear_coordinates, len(nuclear_coordinates))
                         if len(unique_eigen_value) != 0:
                             for idx, eigen_value in enumerate(unique_eigen_value):
                                 dist = ap.Coulomb.get_distance_mols_with_coulomb_matrix(this_eigen_value, eigen_value)
