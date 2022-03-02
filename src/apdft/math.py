@@ -13,7 +13,6 @@ import apdft.proc_output as apo
 angstrom = 1 / 0.52917721067
 
 path_data = os.path.dirname(__file__).replace('src/apdft', 'src/apdft/mini_qml')
-print(path_data)
 mini_qml_files = os.listdir(path_data)
 flag_mini_qml = False
 for idx, file in enumerate(mini_qml_files):
