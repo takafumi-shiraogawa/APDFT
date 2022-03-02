@@ -33,7 +33,7 @@ class Geom_Output():
       # Write headers
       print("%mem = 10GB", file=fh)
       print("%nproc = 6", file=fh)
-      print("# hf/def2tzvp opt freq", file=fh)
+      print("# hf/def2tzvp opt freq nosymm", file=fh)
       print("", file=fh)
       print(*nuclear_number[:], file=fh)
       print("", file=fh)
