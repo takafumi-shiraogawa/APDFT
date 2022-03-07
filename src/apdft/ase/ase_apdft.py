@@ -168,7 +168,7 @@ class mod_APDFT(FileIOCalculator):
           atom_forces[i, didx] = handle_APDFT.get_target_value(
               "ver_atomic_force_%s_%s_order" % (str(i), dim), dict_atomic_force, apdft_order)
         except FileNotFoundError:
-          print(FileNotFoundError)
+          raise FileNotFoundError("ver_atomic_force_%s_%s_order.csv was not found." % (str(i), dim))
         except KeyError:
           # For z-Cartesian component
           if didx == 2:
