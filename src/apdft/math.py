@@ -191,6 +191,7 @@ class IntegerPartitions(object):
             num_smp_core = 8
         else:
             num_smp_core = os.cpu_count()
+            num_smp_core = num_smp_core - 1
 
         # Set changes of nuclear numbers
         change_nuclear_numbers = []
@@ -266,7 +267,7 @@ class IntegerPartitions(object):
                                 instant_nuclear_numbers, nuclear_coordinates * angstrom, len(nuclear_coordinates))
                         if len(unique_eigen_value) != 0:
                             # Parallelized
-                            with ThreadPoolExecutor(max_workers=num_mut_atoms) as executor:
+                            with ThreadPoolExecutor(max_workers=num_smp_core) as executor:
                                 values = [(this_eigen_value, y) for y in unique_eigen_value]
                                 flags = executor.map(IntegerPartitions.wrapper_judge_unique, values)
                             if all(list(flags)):
