@@ -1,5 +1,4 @@
 import os
-import shutil
 from ase import Atoms
 # from ase.optimize import BFGS
 from ase.optimize.bfgslinesearch import BFGSLineSearch
