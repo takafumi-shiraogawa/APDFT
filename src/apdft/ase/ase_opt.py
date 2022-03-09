@@ -1,6 +1,6 @@
 import os
 from ase import Atoms
-# from ase.optimize import BFGS
+from ase.optimize import BFGS
 from ase.optimize.bfgslinesearch import BFGSLineSearch
 import apdft as APDFTtool
 import apdft.ase.ase_apdft as APDFT
@@ -51,7 +51,7 @@ class ASE_OPT():
     return ''.join(nuclear_symbols)
 
 
-  def imp_ase_opt(fmax_au=0.005):
+  def imp_ase_opt(fmax_au=0.005, optimizer=None):
 
     start = time.time()
 
@@ -68,8 +68,12 @@ class ASE_OPT():
     if os.path.isfile('BFGSLineSearch.dat'):
       os.remove('BFGSLineSearch.dat')
 
-    # dyn = BFGS(MOL)
-    dyn = BFGSLineSearch(MOL, logfile="BFGSLineSearch.dat")
+    if optimizer is None:
+      dyn = BFGSLineSearch(MOL, logfile="BFGSLineSearch.dat")
+    elif optimizer == "BFGS":
+      dyn = BFGS(MOL, logfile="BFGSLineSearch.dat")
+    else:
+      raise ValueError("Specification of the optimizer is invalid.")
     dyn.run(fmax=fmax_au * ASE_OPT.hb_to_ea)
 
     elapsed_time = time.time() - start
