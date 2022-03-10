@@ -99,7 +99,8 @@ class mod_APDFT(FileIOCalculator):
   # command = "( cd work/temp && bash imp_mod_cli1.sh && bash commands.sh && bash imp_mod_cli2.sh )"
   command = "( cd work/temp && bash imp_mod_cli1.sh && div_QM.py %s && bash imp_mod_cli2.sh )" % str(num_smp_core)
   # For MPI
-  # command = "( cd work/temp && bash imp_mod_cli1.sh && MPI4PY_MAX_WORKERS=32 mpiexec -np 1 python3 ~/my_code/APDFT/src/MPI_div_QM.py && bash imp_mod_cli2.sh )"
+  # num_mpi_proc = 50
+  # command = "( cd work/temp && bash imp_mod_cli1.sh && pre_MPI_div_QM.py %s && mpiexec -np %s python3 ~/my_code/APDFT/src/MPI_div_QM.py && bash imp_mod_cli2.sh )" % (str(num_mpi_proc), str(num_mpi_proc))
 
   discard_results_on_any_change = True
 
