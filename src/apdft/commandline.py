@@ -134,7 +134,8 @@ def mode_energies(conf, modeshort=None):
         conf.apdft_deltaz,
         conf.apdft_deltar,
         conf.apdft_lambda,
-        conf.apdft_derivative
+        conf.apdft_derivative,
+        conf.apdft_control_outputs
     )
 
     cost, coverage = derivatives.estimate_cost_and_coverage()
@@ -218,7 +219,8 @@ def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
         conf.apdft_deltaz,
         conf.apdft_deltar,
         conf.apdft_lambda,
-        conf.apdft_derivative
+        conf.apdft_derivative,
+        conf.apdft_control_outputs
     )
 
     # cost is different from that of estimate_cost_and_coverage()

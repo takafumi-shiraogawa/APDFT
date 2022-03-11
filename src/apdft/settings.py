@@ -226,6 +226,13 @@ class Configuration:
                 False,
                 "Whether to perform calculations of analytical derivatives of potential energy with respect to nuclear coordinates.",
             ),
+            Option(
+                "apdft",
+                "control_outputs",
+                boolean,
+                False,
+                "Whether to reduce outputs.",
+            ),
         ]
         self.__dict__["_options"] = {}
         for option in options:

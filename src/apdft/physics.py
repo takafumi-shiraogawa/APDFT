@@ -280,7 +280,8 @@ class APDFT(object):
         small_deltaZ = 0.05,
         small_deltaR = 0.001,
         mix_lambda = 1.0,
-        calc_der = False
+        calc_der = False,
+        control_outputs = False
     ):
         # Exception handling for the apdft.conf input
         # For APDFT order
@@ -308,6 +309,7 @@ class APDFT(object):
         self._targetlist = targetlist
         self._mix_lambda = mix_lambda
         self._calc_der = calc_der
+        self._control_outputs = control_outputs
 
         # For a combination of APDFT order and vertical energy derivative calculations
         if max(self._orders) > 1 and self._calc_der:
@@ -4466,8 +4468,9 @@ class APDFT(object):
             comparison_energies = None
             comparison_dipoles = None
 
-        self._print_energies(targets, energies, comparison_energies)
-        self._print_dipoles(targets, dipoles, comparison_dipoles)
+        if not self._control_outputs:
+            self._print_energies(targets, energies, comparison_energies)
+            self._print_dipoles(targets, dipoles, comparison_dipoles)
 
         # Sum of contributions obtained at each APDFT order
         sum_energies_reference_contributions = np.zeros(len(targets))
@@ -4670,17 +4673,20 @@ class APDFT(object):
                                 atom_pos, dim, order)] = ele_ver_atomic_forces[:, order, atom_pos, didx]
 
         pd.DataFrame(result_energies).to_csv("energies.csv", index=False)
-        pd.DataFrame(result_ele_energies).to_csv("ele_energies.csv", index=False)
-        pd.DataFrame(result_nuc_energies).to_csv("nuc_energies.csv", index=False)
-        pd.DataFrame(result_energies_reference_contributions).to_csv(
-            "energies_reference_contributions.csv", index=False)
-        pd.DataFrame(result_energies_target_contributions).to_csv(
-            "energies_target_contributions.csv", index=False)
-        pd.DataFrame(result_energies_total_contributions).to_csv(
-            "energies_total_contributions.csv", index=False)
-        pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
-        pd.DataFrame(ele_result_dipoles).to_csv("ele_dipoles.csv", index=False)
-        pd.DataFrame(nuc_result_dipoles).to_csv("nuc_dipoles.csv", index=False)
+        if not self._control_outputs:
+            pd.DataFrame(result_ele_energies).to_csv("ele_energies.csv", index=False)
+            pd.DataFrame(result_nuc_energies).to_csv("nuc_energies.csv", index=False)
+
+        if not self._control_outputs:
+            pd.DataFrame(result_energies_reference_contributions).to_csv(
+                "energies_reference_contributions.csv", index=False)
+            pd.DataFrame(result_energies_target_contributions).to_csv(
+                "energies_target_contributions.csv", index=False)
+            pd.DataFrame(result_energies_total_contributions).to_csv(
+                "energies_total_contributions.csv", index=False)
+            pd.DataFrame(result_dipoles).to_csv("dipoles.csv", index=False)
+            pd.DataFrame(ele_result_dipoles).to_csv("ele_dipoles.csv", index=False)
+            pd.DataFrame(nuc_result_dipoles).to_csv("nuc_dipoles.csv", index=False)
 
         # If this is a calculation of vertical energy derivatives,
         # these atomic forces are not accurate.
@@ -4693,21 +4699,24 @@ class APDFT(object):
                 "hf_ionic_force_contributions.csv", index=False)
             pd.DataFrame(result_deriv_rho_contributions).to_csv(
                 "deriv_rho_contributions.csv", index=False)
-        pd.DataFrame(result_nuc_atomic_forces).to_csv(
-                "nuc_atomic_forces.csv", index=False)
+        if not self._control_outputs:
+            pd.DataFrame(result_nuc_atomic_forces).to_csv(
+                    "nuc_atomic_forces.csv", index=False)
 
-        pd.DataFrame(result_hf_ionic_forces).to_csv(
-            "hf_ionic_forces.csv", index=False)
-        pd.DataFrame(result_ele_hf_ionic_forces).to_csv(
-            "ele_hf_ionic_forces.csv", index=False)
-        pd.DataFrame(result_nuc_hf_ionic_forces).to_csv(
-            "nuc_hf_ionic_forces.csv", index=False)
+        if not self._control_outputs:
+            pd.DataFrame(result_hf_ionic_forces).to_csv(
+                "hf_ionic_forces.csv", index=False)
+            pd.DataFrame(result_ele_hf_ionic_forces).to_csv(
+                "ele_hf_ionic_forces.csv", index=False)
+            pd.DataFrame(result_nuc_hf_ionic_forces).to_csv(
+                "nuc_hf_ionic_forces.csv", index=False)
 
         # If this is a calculation of vertical energy derivatives
         if self._calc_der:
             pd.DataFrame(result_ver_atomic_forces).to_csv(
                 "ver_atomic_forces.csv", index=False)
-            pd.DataFrame(result_ver_ele_atomic_forces).to_csv(
-                "ver_ele_atomic_forces.csv", index=False)
+            if not self._control_outputs:
+                pd.DataFrame(result_ver_ele_atomic_forces).to_csv(
+                    "ver_ele_atomic_forces.csv", index=False)
 
         return targets, energies, comparison_energies
