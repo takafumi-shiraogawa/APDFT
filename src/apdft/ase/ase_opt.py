@@ -4,6 +4,7 @@ from ase.optimize import BFGS
 from ase.optimize.bfgslinesearch import BFGSLineSearch
 import apdft as APDFTtool
 import apdft.ase.ase_apdft as APDFT
+from apdft.ase.steepest_descent import STEEPEST_DESCENT
 import time
 
 # Input
@@ -72,6 +73,8 @@ class ASE_OPT():
       dyn = BFGSLineSearch(MOL, logfile="BFGSLineSearch.dat")
     elif optimizer == "BFGS":
       dyn = BFGS(MOL, logfile="BFGSLineSearch.dat")
+    elif optimizer == "STEEPEST_DESCENT":
+      dyn = STEEPEST_DESCENT(MOL, logfile="STEEPEST_DESCENT.dat", maxstep=0.1)
     else:
       raise ValueError("Specification of the optimizer is invalid.")
     dyn.run(fmax=fmax_au * ASE_OPT.hb_to_ea)
