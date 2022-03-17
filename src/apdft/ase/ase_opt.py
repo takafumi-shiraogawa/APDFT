@@ -70,9 +70,9 @@ class ASE_OPT():
       os.remove('BFGSLineSearch.dat')
 
     if optimizer is None:
-      dyn = BFGSLineSearch(MOL, logfile="BFGSLineSearch.dat")
+      dyn = BFGSLineSearch(MOL, logfile="BFGSLineSearch.dat", maxstep=0.1)
     elif optimizer == "BFGS":
-      dyn = BFGS(MOL, logfile="BFGSLineSearch.dat")
+      dyn = BFGS(MOL, logfile="BFGSLineSearch.dat", maxstep=0.1)
     elif optimizer == "STEEPEST_DESCENT":
       dyn = STEEPEST_DESCENT(MOL, logfile="STEEPEST_DESCENT.dat", maxstep=0.1)
     else:
