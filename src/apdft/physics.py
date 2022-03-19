@@ -3445,6 +3445,9 @@ class APDFT(object):
             # For z-Cartesian coordinate changes
             if self._cartesian == "z":
                 cost += sum({0: 2 * all_N , 1: 2 * N * all_N, 2: 0}[_] for _ in self._orders)
+            # For plane-Cartesian coordinate changes
+            elif self._cartesian == "plane":
+                cost += sum({0: 2 * (2 * all_N), 1: 2 * (2 * N * all_N), 2: 0}[_] for _ in self._orders)
             # For full-Cartesian coordinate changes
             else:
                 cost += sum({0: 3 * (2 * all_N), 1: 3 * (2 * N * all_N), 2: 0}[_] for _ in self._orders)
