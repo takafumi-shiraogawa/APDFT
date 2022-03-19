@@ -1848,6 +1848,11 @@ class APDFT(object):
 
         Returns: List of strings, the folder names."""
 
+        if self._cartesian == "plane":
+            str_xyz = "XY"
+        elif self._cartesian == "full":
+            str_xyz = "XYZ"
+
         folders = []
 
         # order 0
@@ -1870,10 +1875,10 @@ class APDFT(object):
                                 (self._basepath, site))
                     folders.append("%s/QM/order-1/r-site-%d-dn/" %
                                 (self._basepath, site))
-            # For full-Cartesian coordinate changes
+            # For plane- or full-Cartesian coordinate changes
             else:
                 for site in self._include_atoms:
-                    for didx, dim in enumerate("XYZ"):
+                    for didx, dim in enumerate(str_xyz):
                         folders.append("%s/QM/order-1/r%s-site-%d-up/" %
                                     (self._basepath, dim, site))
                         folders.append("%s/QM/order-1/r%s-site-%d-dn/" %
@@ -1912,14 +1917,14 @@ class APDFT(object):
                             "%s/QM/order-2/r-site-%d-%d-dn/"
                             % (self._basepath, site_i, site_j)
                         )
-            # For full-Cartesian coordinate changes
+            # For plane- or full-Cartesian coordinate changes
             else:
                 for site_i in self._include_atoms:
                     for site_j in self._include_atoms:
                         if site_j <= site_i:
                             continue
 
-                        for didx, dim in enumerate("XYZ"):
+                        for didx, dim in enumerate(str_xyz):
                             folders.append(
                                 "%s/QM/order-2/r%s-site-%d-%d-up/"
                                 % (self._basepath, dim, site_i, site_j)
@@ -1949,7 +1954,7 @@ class APDFT(object):
                 for site_i in self._include_atoms:
                     # Loop for the atomic position change
                     for site_j in self._include_atoms:
-                        for didx, dim in enumerate("XYZ"):
+                        for didx, dim in enumerate(str_xyz):
                             folders.append(
                                 "%s/QM/order-2/zr%s-site-%d-%d-up/"
                                 % (self._basepath, dim, site_i, site_j)
@@ -1972,6 +1977,11 @@ class APDFT(object):
         function builds the list of folders to be included.
 
         Returns: List of strings, the folder names."""
+
+        if self._cartesian == "plane":
+            str_xyz = "XY"
+        elif self._cartesian == "full":
+            str_xyz = "XYZ"
 
         positions_all_atoms = list(range(len(self._nuclear_numbers)))
 
@@ -2004,7 +2014,7 @@ class APDFT(object):
             else:
                 # for site in self._include_atoms:
                 for site in positions_all_atoms:
-                    for didx, dim in enumerate("XYZ"):
+                    for didx, dim in enumerate(str_xyz):
                         folders.append("%s/QM/order-1/r%sz-site-%d-up/" %
                                        (self._basepath, dim, site))
                         folders.append("%s/QM/order-1/r%sz-site-%d-dn/" %
@@ -2053,7 +2063,7 @@ class APDFT(object):
                         if site_j <= site_i:
                             continue
 
-                        for didx, dim in enumerate("XYZ"):
+                        for didx, dim in enumerate(str_xyz):
                             folders.append(
                                 "%s/QM/order-2/r%s-site-%d-%d-up/"
                                 % (self._basepath, dim, site_i, site_j)
@@ -2083,7 +2093,7 @@ class APDFT(object):
                 for site_i in self._include_atoms:
                     # Loop for the atomic position change
                     for site_j in positions_all_atoms:
-                        for didx, dim in enumerate("XYZ"):
+                        for didx, dim in enumerate(str_xyz):
                             folders.append(
                                 "%s/QM/order-2/r%sz-site-%d-%d-up/"
                                 % (self._basepath, dim, site_i, site_j)
@@ -2105,6 +2115,11 @@ class APDFT(object):
         function builds the list of folders to be included.
 
         Returns: List of strings, the folder names."""
+
+        if self._cartesian == "plane":
+            str_xyz = "XY"
+        elif self._cartesian == "full":
+            str_xyz = "XYZ"
 
         positions_all_atoms = list(range(len(self._nuclear_numbers)))
 
@@ -2136,7 +2151,7 @@ class APDFT(object):
             else:
                 # for site in self._include_atoms:
                 for site in positions_all_atoms:
-                    for didx, dim in enumerate("XYZ"):
+                    for didx, dim in enumerate(str_xyz):
                         folders.append("%s/QM/order-1/r%s-site-%d-up/" %
                                     (self._basepath, dim, site))
                         folders.append("%s/QM/order-1/r%s-site-%d-dn/" %
@@ -2188,7 +2203,7 @@ class APDFT(object):
                         if site_j <= site_i:
                             continue
 
-                        for didx, dim in enumerate("XYZ"):
+                        for didx, dim in enumerate(str_xyz):
                             folders.append(
                                 "%s/QM/order-2/r%s-site-%d-%d-up/"
                                 % (self._basepath, dim, site_i, site_j)
@@ -2222,7 +2237,7 @@ class APDFT(object):
                     # Loop for the atomic position change
                     # for site_j in self._include_atoms:
                     for site_j in positions_all_atoms:
-                        for didx, dim in enumerate("XYZ"):
+                        for didx, dim in enumerate(str_xyz):
                             folders.append(
                                 "%s/QM/order-2/zr%s-site-%d-%d-up/"
                                 % (self._basepath, dim, site_i, site_j)
@@ -2245,6 +2260,11 @@ class APDFT(object):
         function builds the list of folders to be included.
 
         Returns: List of strings, the folder names."""
+
+        if self._cartesian == "plane":
+            str_xyz = "XY"
+        elif self._cartesian == "full":
+            str_xyz = "XYZ"
 
         positions_all_atoms = list(range(len(self._nuclear_numbers)))
 
@@ -2278,7 +2298,7 @@ class APDFT(object):
             else:
                 # for site in self._include_atoms:
                 for site in positions_all_atoms:
-                    for didx, dim in enumerate("XYZ"):
+                    for didx, dim in enumerate(str_xyz):
                         folders.append("%s/QM/order-1/r%sz-site-%d-up/" %
                                        (self._basepath, dim, site))
                         folders.append("%s/QM/order-1/r%sz-site-%d-dn/" %
@@ -2333,7 +2353,7 @@ class APDFT(object):
                         if site_j <= site_i:
                             continue
 
-                        for didx, dim in enumerate("XYZ"):
+                        for didx, dim in enumerate(str_xyz):
                             folders.append(
                                 "%s/QM/order-2/r%s-site-%d-%d-up/"
                                 % (self._basepath, dim, site_i, site_j)
@@ -2367,7 +2387,7 @@ class APDFT(object):
                     # Loop for the atomic position change
                     # for site_j in self._include_atoms:
                     for site_j in positions_all_atoms:
-                        for didx, dim in enumerate("XYZ"):
+                        for didx, dim in enumerate(str_xyz):
                             folders.append(
                                 "%s/QM/order-2/r%sz-site-%d-%d-up/"
                                 % (self._basepath, dim, site_i, site_j)
@@ -2597,6 +2617,11 @@ class APDFT(object):
         N = len(self._include_atoms)
 
         positions_all_atoms = list(range(len(self._nuclear_numbers)))
+
+        if self._cartesian == "plane":
+            int_xyz = 2
+        elif self._cartesian == "full":
+            int_xyz = 3
 
         # folders have the dimension of the number of the computed densities
         # (QM calculations)
@@ -2968,9 +2993,9 @@ class APDFT(object):
                     # For the next site
                     pos += 2
 
-                # For full-Cartesian coordinate changes
+                # For plane- or full-Cartesian coordinate changes
                 else:
-                    for rdx in range(3):
+                    for rdx in range(int_xyz):
                         # Read EPNs
                         if folders[pos] in actual_folders:
                             coeff[pos, :], coeff2[pos, :] = get_epn(
@@ -3038,7 +3063,7 @@ class APDFT(object):
 
                     # For full-Cartesian coordinate changes
                     else:
-                        for rdx in range(3):
+                        for rdx in range(int_xyz):
                             # Read EPNs for vertical energy derivatives
                             if ver_folders[ver_pos] in actual_ver_folders:
                                 ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
@@ -3132,7 +3157,7 @@ class APDFT(object):
 
                     # For full-Cartesian coordinate changes
                     else:
-                        for rdx in range(3):
+                        for rdx in range(int_xyz):
                             # Read EPNs
                             if folders[pos] in actual_folders:
                                 coeff[pos, :], coeff2[pos, :] = get_epn(
@@ -3200,7 +3225,7 @@ class APDFT(object):
 
                     # For full-Cartesian coordinate changes
                     else:
-                        for rdx in range(3):
+                        for rdx in range(int_xyz):
                             # Read EPNs
                             if folders[pos] in actual_folders:
                                 coeff[pos, :], coeff2[pos, :] = get_epn(
@@ -3299,9 +3324,9 @@ class APDFT(object):
                             # For the next site
                             ver_pos += 2
 
-                        # For full-Cartesian coordinate changes
+                        # For plane- or full-Cartesian coordinate changes
                         else:
-                            for rdx in range(3):
+                            for rdx in range(int_xyz):
                                 # Read EPNs for vertical energy derivatives
                                 if ver_folders[ver_pos] in actual_ver_folders:
                                     ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
@@ -3344,9 +3369,9 @@ class APDFT(object):
                             # For the next site
                             ver_pos += 2
 
-                        # For full-Cartesian coordinate changes
+                        # For plane- or full-Cartesian coordinate changes
                         else:
-                            for rdx in range(3):
+                            for rdx in range(int_xyz):
                                 # Read EPNs for vertical energy derivatives
                                 if ver_folders[ver_pos] in actual_ver_folders:
                                     ver_coeff[ver_pos, :], ver_coeff2[ver_pos, :] = get_epn(
