@@ -572,6 +572,56 @@ class APDFT(object):
                                     self._coordinates, self._nuclear_numbers, charges, None
                                 )
                             )
+                # For plane-Cartesian coordinate changes
+                elif self._cartesian == "plane":
+                    # If the order is 2 and selected two atoms are
+                    # equivalent, QM calculations are not needed for
+                    # constructing perturbed electron densities, and hence
+                    # the directories are not necessary, at least within
+                    # APDFT3 or lower levels.
+                    # TODO: need to consider the derivatives of the density
+                    #       for the higher level APDFT (n > 3)
+                    if len(combination_r) == 2 and combination_r[0] == combination_r[1]:
+                        continue
+                    if order > 0:
+                        # For nuclear coordinate changes
+                        # e.g., -1- and -0-1-
+                        label = "-" + "-".join(map(str, combination_r))
+                        directions = ["up", "dn"]
+                    else:
+                        # In QM/order-0/, site-all-cc is unique.
+                        continue
+
+                    # For 3 Cartesian axes
+                    for didx, dim in enumerate("XY"):
+                        for direction in directions:
+                            path = "QM/order-%d/r%s-site%s-%s" % (
+                                order, dim, label, direction)
+                            commands.append("( cd %s && bash run.sh )" % path)
+                            if os.path.isdir(path):
+                                continue
+                            os.makedirs(path)
+
+                            nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                                len(self._nuclear_numbers), order, combination_r, direction, didx
+                            )
+                            inputfile = self._calculator.get_input_general(
+                                nuclear_positions,
+                                self._coordinates,
+                                target_coordinate,
+                                self._nuclear_numbers,
+                                self._nuclear_numbers,
+                                None,
+                                includeonly=spec_atoms,
+                            )
+                            with open("%s/run.inp" % path, "w") as fh:
+                                fh.write(inputfile)
+                            with open("%s/run.sh" % path, "w") as fh:
+                                fh.write(
+                                    self._calculator.get_runfile(
+                                        self._coordinates, self._nuclear_numbers, charges, None
+                                    )
+                                )
                 # For full-Cartesian coordinate changes
                 else:
                     # If the order is 2 and selected two atoms are
@@ -822,6 +872,62 @@ class APDFT(object):
                                         self._coordinates, self._nuclear_numbers, charges, None
                                     )
                                 )
+
+                    # For plane-Cartesian coordinate changes
+                    if self._cartesian == "plane":
+                        # For nuclear mixed changes of nuclear charge and coordinate
+                        # e.g., -0-1-
+                        label = "-" + "-".join(map(str, combination_rz))
+                        directions = ["up", "dn"]
+
+                        # For 3 Cartesian axes
+                        for didx, dim in enumerate("XY"):
+                            for direction in directions:
+                                path = "QM/order-%d/r%sz-site%s-%s" % (
+                                    order + 1, dim, label, direction)
+                                commands.append(
+                                    "( cd %s && bash run.sh )" % path)
+                                if os.path.isdir(path):
+                                    continue
+                                os.makedirs(path)
+
+                                # For molecular geometry changes
+                                # TODO:generalize to higher-order APDFT (n > 3)
+                                if len(combination_rz) == 1:
+                                    nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                                        len(self._nuclear_numbers), order + 1, tuple(
+                                            [combination_rz[0]]), direction, didx
+                                    )
+                                # For nuclear charge changes
+                                # TODO: generalize to higher-order APDFT (n > 3)
+                                if len(combination_rz) > 1:
+                                    charges = self._nuclear_numbers + self._calculate_delta_Z_vector(
+                                        len(self._nuclear_numbers), order + 1, tuple(
+                                            [combination_rz[0]]), direction
+                                    )
+                                    nuclear_positions = self._coordinates + self._calculate_delta_R_vector(
+                                        len(self._nuclear_numbers), order + 1, tuple(
+                                            [combination_rz[1]]), direction, didx
+                                    )
+                                else:
+                                    charges = self._nuclear_numbers
+                                inputfile = self._calculator.get_input_general(
+                                    nuclear_positions,
+                                    self._coordinates,
+                                    target_coordinate,
+                                    self._nuclear_numbers,
+                                    charges,
+                                    None,
+                                    includeonly=spec_atoms,
+                                )
+                                with open("%s/run.inp" % path, "w") as fh:
+                                    fh.write(inputfile)
+                                with open("%s/run.sh" % path, "w") as fh:
+                                    fh.write(
+                                        self._calculator.get_runfile(
+                                            self._coordinates, self._nuclear_numbers, charges, None
+                                        )
+                                    )
 
                     # For full-Cartesian coordinate changes
                     # elif self._cartesian == "full":
