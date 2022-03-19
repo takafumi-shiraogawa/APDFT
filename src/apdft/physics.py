@@ -4843,6 +4843,8 @@ class APDFT(object):
                 ver_atomic_forces[:, :, :, 2] = 0.0
                 ele_ver_atomic_forces[:, :, :, 2] = 0.0
             for order in self._orders:
+                if self._control_outputs and order == 0:
+                    continue
                 for atom_pos in range(natoms):
                     # For z-Cartesian coordinate change
                     if self._cartesian == 'z':
