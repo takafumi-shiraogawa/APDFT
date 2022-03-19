@@ -196,7 +196,7 @@ class Configuration:
                 "cartesian",
                 str,
                 "z",
-                "Cartesian axes along geometry changes. z for the Z axis and full for full-geometry changes",
+                "Cartesian axes along geometry changes. z for the Z axis, plane for XY-plane geometry changes, and full for full-geometry changes",
             ),
             Option(
                 "apdft",
