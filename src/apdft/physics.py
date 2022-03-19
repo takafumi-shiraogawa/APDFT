@@ -4838,6 +4838,10 @@ class APDFT(object):
 
             # TODO: generalization to specify target atoms
             natoms = len(self._coordinates)
+            if self._cartesian == 'plane':
+                # In this setting, z-components do not make sense.
+                ver_atomic_forces[:, :, :, 2] = 0.0
+                ele_ver_atomic_forces[:, :, :, 2] = 0.0
             for order in self._orders:
                 for atom_pos in range(natoms):
                     # For z-Cartesian coordinate change
