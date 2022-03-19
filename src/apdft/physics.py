@@ -6,6 +6,8 @@ import os
 import itertools as it
 import pandas as pd
 import gc
+import shutil
+import glob
 
 #: Conversion factor from Angstrom to Bohr
 angstrom = 1 / 0.52917721067
@@ -4471,6 +4473,13 @@ class APDFT(object):
         if not self._control_outputs:
             self._print_energies(targets, energies, comparison_energies)
             self._print_dipoles(targets, dipoles, comparison_dipoles)
+
+        if self._control_outputs:
+            shutil.rmtree("QM/")
+            for filename in glob.glob('*.xyz'):
+                os.remove(filename)
+            for filename in glob.glob('commands*.sh'):
+                os.remove(filename)
 
         # Sum of contributions obtained at each APDFT order
         sum_energies_reference_contributions = np.zeros(len(targets))
