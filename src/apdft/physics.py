@@ -1029,7 +1029,7 @@ class APDFT(object):
         # For full-Cartesian coordinate changes
         else:
             # This is not correct, but for calculations of vertical energy derivatives,
-            # we do not need to add cross terms with respect to neclear coordinates.
+            # we do not need to add cross terms with respect to nuclear coordinates.
             nvals = {0: 1, 1: (4 * (N * 2)) + 0, 2: (4 * (N * (N - 1))) + (3 * (2 * N * N))}
             # The correct form is
             # nvals = {0: 1, 1: (4 * (N * 2)) + 0, 2: (4 * (N * (N - 1))) + (2 * (3 * (2 * N * N)))}
