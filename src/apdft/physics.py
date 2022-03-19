@@ -4107,6 +4107,13 @@ class APDFT(object):
                                     np.outer(force_alphas[:, order, i], target),
                                             epn_matrix_target
                                     ).sum()
+                        # For plane-Cartesian coordinate changes
+                        elif self._cartesian == "plane":
+                            if j == 0 or j == 1:
+                                contributions_target_deriv_rho[i, j] = np.multiply(
+                                        np.outer(force_alphas[:, order, i, j], target),
+                                                epn_matrix_target
+                                        ).sum()
                         # For full-Cartesian coordinate changes
                         else:
                             contributions_target_deriv_rho[i, j] = np.multiply(
@@ -4126,6 +4133,14 @@ class APDFT(object):
                                             self._nuclear_numbers),
                                             epn_matrix
                                     ).sum()
+                        # For plane-Cartesian coordinate changes
+                        elif self._cartesian == "plane":
+                            if j == 0 or j == 1:
+                                contributions_reference_deriv_rho[i, j] = -np.multiply(
+                                        np.outer(force_alphas[:, order, i, j],
+                                                self._nuclear_numbers),
+                                                epn_matrix
+                                        ).sum()
                         # For full-Cartesian coordinate changes
                         else:
                             contributions_reference_deriv_rho[i, j] = -np.multiply(
@@ -4157,6 +4172,11 @@ class APDFT(object):
                                 if j == 2:
                                     ver_contributions_deriv_rho[i, j] = np.multiply(
                                         np.outer(ver_force_alphas[:, order + 1, i], deltaZ_included), ver_epn_matrix).sum()
+                            # For plane-Cartesian coordinate changes
+                            elif self._cartesian == "plane":
+                                if j == 0 or j == 1:
+                                    ver_contributions_deriv_rho[i, j] = np.multiply(
+                                        np.outer(ver_force_alphas[:, order + 1, i, j], deltaZ_included), ver_epn_matrix).sum()
                             # For z-Cartesian coordinate changes
                             else:
                                 ver_contributions_deriv_rho[i, j] = np.multiply(
