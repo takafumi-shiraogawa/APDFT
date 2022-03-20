@@ -15,6 +15,7 @@ import pyscf.dft
 import pyscf.lib
 import pyscf.grad
 from pyscf.data import nist
+from pathlib import Path
 
 angstrom = 1 / 0.52917721067
 
@@ -68,7 +69,12 @@ def add_qmmm(calc, mol, deltaZ):
 # Load molecular-orbital coefficients and occupation numbers
 # Now the information can be used in the KS-DFT calculation.
 path_guess = ""
-full_path_guess = "%s%s" % (path_guess, "/QM/order-0/site-all-cc/guess.chk")
+curr_dir = os.getcwd()
+div_curr_dir = Path(curr_dir)
+path_calc_type = div_curr_dir.parts[-1]
+path_order = div_curr_dir.parts[-2]
+# full_path_guess = "%s%s" % (path_guess, "/QM/order-0/site-all-cc/guess.chk")
+full_path_guess = "%s%s%s%s%s%s" % (path_guess, "/QM/", path_order, "/", path_calc_type, "/guess.chk")
 mo_coeff_load = pyscf.scf.chkfile.load(full_path_guess, 'scf/mo_coeff')
 mo_occ_load = pyscf.scf.chkfile.load(full_path_guess, 'scf/mo_occ')
 
