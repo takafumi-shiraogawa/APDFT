@@ -158,7 +158,7 @@ if method in ["PBE", "PBE0", "B3LYP"]:
     # If this is *NOT* a calculation of the reference molecule,
     # calculate analytical gradients.
     if (np.count_nonzero(deltaZ) != 0) or (mol.atom != original_mol.atom) or (target_mol.atom != original_mol.atom):
-        mol.verbose = 4
+        mol.verbose = 0
         # Set SCF calculation condition
         calc = add_qmmm(pyscf.scf.RKS(mol), mol, deltaZ)
         # kernel() function is the simple way to call HF driver.
@@ -190,7 +190,7 @@ if method in ["PBE", "PBE0", "B3LYP"]:
     #       that is, for the purpose of energy calculations, it is redundant and should be removed.
     else:
         # Because this calculation does not use QM/MM, standard kS-DFT can be used instead.
-        mol.verbose = 4
+        mol.verbose = 0
         mf_scf = pyscf.scf.RKS(mol)
         mf_scf.max_cycle = 1000
         mf_scf.chkfile = 'guess.chk'
