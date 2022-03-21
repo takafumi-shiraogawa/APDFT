@@ -8,6 +8,7 @@ import pandas as pd
 import gc
 import shutil
 import glob
+from concurrent.futures import ThreadPoolExecutor
 
 #: Conversion factor from Angstrom to Bohr
 angstrom = 1 / 0.52917721067
@@ -3899,6 +3900,285 @@ class APDFT(object):
         # return results
         return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
 
+    # For SMP
+    def target_ap_calc(self, target, epn_matrix, epn_matrix_target, hf_ionic_force_matrix, \
+        ver_epn_matrix, deltaR, own_nuc_nuc, refenergy, atomic_forces_reference, positions_all_atoms):
+        # Set information for this function
+        target_coordinate = self._coordinates
+
+        # Energy
+        energies = np.zeros(len(self._orders))
+        ele_energies = np.zeros(len(self._orders))
+        nuc_energies = np.zeros(len(self._orders))
+        reference_energy_contributions = np.zeros(len(self._orders))
+        target_energy_contributions = np.zeros(len(self._orders))
+        total_energy_contributions = np.zeros(len(self._orders))
+
+        # # Atomic force
+        # atomic_forces = np.zeros((
+        #     len(self._orders), len(self._nuclear_numbers), 3))
+        # # ele_atomic_forces is a electronic term of atomic forces and
+        # # is a sum of hf_ionic_force_contributions and deriv_rho_contributions
+        # ele_atomic_forces = np.zeros((
+        #     len(self._orders), len(self._nuclear_numbers), 3))
+        nuc_atomic_forces = np.zeros((
+            len(self._orders), len(self._nuclear_numbers), 3))
+        # hf_ionic_force_contributions = np.zeros((
+        #     len(self._orders), len(self._nuclear_numbers), 3))
+        # deriv_rho_contributions = np.zeros((
+        #     len(self._orders), len(self._nuclear_numbers), 3))
+
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            # Vertical atomic forces
+            ver_atomic_forces = np.zeros(
+                (len(self._orders), len(self._nuclear_numbers), 3))
+            # Electronic part of ver_atomic_forces
+            ele_ver_atomic_forces = np.zeros(
+                (len(self._orders), len(self._nuclear_numbers), 3))
+            # Nuclear part is identical to nuc_atomic_forces
+            ver_hf_ionic_force_contributions = np.zeros((
+                len(self._orders), len(self._nuclear_numbers), 3))
+            ver_deriv_rho_contributions = np.zeros((
+                len(self._orders), len(self._nuclear_numbers), 3))
+
+        if self._calc_der and (set(self._include_atoms) != set(positions_all_atoms)):
+            positions_all_atoms = list(range(len(self._nuclear_numbers)))
+            self._include_atoms = positions_all_atoms.copy()
+
+        deltaZ = target - self._nuclear_numbers
+
+        deltaZ_included = deltaZ[self._include_atoms]
+        # If this is not a calculation of vertical energy derivatives
+        if not self._calc_der:
+            alphas, force_alphas = self.get_epn_coefficients_general(deltaZ_included, deltaR)
+        # If this is a calculation of vertical energy derivatives
+        else:
+            alphas, force_alphas, ver_force_alphas = self.get_epn_coefficients_general(
+                deltaZ_included, deltaR)
+
+        # energies
+        # Calculate nuclear-nuclear repulsion energy of the target
+        Enn = Coulomb.nuclei_nuclei(
+            target_coordinate, target)
+
+        # Atomic force which originates from the nuclei repulsion term
+        # targetFnn = np.zeros((len(self._nuclear_numbers), 3))
+        targetFnn = Coulomb.nuclei_atom_force(
+            target_coordinate, target
+        )
+
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            # Atomic force which originates from the nuclei repulsion term
+            # of a reference system
+            # referenceFnn = np.zeros((len(self._nuclear_numbers), 3))
+            referenceFnn = Coulomb.nuclei_atom_force(
+                self._coordinates, self._nuclear_numbers
+            )
+
+        for order in sorted(self._orders):
+            # Energy contributions from the target
+            contributions_target = -np.multiply(
+                np.outer(alphas[:, order], target), epn_matrix_target
+            ).sum()
+
+            # Energy contributions from the reference
+            contributions_reference = np.multiply(
+                np.outer(alphas[:, order], self._nuclear_numbers), epn_matrix
+            ).sum()
+
+            # # Force contributions from the Hellmann-Feynman ionic force
+            # contributions_hf_ionic_force = np.zeros((len(self._nuclear_numbers), 3))
+            # # Calculation of the forces on each atom
+            # for i in range(len(self._nuclear_numbers)):
+            #     contributions_hf_ionic_force[i, :] = np.multiply(
+            #         target[i] * hf_ionic_force_matrix[:,
+            #                                             i, :], alphas[:, order, np.newaxis]
+            #     ).sum(axis=0)
+
+            # If this is a calculation of vertical energy derivatives
+            if self._calc_der:
+                ver_contributions_hf_ionic_force = np.zeros(
+                    (len(self._nuclear_numbers), 3))
+                # Calculation of the forces on each atom
+                for i in range(len(self._nuclear_numbers)):
+                    ver_contributions_hf_ionic_force[i, :] = np.multiply(
+                        (target[i] - self._nuclear_numbers[i]) * hf_ionic_force_matrix[:, i, :], alphas[:, order, np.newaxis]).sum(axis=0)
+
+            # # Force contributions from the force of derivatives of
+            # # the perturbed density
+            # contributions_target_deriv_rho = np.zeros(
+            #     (len(self._nuclear_numbers), 3))
+            # contributions_reference_deriv_rho = np.zeros(
+            #     (len(self._nuclear_numbers), 3))
+
+            # # Force contributions from the target
+            # for i in range(len(self._nuclear_numbers)):
+            #     for j in range(3):
+            #         # For z-Cartesian coordinate changes
+            #         if self._cartesian == "z":
+            #             # Z axis
+            #             if j == 2:
+            #                 contributions_target_deriv_rho[i, j] = np.multiply(
+            #                     np.outer(force_alphas[:, order, i], target),
+            #                             epn_matrix_target
+            #                     ).sum()
+            #         # For plane-Cartesian coordinate changes
+            #         elif self._cartesian == "plane":
+            #             if j == 0 or j == 1:
+            #                 contributions_target_deriv_rho[i, j] = np.multiply(
+            #                         np.outer(force_alphas[:, order, i, j], target),
+            #                                 epn_matrix_target
+            #                         ).sum()
+            #         # For full-Cartesian coordinate changes
+            #         else:
+            #             contributions_target_deriv_rho[i, j] = np.multiply(
+            #                     np.outer(force_alphas[:, order, i, j], target),
+            #                             epn_matrix_target
+            #                     ).sum()
+
+            # # Force contributions from the reference
+            # for i in range(len(self._nuclear_numbers)):
+            #     for j in range(3):
+            #         # For z-Cartesian coordinate changes
+            #         if self._cartesian == "z":
+            #             # Z axis
+            #             if j == 2:
+            #                 contributions_reference_deriv_rho[i, j] = -np.multiply(
+            #                     np.outer(force_alphas[:, order, i],
+            #                             self._nuclear_numbers),
+            #                             epn_matrix
+            #                     ).sum()
+            #         # For plane-Cartesian coordinate changes
+            #         elif self._cartesian == "plane":
+            #             if j == 0 or j == 1:
+            #                 contributions_reference_deriv_rho[i, j] = -np.multiply(
+            #                         np.outer(force_alphas[:, order, i, j],
+            #                                 self._nuclear_numbers),
+            #                                 epn_matrix
+            #                         ).sum()
+            #         # For full-Cartesian coordinate changes
+            #         else:
+            #             contributions_reference_deriv_rho[i, j] = -np.multiply(
+            #                     np.outer(force_alphas[:, order, i, j],
+            #                             self._nuclear_numbers),
+            #                             epn_matrix
+            #                     ).sum()
+
+            # If this is a calculation of vertical energy derivatives
+            if self._calc_der:
+                # Vertical force contributions from the force of derivatives of
+                # the perturbed density
+                ver_contributions_deriv_rho = np.zeros(
+                    (len(self._nuclear_numbers), 3))
+                for i in range(len(self._nuclear_numbers)):
+                    for j in range(3):
+                        # For z-Cartesian coordinate changes
+                        if self._cartesian == "z":
+                            # Z axis
+                            if j == 2:
+                                ver_contributions_deriv_rho[i, j] = np.multiply(
+                                    np.outer(ver_force_alphas[:, order + 1, i], deltaZ_included), ver_epn_matrix).sum()
+                        # For plane-Cartesian coordinate changes
+                        elif self._cartesian == "plane":
+                            if j == 0 or j == 1:
+                                ver_contributions_deriv_rho[i, j] = np.multiply(
+                                    np.outer(ver_force_alphas[:, order + 1, i, j], deltaZ_included), ver_epn_matrix).sum()
+                        # For z-Cartesian coordinate changes
+                        else:
+                            ver_contributions_deriv_rho[i, j] = np.multiply(
+                                np.outer(ver_force_alphas[:, order + 1, i, j], deltaZ_included), ver_epn_matrix).sum()
+
+            # Energy
+            ele_energies[order] = contributions_target + contributions_reference
+
+            # # Atomic forces
+            # # Sum of the target and reference contributions to
+            # # the Hellmann-Feynman term of the atomic force
+            # hf_ionic_force_contributions[targetidx, order, :, :] = \
+            #     contributions_hf_ionic_force[:, :]
+
+            # If this is a calculation of vertical energy derivatives
+            if self._calc_der:
+                # Vertical atomic forces
+                # Sum of the target and reference contributions to
+                # the Hellmann-Feynman term of the atomic force
+                ver_hf_ionic_force_contributions[order, :, :] = \
+                    ver_contributions_hf_ionic_force[:, :]
+
+            # # Sum of the target and reference contributions to
+            # # the atomic force originates from derivatives of
+            # # the perturbed density
+            # deriv_rho_contributions[targetidx, order, :, :] = \
+            #     contributions_target_deriv_rho[:, :] + \
+            #     contributions_reference_deriv_rho[:, :]
+
+            # If this is a calculation of vertical energy derivatives
+            if self._calc_der:
+                # Sum of the target and reference contributions to
+                # the vertical atomic force originates from derivatives of
+                # the perturbed density
+                ver_deriv_rho_contributions[order, :, :] = \
+                    ver_contributions_deriv_rho[:, :]
+
+            # # Sum of the electronic contributions to atomic forces
+            # ele_atomic_forces[targetidx, order, :, :] = \
+            #     hf_ionic_force_contributions[targetidx, order, :, :] + \
+            #     deriv_rho_contributions[targetidx, order, :, :]
+            # atomic_forces[targetidx, order, :, :] = ele_atomic_forces[targetidx, order, :, :]
+
+            # If this is a calculation of vertical energy derivatives
+            if self._calc_der:
+                # Sum of the electronic contributions to vertical atomic forces
+                ele_ver_atomic_forces[order, :, :] = \
+                    ver_hf_ionic_force_contributions[order, :, :] + \
+                    ver_deriv_rho_contributions[order, :, :]
+                ver_atomic_forces[order, :,
+                                    :] = ele_ver_atomic_forces[order, :, :]
+
+            # Save energy contributions
+            reference_energy_contributions[order] = contributions_reference
+            target_energy_contributions[order] = contributions_target
+            total_energy_contributions[order] = contributions_target + \
+                contributions_reference
+
+            # For check by vertical charge changes
+            # ele_energies[targetidx, order] = contributions
+            if order > 0:
+                ele_energies[order] += ele_energies[order - 1]
+
+            # if order > 0:
+            #     atomic_forces[targetidx, order] += atomic_forces[targetidx, order - 1]
+            #     ele_atomic_forces[targetidx, order] += atomic_forces[targetidx, order - 1]
+
+            # If this is a calculation of vertical energy derivatives
+            if self._calc_der and order > 0:
+                # Add a former order contribution
+                ver_atomic_forces[order] += ver_atomic_forces[order - 1]
+                ele_ver_atomic_forces[order] += ver_atomic_forces[order - 1]
+
+        ele_energies[:] += refenergy - own_nuc_nuc
+        energies[:] += ele_energies[:] + Enn
+        nuc_energies[:] += Enn
+
+        # atomic_forces[targetidx, :] += targetFnn
+
+        # Save the nuclear term of atomic forces
+        nuc_atomic_forces[:] = targetFnn
+
+        # Vertical atomic forces
+        # If this is a calculation of vertical energy derivatives
+        if self._calc_der:
+            ver_atomic_forces[:] += atomic_forces_reference - referenceFnn
+            ele_ver_atomic_forces[:] += atomic_forces_reference - referenceFnn
+            ver_atomic_forces[:] += targetFnn
+
+        return energies, ver_atomic_forces
+
+    def wrapper_target_ap_calc(self, args):
+        return self.target_ap_calc(*args)
+
     # For an "energies_geometries" mode
     # target_coordinate is in angstrom.
     def predict_all_targets_general(self, target_coordinate):
@@ -4015,9 +4295,39 @@ class APDFT(object):
         # Convert angstrom to Bohr (a.u.)
         deltaR *= angstrom
 
+        flag_ap_smp = False
+        num_smp_core = 1
+
+        # # Set parameters
+        # flag_ap_smp = True
+        # num_smp_core = 32
+
+        if flag_ap_smp and self._calc_der:
+            # for targetidx, target in enumerate(targets):
+            #     # Non-parallel
+            #     energies[targetidx], ver_atomic_forces[targetidx] = self.target_ap_calc(target, epn_matrix, epn_matrix_target, hf_ionic_force_matrix, \
+            #         ver_epn_matrix, deltaR, own_nuc_nuc, refenergy, atomic_forces_reference, positions_all_atoms)
+
+            # Parallel
+            with ThreadPoolExecutor(max_workers=num_smp_core) as executor:
+                arg_values = [(y, epn_matrix, epn_matrix_target, hf_ionic_force_matrix, \
+                    ver_epn_matrix, deltaR, own_nuc_nuc, refenergy, atomic_forces_reference, \
+                    positions_all_atoms) for y in targets]
+                results_ap_calc = executor.map(self.wrapper_target_ap_calc, arg_values)
+            results_ap_calc = list(map(list, results_ap_calc))
+            for targetidx, target in enumerate(targets):
+                energies[targetidx], ver_atomic_forces[targetidx] = results_ap_calc[targetidx]
+
+            # Release a memory
+            del results_ap_calc
+            gc.collect()
+
         # get target predictions
         # target is target nuclear charges of atoms
         for targetidx, target in enumerate(targets):
+            if flag_ap_smp and self._calc_der:
+                break
+
             if self._calc_der and (set(self._include_atoms) != set(positions_all_atoms)):
                 positions_all_atoms = list(range(len(self._nuclear_numbers)))
                 self._include_atoms = positions_all_atoms.copy()
