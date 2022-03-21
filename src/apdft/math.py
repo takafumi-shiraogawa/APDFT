@@ -9,7 +9,7 @@ import apdft
 import apdft.physics as ap
 import apdft.proc_output as apo
 import platform
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 
 # Conversion factor from Angstrom to Bohr
 angstrom = 1 / 0.52917721067
@@ -267,7 +267,7 @@ class IntegerPartitions(object):
                                 instant_nuclear_numbers, nuclear_coordinates * angstrom, len(nuclear_coordinates))
                         if len(unique_eigen_value) != 0:
                             # Parallelized
-                            with ThreadPoolExecutor(max_workers=num_smp_core) as executor:
+                            with ProcessPoolExecutor(max_workers=num_smp_core) as executor:
                                 values = [(this_eigen_value, y) for y in unique_eigen_value]
                                 flags = executor.map(IntegerPartitions.wrapper_judge_unique, values)
                             if all(list(flags)):
