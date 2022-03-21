@@ -8,7 +8,7 @@ import pandas as pd
 import gc
 import shutil
 import glob
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 
 #: Conversion factor from Angstrom to Bohr
 angstrom = 1 / 0.52917721067
@@ -4309,7 +4309,7 @@ class APDFT(object):
             #         ver_epn_matrix, deltaR, own_nuc_nuc, refenergy, atomic_forces_reference, positions_all_atoms)
 
             # Parallel
-            with ThreadPoolExecutor(max_workers=num_smp_core) as executor:
+            with ProcessPoolExecutor(max_workers=num_smp_core) as executor:
                 arg_values = [(y, epn_matrix, epn_matrix_target, hf_ionic_force_matrix, \
                     ver_epn_matrix, deltaR, own_nuc_nuc, refenergy, atomic_forces_reference, \
                     positions_all_atoms) for y in targets]
