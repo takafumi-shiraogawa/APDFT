@@ -191,7 +191,6 @@ class IntegerPartitions(object):
             num_smp_core = 8
         else:
             num_smp_core = os.cpu_count()
-            num_smp_core = num_smp_core - 1
 
         # Set changes of nuclear numbers
         change_nuclear_numbers = []
