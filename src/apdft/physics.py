@@ -875,7 +875,7 @@ class APDFT(object):
                                 )
 
                     # For plane-Cartesian coordinate changes
-                    if self._cartesian == "plane":
+                    elif self._cartesian == "plane":
                         # For nuclear mixed changes of nuclear charge and coordinate
                         # e.g., -0-1-
                         label = "-" + "-".join(map(str, combination_rz))
