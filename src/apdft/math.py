@@ -266,22 +266,23 @@ class IntegerPartitions(object):
                                 instant_nuclear_numbers, nuclear_coordinates * angstrom, len(nuclear_coordinates))
                         if len(unique_eigen_value) != 0:
                             # Parallelized
-                            with ProcessPoolExecutor(max_workers=num_smp_core) as executor:
-                                values = [(this_eigen_value, y) for y in unique_eigen_value]
-                                flags = executor.map(IntegerPartitions.wrapper_judge_unique, values)
-                            if all(list(flags)):
-                                flag_unique_mol = True
+                            # This is slower than the non-parallerized version
+                            # with ProcessPoolExecutor(max_workers=num_smp_core) as executor:
+                            #     values = [(this_eigen_value, y) for y in unique_eigen_value]
+                            #     flags = executor.map(IntegerPartitions.wrapper_judge_unique, values)
+                            # if all(list(flags)):
+                            #     flag_unique_mol = True
 
                             # Non-parallelized
-                            # for idx, eigen_value in enumerate(unique_eigen_value):
-                            #     dist = ap.Coulomb.get_distance_mols_with_coulomb_matrix(this_eigen_value, eigen_value)
-                            #     # This is possibly used in a PRR article
-                            #     if dist < 0.01:
-                            #         flag_unique_mol = False
-                            #         break
-                            #     else:
-                            #         flag_unique_mol = True
-                            #         continue
+                            for idx, eigen_value in enumerate(unique_eigen_value):
+                                dist = ap.Coulomb.get_distance_mols_with_coulomb_matrix(this_eigen_value, eigen_value)
+                                # This is possibly used in a PRR article
+                                if dist < 0.01:
+                                    flag_unique_mol = False
+                                    break
+                                else:
+                                    flag_unique_mol = True
+                                    continue
                         else:
                             flag_unique_mol = True
 
