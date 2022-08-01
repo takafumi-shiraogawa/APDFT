@@ -42,7 +42,7 @@ all_mol.spin = {{all_spin}}
 all_mol.build()
 
 # Set a quantum chemical computation method
-# Only CCSD or HF is allowed.
+# "CCSD", "HF", "PBE", "PBE0", and "B3LYP" are allowed.
 method = "{{ method }}"
 if method not in ["CCSD", "HF", "PBE", "PBE0", "B3LYP"]:
     raise NotImplementedError("Method %s not supported." % method)
