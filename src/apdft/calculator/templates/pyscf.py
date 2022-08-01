@@ -17,7 +17,8 @@ mol.verbose = 0
 mol.build()
 
 method = "{{ method }}"
-if method not in ["CCSD", "HF"]:
+# "CCSD", "HF", "PBE", "PBE0", and "B3LYP" are allowed.
+if method not in ["CCSD", "HF", "PBE", "PBE0", "B3LYP"]:
     raise NotImplementedError("Method %s not supported." % method)
 
 deltaZ = np.array(({{deltaZ}}))
@@ -51,6 +52,30 @@ if method == "CCSD":
     dm1_ao = np.einsum("pi,ij,qj->pq", calc.mo_coeff, dm1, calc.mo_coeff.conj())
     total_energy = mycc.e_tot
     Enn = calc.energy_nuc()
+if method in ["PBE", "PBE0", "B3LYP"]:
+    # Set SCF calculation condition
+    calc = add_qmmm(pyscf.scf.RKS(mol), mol, deltaZ)
+    # kernel() function is the simple way to call HF driver.
+    # verbose is the output level.
+    calc.max_cycle = 1000
+    if method == "PBE":
+        calc.xc = 'pbe,pbe'
+    elif method == "PBE0":
+        calc.xc = 'pbe0'
+    elif method == "B3LYP":
+        calc.xc = 'b3lyp'
+    calc.kernel(verbose=0)
+    # One-particle density matrix in AO representation:
+    # MO occupation number
+    # * MO coefficients
+    # * conjugated MO coefficients
+    dm1_ao = calc.make_rdm1()
+    total_energy = calc.e_tot
+    # Calculate nuclear-nuclear repulsion energy of
+    # of the reference molecule and
+    Enn = calc.energy_nuc()
+    # of the target molecular geometry
+    # target_Enn = target_mol.energy_nuc()
 
 # GRIDLESS, as things should be ############################
 # Total energy of SCF run
