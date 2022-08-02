@@ -330,7 +330,7 @@ class APDFT(object):
         else:
             if not self._calc_der:
                 # Importantly note that I do not check the case of nonvertical derivative calculations.
-                raise NotImplementedError("A function of specifying atoms is not implemented yet in this option.")
+                raise NotImplementedError("A function of specifying atoms is not implemented yet in this option, and apdft_includeonly should be none.")
             included = []
             for part in include_atoms:
                 if isinstance(part, int):
