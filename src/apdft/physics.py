@@ -3614,6 +3614,9 @@ class APDFT(object):
             else:
                 cost += sum({0: 3 * (2 * all_N), 1: 3 * (2 * N * all_N), 2: 0}[_] for _ in self._orders)
 
+            # For general properties, one-order higher perturbed density is used.
+            if self._gener_prop:
+                cost += {0: 1, 1: 2 * N, 2: N * (N - 1)}[max(self._orders) + 1]
 
         # The number of candidates does not change with nuclear charge transformations
         # because it is assumed that the molecular geometry is determined by the nuclear
