@@ -316,6 +316,9 @@ class APDFT(object):
         self._control_outputs = control_outputs
 
         self._gener_prop = gener_prop
+        # For general properties
+        if self._gener_prop:
+            self._gener_prop_orders = list(range(0, highest_order + 2))
 
         # For a combination of APDFT order and vertical energy derivative calculations
         if max(self._orders) > 1 and self._calc_der:
