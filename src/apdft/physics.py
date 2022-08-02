@@ -4764,8 +4764,10 @@ class APDFT(object):
             comparison_atomic_forces = None
 
         self._print_energies(targets, energies, comparison_energies)
-        self._print_dipoles(targets, dipoles, comparison_dipoles)
-        self._print_forces(targets, atomic_forces, comparison_atomic_forces)
+        # If printing dipoles and forces are needed,
+        # _print_dipoles and _print_forces need to be fixed.
+        # self._print_dipoles(targets, dipoles, comparison_dipoles)
+        # self._print_forces(targets, atomic_forces, comparison_atomic_forces)
 
         # persist results to disk
         targetnames = [APDFT._get_target_name(_) for _ in targets]
