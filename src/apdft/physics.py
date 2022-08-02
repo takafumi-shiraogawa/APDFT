@@ -284,7 +284,8 @@ class APDFT(object):
         small_deltaR = 0.001,
         mix_lambda = 1.0,
         calc_der = False,
-        control_outputs = False
+        control_outputs = False,
+        gener_prop = False
     ):
         # Exception handling for the apdft.conf input
         # For APDFT order
@@ -314,6 +315,8 @@ class APDFT(object):
         self._calc_der = calc_der
         self._control_outputs = control_outputs
 
+        self._gener_prop = gener_prop
+
         # For a combination of APDFT order and vertical energy derivative calculations
         if max(self._orders) > 1 and self._calc_der:
             raise NotImplementedError(
@@ -336,6 +339,10 @@ class APDFT(object):
                         )[0]
                     )
             self._include_atoms = sorted(list(set(included)))
+
+        if self._gener_prop and max(self._orders) > 1 and not self._calc_der:
+            raise NotImplementedError("apdft_gener_prop can be only used for energies_geometries and apdft_derivative.")
+        print(self._gener_prop)
 
     def _calculate_delta_Z_vector(self, numatoms, order, sites, direction):
         baseline = np.zeros(numatoms)

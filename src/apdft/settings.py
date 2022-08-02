@@ -233,6 +233,17 @@ class Configuration:
                 False,
                 "Whether to reduce outputs.",
             ),
+            # apdft_gener_prop specifies the computational level of the property calculation.
+            # That is, the properties calculation level is APDFTn+1 in comparison with
+            # the energy calculation of APDFTn.
+            # This is for Lime, therefore only for the "energies-geometries" mode.
+            Option(
+                "apdft",
+                "gener_prop",
+                boolean,
+                False,
+                "Whether to calculate properties except for energies in the higher level"
+            )
         ]
         self.__dict__["_options"] = {}
         for option in options:
