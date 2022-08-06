@@ -167,7 +167,7 @@ def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
         nuclear_numbers, coordinates = apdft.read_xyz(conf.energy_geometry)
     except FileNotFoundError:
         apdft.log.log(
-            'Unable to open input file "%s".' % conf.energy_geometry, level="error"
+            'Unable to open input file "%s" of the reference geometry.' % conf.energy_geometry, level="error"
         )
         return
 
@@ -177,7 +177,7 @@ def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
             apdft.read_xyz(conf.energy_geometry2)
     except FileNotFoundError:
         apdft.log.log(
-            'Unable to open input file "%s".' % conf.energy_geometry2, level="error"
+            'Unable to open input file "%s" of the target geometry.' % conf.energy_geometry2, level="error"
         )
         return
 
