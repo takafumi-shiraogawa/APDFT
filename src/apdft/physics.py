@@ -227,7 +227,7 @@ class Dipoles(object):
     def electron_density(reference_point, coordinates, electron_density):
         """ Calculates the dipole moment of a charge distribution.
 
-		Note that for a charge density, the resulting dipole momennt depends on the chosen reference point. A common choice in the molecular context is the center of mass.
+		Note that for a charge density, the resulting dipole moment depends on the chosen reference point. A common choice in the molecular context is the center of mass.
 		Electron density is a positive quantity.
 
 		.. math::
