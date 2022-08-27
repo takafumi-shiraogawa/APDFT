@@ -127,3 +127,6 @@ for i in range(3):
         if i == j:
             q -= ds
         print("ELECTRONIC_QUADRUPOLE", i, j, (rho * q * grid.weights).sum())
+
+# Plot density in the Gaussian cube file
+flag_plot_density = {{flag_plot_density}}

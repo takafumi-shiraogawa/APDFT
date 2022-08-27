@@ -404,6 +404,7 @@ class APDFT(object):
                         charges,
                         None,
                         includeonly=self._include_atoms,
+                        flag_plot_density=self._plot_density
                     )
                     with open("%s/run.inp" % path, "w") as fh:
                         fh.write(inputfile)

@@ -41,6 +41,7 @@ class PyscfCalculator(apc.Calculator):
         grid,
         iscomparison=False,
         includeonly=None,
+        flag_plot_density=False
     ):
         basedir = os.path.dirname(os.path.abspath(__file__))
         with open("%s/templates/pyscf.py" % basedir) as fh:
@@ -50,6 +51,7 @@ class PyscfCalculator(apc.Calculator):
         env["atoms"] = PyscfCalculator._format_coordinates(nuclear_numbers, coordinates)
         env["basisset"] = PyscfCalculator._format_basis(nuclear_numbers, self._basisset)
         env["method"] = self._methods[self._method]
+        env["flag_plot_density"] = flag_plot_density
 
         if includeonly is None:
             includeonly = range(len(nuclear_numbers))
