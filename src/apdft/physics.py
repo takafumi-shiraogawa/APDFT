@@ -285,7 +285,8 @@ class APDFT(object):
         mix_lambda = 1.0,
         calc_der = False,
         control_outputs = False,
-        gener_prop = False
+        gener_prop = False,
+        plot_density = False
     ):
         # Exception handling for the apdft.conf input
         # For APDFT order
@@ -314,6 +315,7 @@ class APDFT(object):
         self._mix_lambda = mix_lambda
         self._calc_der = calc_der
         self._control_outputs = control_outputs
+        self._plot_density = plot_density
 
         self._gener_prop = gener_prop
 

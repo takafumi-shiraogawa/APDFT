@@ -243,6 +243,14 @@ class Configuration:
                 boolean,
                 False,
                 "Whether to calculate properties except for energies in the higher level"
+            ),
+            # apdft_plot_density specifies whether the perturbed densities are plotted or not.
+            Option(
+                "apdft",
+                "plot_density",
+                boolean,
+                False,
+                "Whether to plot the perturbed densities"
             )
         ]
         self.__dict__["_options"] = {}
