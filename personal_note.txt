@@ -223,6 +223,18 @@ How to add a new input variable in apdft.conf?
 
 
 
+How to add a new input variable in run.inp (QM calculation inputs)?
+  We need to add variables in QM inputs.
+   A. Functions prepare and prepare_general of apdft/physics.py in
+      energies and energies_geometries modes, respectively generate QM inputs.
+      In prepare and prepare_general, self._calculator.get_input makes
+      input files.
+      Add a target variable in arguments of self._calculator.get_input
+   B. Another option is possible. Add a new variable in __init__.py in
+      calculator/. However, it is quite general treatment and affect all
+      the calculaters.
+
+
 Specify targets
     Target molecules can be specified by apdft_targets in apdft.conf,
     but mutated atoms cannot be specified.
