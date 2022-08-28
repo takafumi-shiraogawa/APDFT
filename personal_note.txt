@@ -216,10 +216,13 @@ selection branch for the new calculator.
 
 How to add a new input variable in apdft.conf?
    1. add a new option to apdft/settings.py's Configuration.__init__
-   2. add the new variable in "derivatives" of a mode_energies or
+   2. add the new variable in "derivatives" of a mode_energies and
       mode_energies_geometries in apdft/commandline.py
    3. add an argument of __init__ of class APDFT of apdft/physics.py,
       which corresponds to the new variable in "derivative"
+Need to note that arguments of APDFT is same for both energies and
+energies_geometries modes.
+Therefore, in step 2, same derivatives must be used.
 
 
 
