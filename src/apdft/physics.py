@@ -344,7 +344,6 @@ class APDFT(object):
 
         if self._gener_prop and max(self._orders) > 1 and not self._calc_der:
             raise NotImplementedError("apdft_gener_prop can be only used for energies_geometries and apdft_derivative.")
-        print(self._gener_prop)
 
     def _calculate_delta_Z_vector(self, numatoms, order, sites, direction):
         baseline = np.zeros(numatoms)
