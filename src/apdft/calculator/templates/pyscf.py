@@ -130,3 +130,6 @@ for i in range(3):
 
 # Plot density in the Gaussian cube file
 flag_plot_density = {{flag_plot_density}}
+if flag_plot_density:
+    pyscf.tools.cubegen.density(
+        mol, "cubegen.cube", dm1_ao, nx=80, ny=80, nz=80, resolution=None, margin=3.0)
