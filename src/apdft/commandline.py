@@ -136,6 +136,7 @@ def mode_energies(conf, modeshort=None):
         conf.apdft_lambda,
         conf.apdft_derivative,
         conf.apdft_control_outputs,
+        conf.apdft_gener_prop,
         conf.apdft_plot_density
     )
 
