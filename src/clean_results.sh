@@ -2,7 +2,7 @@
 #
 # Common outputs of "energies" and "energies_geometries" modes
 # in modified APDFT
-rm apdft.conf
+# rm apdft.conf
 rm commands.sh
 rm commands_*.sh
 rm -rf QM/
