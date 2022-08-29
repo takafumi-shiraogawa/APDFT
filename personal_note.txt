@@ -47,7 +47,7 @@ For test calculations,
 $ apdft energies benzene.xyz
 for the standard version or
 $ cli.py energies benzene.xyz
-for the developement version can be used
+for the development version can be used
 
 
 -- Start a test calculation --
