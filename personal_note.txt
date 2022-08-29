@@ -43,6 +43,8 @@ Then, I did
 $ source ~/.bash_profile
 Finally, APDFT was installed.
 $ pip install apdft
+This is installed in /usr/local/lib/python3.9/site-packages/apdft/.
+(It is known by $ pip show apdft)
 For test calculations,
 $ apdft energies benzene.xyz
 for the standard version or
