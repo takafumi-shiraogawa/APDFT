@@ -12,6 +12,8 @@ def _format_coordinates(nuclear_numbers, coordinates):
 
 class PySCF_Mol():
   """ Processigng PySCF in APDFT. """
+  # Ad hoc implementation, it needs to be modified for a large number of
+  # calculations.
 
   def __init__(self, nuclear_number, nuclear_coordinate):
     self._nuclear_number = nuclear_number
