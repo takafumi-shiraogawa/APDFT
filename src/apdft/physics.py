@@ -9,6 +9,7 @@ import gc
 import shutil
 import glob
 from concurrent.futures import ProcessPoolExecutor
+from . import pyscf_interface
 
 #: Conversion factor from Angstrom to Bohr
 angstrom = 1 / 0.52917721067
@@ -3824,6 +3825,22 @@ class APDFT(object):
         force_matrix = self.get_linear_density_matrix("IONIC_FORCE")
 
         alchemical_target = np.zeros(len(self._nuclear_numbers))
+
+        # If the perturbed densities are plotted.
+        if self._plot_density:
+            # Get directories of the QM calculations
+            qm_folders = self.get_folder_order()
+
+            # Get the calculated density maps (cubes)
+            # 512000 is the number of grids (512000 = 80 * 80 * 80).
+            # 80 is the number of divided spatial elements per axis.
+            # These values should be match with the setting in pyscf_interface.py.
+            cube_density_coords = np.zeros((512000, 3))
+            cube_density_values = np.zeros((len(qm_folders), 80, 80, 80))
+            for i, qm_folder in enumerate(qm_folders):
+                pyscf_mol = pyscf_interface.PySCF_Mol(
+                    self._nuclear_numbers, self._coordinates)
+                cube_density_coords[:, :], cube_density_values[i, :, :, :] = pyscf_mol.read_cube(qm_folder)
 
         # get target predictions
         for targetidx, target in enumerate(targets):
