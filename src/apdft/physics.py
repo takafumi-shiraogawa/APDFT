@@ -3943,7 +3943,7 @@ class APDFT(object):
                 # betas is calculated in the dipole calculation.
                 for order in sorted(self._orders):
                     cube_target_densities[targetidx, :, :, :, order] = np.multiply(
-                        cube_density_values[i, :, :, :], betas[:, order, np.newaxis, np.newaxis, np.newaxis]).sum(axis=0)
+                        cube_density_values[:, :, :, :], betas[:, order, np.newaxis, np.newaxis, np.newaxis]).sum(axis=0)
                     if order > 0:
                         cube_target_densities[targetidx, :, :, :,
                                                 order] += cube_target_densities[targetidx, :, :, :, order - 1]
