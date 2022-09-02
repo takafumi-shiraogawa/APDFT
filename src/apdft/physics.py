@@ -3937,16 +3937,16 @@ class APDFT(object):
                     for atomidx in range(len(self._include_atoms)):
                         forces[targetidx, atomidx, :, order] += nuc_forces[targetidx, atomidx, :, order]
 
-                # Electron density cube
-                # If the perturbed densities are plotted.
-                if self._plot_density:
-                    # betas is calculated in the dipole calculation.
-                    for order in sorted(self._orders):
-                        cube_target_densities[targetidx, :, :, :, order] = np.multiply(
-                            cube_density_values[i, :, :, :], betas[:, order, np.newaxis, np.newaxis, np.newaxis]).sum(axis=0)
-                        if order > 0:
-                            cube_target_densities[targetidx, :, :, :,
-                                                  order] += cube_target_densities[targetidx, :, :, :, order - 1]
+            # Electron density cube
+            # If the perturbed densities are plotted.
+            if self._plot_density:
+                # betas is calculated in the dipole calculation.
+                for order in sorted(self._orders):
+                    cube_target_densities[targetidx, :, :, :, order] = np.multiply(
+                        cube_density_values[i, :, :, :], betas[:, order, np.newaxis, np.newaxis, np.newaxis]).sum(axis=0)
+                    if order > 0:
+                        cube_target_densities[targetidx, :, :, :,
+                                                order] += cube_target_densities[targetidx, :, :, :, order - 1]
 
         # return results
         return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
