@@ -3842,6 +3842,17 @@ class APDFT(object):
                     self._nuclear_numbers, self._coordinates)
                 cube_density_coords[:, :], cube_density_values[i, :, :, :] = pyscf_mol.read_cube(qm_folder)
 
+            # # Check read cubes
+            # pyscf_mol = pyscf_interface.PySCF_Mol(
+            #         self._nuclear_numbers, self._coordinates)
+            # cube_dir = "./qm_cubes/"
+            # if os.path.isdir(cube_dir):
+            #     shutil.rmtree(cube_dir)
+            # os.makedirs(cube_dir)
+            # for i, qm_folder in enumerate(qm_folders):
+            #     pyscf_mol.write_cube(cube_density_values[i, :, :, :], cube_dir, os.path.basename(
+            #         os.path.dirname(qm_folder)))
+
         # get target predictions
         for targetidx, target in enumerate(targets):
             deltaZ = target - self._nuclear_numbers

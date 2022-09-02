@@ -42,3 +42,19 @@ class PySCF_Mol():
     # Note that after cube.read(file_cube), cube.get_coords() returns a strange
     # array.
     return cube.get_coords(), cube.read(file_cube)
+
+  def write_cube(self, cube_density, cube_dir, cube_file_name):
+    """
+    Args:
+      cube_density : A numpy array of float.
+      cube_dir : A string of a cube file directory.
+      cube_file_name : A string of an output cube file.
+    """
+    cube = pyscf.tools.cubegen.Cube(
+        self._mol, nx=80, ny=80, nz=80, resolution=None, margin=3.0, origin=None)
+
+    cube_file_name = "%s%s%s" % (cube_dir, cube_file_name, ".cube")
+
+    cube.write(cube_density, cube_file_name, comment="Electron density")
+
+    return
