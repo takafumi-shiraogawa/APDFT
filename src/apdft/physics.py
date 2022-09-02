@@ -3856,6 +3856,11 @@ class APDFT(object):
             # Set cubes of the electron densities of the target molecules
             cube_target_densities = np.zeros((len(targets), 80, 80, 80, len(self._orders)))
 
+            cube_dir = "./perturb_density_cubes/"
+            if os.path.isdir(cube_dir):
+                shutil.rmtree(cube_dir)
+            os.makedirs(cube_dir)
+
         # get target predictions
         for targetidx, target in enumerate(targets):
             deltaZ = target - self._nuclear_numbers
@@ -3947,6 +3952,13 @@ class APDFT(object):
                     if order > 0:
                         cube_target_densities[targetidx, :, :, :,
                                                 order] += cube_target_densities[targetidx, :, :, :, order - 1]
+
+                # Write perturbed density cubes
+                pyscf_mol = pyscf_interface.PySCF_Mol(
+                        self._nuclear_numbers, self._coordinates)
+                for order in sorted(self._orders):
+                    pyscf_mol.write_cube(cube_target_densities[targetidx, :, :, :, order], cube_dir,
+                                         "%s%s%s%s%s" % ("target", str(targetidx), "-", "order", str(order)))
 
         # return results
         return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
