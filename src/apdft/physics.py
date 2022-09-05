@@ -10,6 +10,7 @@ import shutil
 import glob
 from concurrent.futures import ProcessPoolExecutor
 from . import pyscf_interface
+from . import visualizer
 
 #: Conversion factor from Angstrom to Bohr
 angstrom = 1 / 0.52917721067
@@ -3959,6 +3960,18 @@ class APDFT(object):
                 for order in sorted(self._orders):
                     pyscf_mol.write_cube(cube_target_densities[targetidx, :, :, :, order], cube_dir,
                                          "%s%s%s%s%s" % ("target", str(targetidx), "-", "order", str(order)))
+
+                    # Plot 2D counter maps of the densities
+                    name_pic_2d_map = "%s%s%s%s%s%s" % (("density2Dmap_", "target", str(targetidx), "-", "order", str(order)))
+                    density_2d_map = visualizer.Visualizer(self._nuclear_numbers, self._coordinates)
+                    test_xy_coords_target_densities = np.zeros((2, 80))
+                    # For x axis
+                    # angstrom converts Angstrom to Bohr
+                    test_xy_coords_target_densities[0] = (np.unique(cube_density_coords[:, 2]) / angstrom) - 0.55
+                    # For y axis
+                    test_xy_coords_target_densities[1] = np.unique(cube_density_coords[:, 0]) / angstrom
+                    density_2d_map.contour_map(
+                        test_xy_coords_target_densities, cube_target_densities[targetidx, 40, :, :, order], name_pic_2d_map)
 
         # return results
         return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
