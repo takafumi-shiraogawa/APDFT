@@ -9,7 +9,7 @@ class Visualizer():
         self._nuclear_number = nuclear_number
         self._nuclear_coordinate = nuclear_coordinate
 
-    def contour_map(self, grids, values, pic_name, x_range, y_range, dim_map = "2d"):
+    def contour_map(self, grids, values, pic_name, x_range, y_range, target, xy_index, dim_map="2d"):
 
         plt.rcParams['xtick.direction'] = 'in'
         plt.rcParams['ytick.direction'] = 'in'
@@ -21,10 +21,32 @@ class Visualizer():
             fig = plt.figure()
             ax = fig.add_subplot(111)
 
-            atom1 = patches.Circle(xy=(-0.55, 0), radius=0.56 * 0.75, fc='white', ec='gray')
-            ax.add_patch(atom1)
-            atom2 = patches.Circle(xy=(0.55, 0), radius=0.56 * 0.75, fc='white', ec='gray')
-            ax.add_patch(atom2)
+            for atomidx, atom in enumerate(target):
+                if atom == 1:
+                    atom_raidus = 0.53
+                elif atom == 2:
+                    atom_raidus = 0.31
+                elif atom == 4:
+                    atom_raidus = 1.12
+                elif atom == 5:
+                    atom_radius = 0.87
+                elif atom == 6:
+                    atom_radius = 0.67
+                elif atom == 7:
+                    atom_radius = 0.56
+                elif atom == 8:
+                    atom_radius = 0.48
+                elif atom == 9:
+                    atom_radius = 0.42
+                elif atom == 10:
+                    atom_radius = 0.38
+                else:
+                    raise NotImplementedError(
+                        "Atom number %s cannot be treated in the cube generation." % (str(atom)))
+
+                atom = patches.Circle(
+                    xy=[self._nuclear_coordinate[atomidx, xy_index[0]], self._nuclear_coordinate[atomidx, xy_index[1]]], radius=atom_radius * 0.5, fc='white', ec='gray')
+                ax.add_patch(atom)
 
             ax.set_xticks(x_range)
             ax.set_yticks(y_range)

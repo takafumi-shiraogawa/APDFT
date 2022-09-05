@@ -3957,6 +3957,10 @@ class APDFT(object):
                 # Write perturbed density cubes
                 pyscf_mol = pyscf_interface.PySCF_Mol(
                         self._nuclear_numbers, self._coordinates)
+
+                # Input
+                xy_index = [2, 0]
+
                 for order in sorted(self._orders):
                     pyscf_mol.write_cube(cube_target_densities[targetidx, :, :, :, order], cube_dir,
                                          "%s%s%s%s%s" % ("target", str(targetidx), "-", "order", str(order)))
@@ -3967,13 +3971,16 @@ class APDFT(object):
                     test_xy_coords_target_densities = np.zeros((2, 80))
                     # For x axis
                     # angstrom converts Angstrom to Bohr
-                    test_xy_coords_target_densities[0] = (np.unique(cube_density_coords[:, 2]) / angstrom) - 0.55
+                    test_xy_coords_target_densities[0] = np.unique(cube_density_coords[:, xy_index[0]]) / angstrom
                     # For y axis
-                    test_xy_coords_target_densities[1] = np.unique(cube_density_coords[:, 0]) / angstrom
-                    x_range = [-1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5]
+                    test_xy_coords_target_densities[1] = np.unique(cube_density_coords[:, xy_index[1]]) / angstrom
+
+                    # Input
+                    x_range = [-1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0]
                     y_range = [-1.0, -0.5, 0.0, 0.5, 1.0]
+
                     density_2d_map.contour_map(
-                        test_xy_coords_target_densities, cube_target_densities[targetidx, 40, :, :, order], name_pic_2d_map, x_range, y_range)
+                        test_xy_coords_target_densities, cube_target_densities[targetidx, 40, :, :, order], name_pic_2d_map, x_range, y_range, target, xy_index)
 
         # return results
         return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
