@@ -25,7 +25,7 @@ class Visualizer():
                 # H
                 if atom == 1:
                     atom_raidus = 0.25
-                    atom_color = "gray"
+                    atom_color = "white"
                 # He
                 elif atom == 2:
                     atom_raidus = 0.31
