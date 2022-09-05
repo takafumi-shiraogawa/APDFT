@@ -63,7 +63,7 @@ class Visualizer():
                         "Atom number %s cannot be treated in the cube generation." % (str(atom)))
 
                 atom = patches.Circle(
-                    xy=[self._nuclear_coordinate[atomidx, xy_index[0]], self._nuclear_coordinate[atomidx, xy_index[1]]], radius=atom_radius * 0.7, fc=atom_color, alpha=1.0)
+                    xy=[self._nuclear_coordinate[atomidx, xy_index[0]], self._nuclear_coordinate[atomidx, xy_index[1]]], radius=atom_radius * 0.6, fc=atom_color, alpha=1.0)
                 ax.add_patch(atom)
 
             ax.set_xticks(x_range)
