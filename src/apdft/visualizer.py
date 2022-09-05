@@ -22,30 +22,39 @@ class Visualizer():
             ax = fig.add_subplot(111)
 
             for atomidx, atom in enumerate(target):
+                # H
                 if atom == 1:
-                    atom_raidus = 0.53
+                    atom_raidus = 0.25
                     atom_color = "gray"
+                # He
                 elif atom == 2:
                     atom_raidus = 0.31
                     atom_color = "white"
+                # Be
                 elif atom == 4:
-                    atom_raidus = 1.12
+                    atom_raidus = 1.05
                     atom_color = "white"
+                # B
                 elif atom == 5:
-                    atom_radius = 0.87
+                    atom_radius = 0.85
                     atom_color = "pink"
+                # C
                 elif atom == 6:
-                    atom_radius = 0.67
+                    atom_radius = 0.70
                     atom_color = "gray"
+                # N
                 elif atom == 7:
-                    atom_radius = 0.56
+                    atom_radius = 0.65
                     atom_color = "blue"
+                # O
                 elif atom == 8:
-                    atom_radius = 0.48
+                    atom_radius = 0.60
                     atom_color = "red"
+                # F
                 elif atom == 9:
-                    atom_radius = 0.42
+                    atom_radius = 0.50
                     atom_color = "white"
+                # ne
                 elif atom == 10:
                     atom_radius = 0.38
                     atom_color = "white"
@@ -54,7 +63,7 @@ class Visualizer():
                         "Atom number %s cannot be treated in the cube generation." % (str(atom)))
 
                 atom = patches.Circle(
-                    xy=[self._nuclear_coordinate[atomidx, xy_index[0]], self._nuclear_coordinate[atomidx, xy_index[1]]], radius=atom_radius * 0.75, fc=atom_color, alpha=1.0)
+                    xy=[self._nuclear_coordinate[atomidx, xy_index[0]], self._nuclear_coordinate[atomidx, xy_index[1]]], radius=atom_radius * 0.7, fc=atom_color, alpha=1.0)
                 ax.add_patch(atom)
 
             ax.set_xticks(x_range)
