@@ -31,11 +31,11 @@ class PySCF_Mol():
     Args:
       pos_cube : A string of the cube directory.
     Returns:
-      A numpy array of the coordinates of the grids of the density in the dimension (512000, 3).
-      A numpy array of the real-space density amplitudes in the dimension (80, 80, 80).
+      A numpy array of the coordinates of the grids of the density in the dimension (81^3, 3).
+      A numpy array of the real-space density amplitudes in the dimension (81, 81, 81).
     """
     cube = pyscf.tools.cubegen.Cube(
-        self._mol, nx=80, ny=80, nz=80, resolution=None, margin=3.0, origin=None)
+        self._mol, nx=81, ny=81, nz=81, resolution=None, margin=3.0, origin=None)
 
     file_cube = "%s%s" % (str(pos_cube), "/cubegen.cube")
 
@@ -51,7 +51,7 @@ class PySCF_Mol():
       cube_file_name : A string of an output cube file.
     """
     cube = pyscf.tools.cubegen.Cube(
-        self._mol, nx=80, ny=80, nz=80, resolution=None, margin=3.0, origin=None)
+        self._mol, nx=81, ny=81, nz=81, resolution=None, margin=3.0, origin=None)
 
     cube_file_name = "%s%s%s" % (cube_dir, cube_file_name, ".cube")
 

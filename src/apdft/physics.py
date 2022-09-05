@@ -3833,11 +3833,10 @@ class APDFT(object):
             qm_folders = self.get_folder_order()
 
             # Get the calculated density maps (cubes)
-            # 512000 is the number of grids (512000 = 80 * 80 * 80).
-            # 80 is the number of divided spatial elements per axis.
+            # 81 is the number of divided spatial elements per axis.
             # These values should be match with the setting in pyscf_interface.py.
-            cube_density_coords = np.zeros((512000, 3))
-            cube_density_values = np.zeros((len(qm_folders), 80, 80, 80))
+            cube_density_coords = np.zeros((81 ** 3, 3))
+            cube_density_values = np.zeros((len(qm_folders), 81, 81, 81))
             for i, qm_folder in enumerate(qm_folders):
                 pyscf_mol = pyscf_interface.PySCF_Mol(
                     self._nuclear_numbers, self._coordinates)
@@ -3855,7 +3854,7 @@ class APDFT(object):
             #         os.path.dirname(qm_folder)))
 
             # Set cubes of the electron densities of the target molecules
-            cube_target_densities = np.zeros((len(targets), 80, 80, 80, len(self._orders)))
+            cube_target_densities = np.zeros((len(targets), 81, 81, 81, len(self._orders)))
 
             cube_dir = "./perturb_density_cubes/"
             if os.path.isdir(cube_dir):
@@ -3968,12 +3967,14 @@ class APDFT(object):
                     # Plot 2D counter maps of the densities
                     name_pic_2d_map = "%s%s%s%s%s%s" % (("density2Dmap_", "target", str(targetidx), "-", "order", str(order)))
                     density_2d_map = visualizer.Visualizer(self._nuclear_numbers, self._coordinates)
-                    test_xy_coords_target_densities = np.zeros((2, 80))
+                    test_xy_coords_target_densities = np.zeros((2, 81))
                     # For x axis
                     # angstrom converts Angstrom to Bohr
                     test_xy_coords_target_densities[0] = np.unique(cube_density_coords[:, xy_index[0]]) / angstrom
                     # For y axis
                     test_xy_coords_target_densities[1] = np.unique(cube_density_coords[:, xy_index[1]]) / angstrom
+                    print(test_xy_coords_target_densities[1])
+                    print("")
 
                     # Input
                     x_range = [-1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0]
