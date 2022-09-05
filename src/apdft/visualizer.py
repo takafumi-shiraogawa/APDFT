@@ -68,8 +68,8 @@ class Visualizer():
 
             ax.set_xticks(x_range)
             ax.set_yticks(y_range)
-            ax.set_xticklabels(x_range, fontsize=16, fontname='Arial', position=(0.0, -0.005))
-            ax.set_yticklabels(y_range, fontsize=16, fontname='Arial', position=(-0.005, 0.0))
+            ax.set_xticklabels(x_range, fontsize=16, fontname='Arial', position=(0.0, -0.02))
+            ax.set_yticklabels(y_range, fontsize=16, fontname='Arial', position=(-0.02, 0.0))
             xticklabels = ax.get_xticklabels()
             yticklabels = ax.get_yticklabels()
             xlabel = "a"
@@ -86,6 +86,7 @@ class Visualizer():
 
 
             plt.gca().set_aspect('equal')
+            fig.tight_layout()
             plt.savefig("%s.pdf" % str(pic_name), format='pdf', dpi=900)
 
             plt.close()
