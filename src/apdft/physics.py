@@ -3861,6 +3861,11 @@ class APDFT(object):
                 shutil.rmtree(cube_dir)
             os.makedirs(cube_dir)
 
+            dir_pic_2d_map = "./map_densities/"
+            if os.path.isdir(dir_pic_2d_map):
+                shutil.rmtree(dir_pic_2d_map)
+            os.makedirs(dir_pic_2d_map)
+
         # get target predictions
         for targetidx, target in enumerate(targets):
             deltaZ = target - self._nuclear_numbers
@@ -3966,6 +3971,7 @@ class APDFT(object):
 
                     # Plot 2D counter maps of the densities
                     name_pic_2d_map = "%s%s%s%s%s%s" % (("density2Dmap_", "target", str(targetidx), "-", "order", str(order)))
+                    name_pic_2d_map = "%s%s" % (str(dir_pic_2d_map), str(name_pic_2d_map))
                     density_2d_map = visualizer.Visualizer(self._nuclear_numbers, self._coordinates)
                     test_xy_coords_target_densities = np.zeros((2, 81))
                     # For x axis
