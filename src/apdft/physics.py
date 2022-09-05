@@ -3833,10 +3833,10 @@ class APDFT(object):
             qm_folders = self.get_folder_order()
 
             # Get the calculated density maps (cubes)
-            # 81 is the number of divided spatial elements per axis.
+            # 121 is the number of divided spatial elements per axis.
             # These values should be match with the setting in pyscf_interface.py.
-            cube_density_coords = np.zeros((81 ** 3, 3))
-            cube_density_values = np.zeros((len(qm_folders), 81, 81, 81))
+            cube_density_coords = np.zeros((121 ** 3, 3))
+            cube_density_values = np.zeros((len(qm_folders), 121, 121, 121))
             for i, qm_folder in enumerate(qm_folders):
                 pyscf_mol = pyscf_interface.PySCF_Mol(
                     self._nuclear_numbers, self._coordinates)
@@ -3854,7 +3854,7 @@ class APDFT(object):
             #         os.path.dirname(qm_folder)))
 
             # Set cubes of the electron densities of the target molecules
-            cube_target_densities = np.zeros((len(targets), 81, 81, 81, len(self._orders)))
+            cube_target_densities = np.zeros((len(targets), 121, 121, 121, len(self._orders)))
 
             cube_dir = "./perturb_density_cubes/"
             if os.path.isdir(cube_dir):
@@ -3973,7 +3973,7 @@ class APDFT(object):
                     name_pic_2d_map = "%s%s%s%s%s%s" % (("density2Dmap_", "target", str(targetidx), "-", "order", str(order)))
                     name_pic_2d_map = "%s%s" % (str(dir_pic_2d_map), str(name_pic_2d_map))
                     density_2d_map = visualizer.Visualizer(self._nuclear_numbers, self._coordinates)
-                    test_xy_coords_target_densities = np.zeros((2, 81))
+                    test_xy_coords_target_densities = np.zeros((2, 121))
                     # For x axis
                     # angstrom converts Angstrom to Bohr
                     test_xy_coords_target_densities[0] = np.unique(cube_density_coords[:, xy_index[0]]) / angstrom
@@ -3985,7 +3985,7 @@ class APDFT(object):
                     y_range = [-1.0, -0.5, 0.0, 0.5, 1.0]
 
                     density_2d_map.contour_map(
-                        test_xy_coords_target_densities, cube_target_densities[targetidx, :, 40, :, order], name_pic_2d_map, x_range, y_range, target, xy_index)
+                        test_xy_coords_target_densities, cube_target_densities[targetidx, :, 60, :, order], name_pic_2d_map, x_range, y_range, target, xy_index)
 
         # return results
         return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
