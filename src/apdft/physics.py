@@ -3973,15 +3973,13 @@ class APDFT(object):
                     test_xy_coords_target_densities[0] = np.unique(cube_density_coords[:, xy_index[0]]) / angstrom
                     # For y axis
                     test_xy_coords_target_densities[1] = np.unique(cube_density_coords[:, xy_index[1]]) / angstrom
-                    print(test_xy_coords_target_densities[1])
-                    print("")
 
                     # Input
                     x_range = [-1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0]
                     y_range = [-1.0, -0.5, 0.0, 0.5, 1.0]
 
                     density_2d_map.contour_map(
-                        test_xy_coords_target_densities, cube_target_densities[targetidx, 40, :, :, order], name_pic_2d_map, x_range, y_range, target, xy_index)
+                        test_xy_coords_target_densities, cube_target_densities[targetidx, :, 40, :, order], name_pic_2d_map, x_range, y_range, target, xy_index)
 
         # return results
         return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
