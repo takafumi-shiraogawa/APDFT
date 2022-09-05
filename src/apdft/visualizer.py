@@ -88,5 +88,8 @@ class Visualizer():
             plt.gca().set_aspect('equal')
             plt.savefig("%s.pdf" % str(pic_name), format='pdf', dpi=900)
 
+            plt.close()
+            plt.clf
+
         else:
             raise NotImplementedError("only 2D contour map is available.")
