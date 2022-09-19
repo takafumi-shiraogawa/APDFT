@@ -288,7 +288,8 @@ class APDFT(object):
         calc_der = False,
         control_outputs = False,
         gener_prop = False,
-        plot_density = False
+        plot_density = False,
+        finite_field = False
     ):
         # Exception handling for the apdft.conf input
         # For APDFT order
@@ -318,6 +319,7 @@ class APDFT(object):
         self._calc_der = calc_der
         self._control_outputs = control_outputs
         self._plot_density = plot_density
+        self._finite_field = finite_field
 
         self._gener_prop = gener_prop
 

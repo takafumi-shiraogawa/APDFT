@@ -251,6 +251,14 @@ class Configuration:
                 boolean,
                 False,
                 "Whether to plot the perturbed densities"
+            ),
+            # apdft_finite_field specifies whether the finite field is given or not.
+            Option(
+                "apdft",
+                "finite_field",
+                boolean,
+                False,
+                "Whether to give the finite perturbation"
             )
         ]
         self.__dict__["_options"] = {}
