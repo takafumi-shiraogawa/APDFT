@@ -289,7 +289,8 @@ class APDFT(object):
         control_outputs = False,
         gener_prop = False,
         plot_density = False,
-        finite_field = False
+        finite_field = False,
+        field_vector = None
     ):
         # Exception handling for the apdft.conf input
         # For APDFT order
@@ -320,6 +321,10 @@ class APDFT(object):
         self._control_outputs = control_outputs
         self._plot_density = plot_density
         self._finite_field = finite_field
+        if self._finite_field:
+            self._field_vector = field_vector
+            if len(self._finite_field) != 3:
+                raise ValueError("The dimensiton of the given perturbation field is %s, but should be 3." % str(len(self._field_vector)))
 
         self._gener_prop = gener_prop
 

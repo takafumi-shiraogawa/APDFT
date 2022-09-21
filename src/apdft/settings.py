@@ -52,6 +52,22 @@ def intelementrange(val):
     return ret
 
 
+def floatelementrange(val):
+    # It is a copy of intelementrange and outputs are changed from integers to float numbers
+    if val is None:
+        return val
+    if type(val) == list:
+        return val
+    ret = []
+    for part in val.split(","):
+        try:
+            ret.append(float(part))
+        except ValueError:
+            bse.lut.element_Z_from_sym(part)
+            ret.append(part)
+    return ret
+
+
 def boolean(val):
     if val == "True":
         return True
@@ -259,6 +275,13 @@ class Configuration:
                 boolean,
                 False,
                 "Whether to give the finite perturbation"
+            ),
+            Option(
+                "apdft",
+                "field_vector",
+                floatelementrange,
+                None,
+                "A vector of a given perturbed field (a.u.) is given as, e.g., 0.001, 0.0, 0.0. These are x, y, z Cartesian coordinates"
             )
         ]
         self.__dict__["_options"] = {}
