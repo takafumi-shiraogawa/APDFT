@@ -228,7 +228,7 @@ def mode_energies_geometries(conf, modeshort=None, modeshort_2=None):
         conf.apdft_gener_prop,
         conf.apdft_plot_density,
         conf.apdft_finite_field_vector,
-        conf.finite_field,
+        conf.apdft_finite_field,
         conf.apdft_field_vector
     )
 
