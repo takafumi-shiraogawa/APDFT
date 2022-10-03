@@ -27,3 +27,8 @@ rm ele_hf_ionic_forces.csv
 rm nuc_hf_ionic_forces.csv
 rm ver_atomic_forces.csv
 rm ver_ele_atomic_forces.csv
+
+rm -rf perturb_density_cubes/
+rm -rf perturb_density_contr_cubes/
+rm -rf map_densities/
+rm -rf map_contr_densities/
