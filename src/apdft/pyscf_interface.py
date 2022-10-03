@@ -15,7 +15,7 @@ class PySCF_Mol():
   # Ad hoc implementation, it needs to be modified for a large number of
   # calculations.
 
-  def __init__(self, nuclear_number, nuclear_coordinate):
+  def __init__(self, nuclear_number, nuclear_coordinate, div_elements):
     self._nuclear_number = nuclear_number
     self._nuclear_coordinate = nuclear_coordinate
 
@@ -25,17 +25,18 @@ class PySCF_Mol():
     mol.build()
 
     self._mol = mol
+    self._div_elements = div_elements
 
   def read_cube(self, pos_cube):
     """ Read a cube file.
     Args:
       pos_cube : A string of the cube directory.
     Returns:
-      A numpy array of the coordinates of the grids of the density in the dimension (121^3, 3).
-      A numpy array of the real-space density amplitudes in the dimension (121, 121, 121).
+      A numpy array of the coordinates of the grids of the density in the dimension (div_elements^3, 3).
+      A numpy array of the real-space density amplitudes in the dimension (div_elements, div_elements, div_elements).
     """
     cube = pyscf.tools.cubegen.Cube(
-        self._mol, nx=121, ny=121, nz=121, resolution=None, margin=3.0, origin=None)
+        self._mol, nx=self._div_elements, ny=self._div_elements, nz=self._div_elements, resolution=None, margin=5.0, origin=None)
 
     file_cube = "%s%s" % (str(pos_cube), "/cubegen.cube")
 
@@ -51,7 +52,7 @@ class PySCF_Mol():
       cube_file_name : A string of an output cube file.
     """
     cube = pyscf.tools.cubegen.Cube(
-        self._mol, nx=121, ny=121, nz=121, resolution=None, margin=3.0, origin=None)
+        self._mol, nx=self._div_elements, ny=self._div_elements, nz=self._div_elements, resolution=None, margin=5.0, origin=None)
 
     cube_file_name = "%s%s%s" % (cube_dir, cube_file_name, ".cube")
 

@@ -80,10 +80,27 @@ class Visualizer():
             if all(values.flatten() > -0.00001):
                 # contour_range = np.linspace(0.005, 1.0, 10)
                 contour_range = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+                # contour_range_line = np.linspace(0.0, 1.0, 20)
+                contour_range_line = np.logspace(-6.0, 0.0, 30, base=10)
+                # contour_range_line = []
+                # for i in range(6):
+                #     for j in range(5):
+                #         contour_range_line.append(2.0 * (j + 1) * (10.0 ** (-(i + 1))))
+                # contour_range_line = np.sort(np.array(contour_range_line))
             else:
                 contour_range = [-1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+                # contour_range_line = np.linspace(-1.0, 1.0, 40)
+                contour_range_line = np.logspace(-6.0, 0.0, 30, base=10)
+                contour_range_line = np.sort(np.unique(np.r_[contour_range_line, -contour_range_line]))
+                # contour_range_line = []
+                # for i in range(6):
+                #     for j in range(5):
+                #         contour_range_line.append(2.0 * (j + 1) * (10.0 ** (-(i + 1))))
+                # contour_range_line = np.sort(np.array(contour_range_line))
+                # contour_range_line = np.sort(np.unique(np.r_[contour_range_line, -contour_range_line]))
 
-            ax = plt.contour(grids[0], grids[1], values, contour_range,colors='black')
+            # ax = plt.contour(grids[0], grids[1], values, contour_range_line, colors='black')
+            ax = plt.contour(grids[0], grids[1], values, contour_range_line, colors='black')
             ax = plt.contourf(grids[0], grids[1], values, contour_range)
             ax = plt.colorbar(ticks=contour_range, label="contour level", format='%1.3f')
 

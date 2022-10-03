@@ -3833,13 +3833,14 @@ class APDFT(object):
             qm_folders = self.get_folder_order()
 
             # Get the calculated density maps (cubes)
-            # 121 is the number of divided spatial elements per axis.
+            div_elements = 251
+            # div_elements is the number of divided spatial elements per axis.
             # These values should be match with the setting in pyscf_interface.py.
-            cube_density_coords = np.zeros((121 ** 3, 3))
-            cube_density_values = np.zeros((len(qm_folders), 121, 121, 121))
+            cube_density_coords = np.zeros((div_elements ** 3, 3))
+            cube_density_values = np.zeros((len(qm_folders), div_elements, div_elements, div_elements))
             for i, qm_folder in enumerate(qm_folders):
                 pyscf_mol = pyscf_interface.PySCF_Mol(
-                    self._nuclear_numbers, self._coordinates)
+                    self._nuclear_numbers, self._coordinates, div_elements)
                 cube_density_coords[:, :], cube_density_values[i, :, :, :] = pyscf_mol.read_cube(qm_folder)
 
             # # Check read cubes
@@ -3854,10 +3855,10 @@ class APDFT(object):
             #         os.path.dirname(qm_folder)))
 
             # Set cubes of the electron densities of the target molecules
-            cube_target_densities = np.zeros((len(targets), 121, 121, 121, len(self._orders)))
+            cube_target_densities = np.zeros((len(targets), div_elements, div_elements, div_elements, len(self._orders)))
 
             # Set cubes of the contribution of the electron densities of the target molecules
-            cube_contr_target_densities = np.zeros((len(targets), 121, 121, 121, len(self._orders)))
+            cube_contr_target_densities = np.zeros((len(targets), div_elements, div_elements, div_elements, len(self._orders)))
 
             cube_dir = "./perturb_density_cubes/"
             if os.path.isdir(cube_dir):
@@ -3983,7 +3984,7 @@ class APDFT(object):
 
                 # Write perturbed density cubes
                 pyscf_mol = pyscf_interface.PySCF_Mol(
-                        self._nuclear_numbers, self._coordinates)
+                        self._nuclear_numbers, self._coordinates, div_elements)
 
                 # Input
                 xy_index = [2, 0]
@@ -4003,7 +4004,7 @@ class APDFT(object):
                     name_pic_2d_map_contr = "%s%s%s%s%s%s" % (("density2Dmapcontr_", "target", str(targetidx), "-", "order", str(order)))
                     name_pic_2d_map_contr = "%s%s" % (str(dir_pic_2d_map_contr), str(name_pic_2d_map_contr))
                     density_2d_map = visualizer.Visualizer(self._nuclear_numbers, self._coordinates)
-                    test_xy_coords_target_densities = np.zeros((2, 121))
+                    test_xy_coords_target_densities = np.zeros((2, div_elements))
                     # For x axis
                     # angstrom converts Angstrom to Bohr
                     test_xy_coords_target_densities[0] = np.unique(cube_density_coords[:, xy_index[0]]) / angstrom
@@ -4011,16 +4012,20 @@ class APDFT(object):
                     test_xy_coords_target_densities[1] = np.unique(cube_density_coords[:, xy_index[1]]) / angstrom
 
                     # Input
-                    x_range = [-1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0]
-                    y_range = [-1.0, -0.5, 0.0, 0.5, 1.0]
+                    # x_range = [-1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0]
+                    # y_range = [-1.0, -0.5, 0.0, 0.5, 1.0]
+                    # x_range = [-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0]
+                    # y_range = [-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 3.0]
+                    x_range = [-1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5]
+                    y_range = [-1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5]
 
                     # Perturbed electron density
                     density_2d_map.contour_map(
-                        test_xy_coords_target_densities, cube_target_densities[targetidx, :, 60, :, order], name_pic_2d_map, x_range, y_range, target, xy_index)
+                        test_xy_coords_target_densities, cube_target_densities[targetidx, :, int((div_elements - 1) / 2), :, order], name_pic_2d_map, x_range, y_range, target, xy_index)
 
                     # Each contribution of the perturbed electron density
                     density_2d_map.contour_map(
-                        test_xy_coords_target_densities, cube_contr_target_densities[targetidx, :, 60, :, order], name_pic_2d_map_contr, x_range, y_range, target, xy_index)
+                        test_xy_coords_target_densities, cube_contr_target_densities[targetidx, :, int((div_elements - 1) / 2), :, order], name_pic_2d_map_contr, x_range, y_range, target, xy_index)
 
         # return results
         return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
