@@ -77,9 +77,15 @@ class Visualizer():
             ax.set_xlabel("$\it{x}$ / Å", fontsize=18, fontname='Arial')
             ax.set_ylabel("$\it{y}$ / Å", fontsize=18, fontname='Arial')
 
-            ax = plt.contour(grids[0], grids[1], values, np.linspace(0.005, 1.0, 10),colors='black')
-            ax = plt.contourf(grids[0], grids[1], values, np.linspace(0.005, 1.0, 10))
-            ax = plt.colorbar(label="contour level", format='%1.3f')
+            if all(values.flatten() > -0.00001):
+                # contour_range = np.linspace(0.005, 1.0, 10)
+                contour_range = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+            else:
+                contour_range = [-1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+
+            ax = plt.contour(grids[0], grids[1], values, contour_range,colors='black')
+            ax = plt.contourf(grids[0], grids[1], values, contour_range)
+            ax = plt.colorbar(ticks=contour_range, label="contour level", format='%1.3f')
 
             plt.xlim(min(x_range), max(x_range))
             plt.ylim(min(y_range), max(y_range))

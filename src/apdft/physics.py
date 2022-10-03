@@ -3856,15 +3856,30 @@ class APDFT(object):
             # Set cubes of the electron densities of the target molecules
             cube_target_densities = np.zeros((len(targets), 121, 121, 121, len(self._orders)))
 
+            # Set cubes of the contribution of the electron densities of the target molecules
+            cube_contr_target_densities = np.zeros((len(targets), 121, 121, 121, len(self._orders)))
+
             cube_dir = "./perturb_density_cubes/"
             if os.path.isdir(cube_dir):
                 shutil.rmtree(cube_dir)
             os.makedirs(cube_dir)
 
+            # Each contribution of the perturbed electron density
+            cube_contr_dir = "./perturb_density_contr_cubes/"
+            if os.path.isdir(cube_contr_dir):
+                shutil.rmtree(cube_contr_dir)
+            os.makedirs(cube_contr_dir)
+
             dir_pic_2d_map = "./map_densities/"
             if os.path.isdir(dir_pic_2d_map):
                 shutil.rmtree(dir_pic_2d_map)
             os.makedirs(dir_pic_2d_map)
+
+            # Each contribution of the perturbed electron density
+            dir_pic_2d_map_contr = "./map_contr_densities/"
+            if os.path.isdir(dir_pic_2d_map_contr):
+                shutil.rmtree(dir_pic_2d_map_contr)
+            os.makedirs(dir_pic_2d_map_contr)
 
         # get target predictions
         for targetidx, target in enumerate(targets):
@@ -3950,10 +3965,18 @@ class APDFT(object):
             # Electron density cube
             # If the perturbed densities are plotted.
             if self._plot_density:
+                # Calculate the cube of the perturbed density for each order
+                # and each contribution
                 # betas is calculated in the dipole calculation.
                 for order in sorted(self._orders):
+                    # Perturbed electron density
                     cube_target_densities[targetidx, :, :, :, order] = np.multiply(
                         cube_density_values[:, :, :, :], betas[:, order, np.newaxis, np.newaxis, np.newaxis]).sum(axis=0)
+
+                    # Each contribution of the perturbed electron density
+                    cube_contr_target_densities[targetidx, :, :, :, order] = np.copy(
+                        cube_target_densities[targetidx, :, :, :, order])
+
                     if order > 0:
                         cube_target_densities[targetidx, :, :, :,
                                                 order] += cube_target_densities[targetidx, :, :, :, order - 1]
@@ -3966,12 +3989,19 @@ class APDFT(object):
                 xy_index = [2, 0]
 
                 for order in sorted(self._orders):
+                    # Perturbed electron density
                     pyscf_mol.write_cube(cube_target_densities[targetidx, :, :, :, order], cube_dir,
+                                         "%s%s%s%s%s" % ("target", str(targetidx), "-", "order", str(order)))
+
+                    # Each contribution of the perturbed electron density
+                    pyscf_mol.write_cube(cube_contr_target_densities[targetidx, :, :, :, order], cube_contr_dir,
                                          "%s%s%s%s%s" % ("target", str(targetidx), "-", "order", str(order)))
 
                     # Plot 2D counter maps of the densities
                     name_pic_2d_map = "%s%s%s%s%s%s" % (("density2Dmap_", "target", str(targetidx), "-", "order", str(order)))
                     name_pic_2d_map = "%s%s" % (str(dir_pic_2d_map), str(name_pic_2d_map))
+                    name_pic_2d_map_contr = "%s%s%s%s%s%s" % (("density2Dmapcontr_", "target", str(targetidx), "-", "order", str(order)))
+                    name_pic_2d_map_contr = "%s%s" % (str(dir_pic_2d_map_contr), str(name_pic_2d_map_contr))
                     density_2d_map = visualizer.Visualizer(self._nuclear_numbers, self._coordinates)
                     test_xy_coords_target_densities = np.zeros((2, 121))
                     # For x axis
@@ -3984,8 +4014,13 @@ class APDFT(object):
                     x_range = [-1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0]
                     y_range = [-1.0, -0.5, 0.0, 0.5, 1.0]
 
+                    # Perturbed electron density
                     density_2d_map.contour_map(
                         test_xy_coords_target_densities, cube_target_densities[targetidx, :, 60, :, order], name_pic_2d_map, x_range, y_range, target, xy_index)
+
+                    # Each contribution of the perturbed electron density
+                    density_2d_map.contour_map(
+                        test_xy_coords_target_densities, cube_contr_target_densities[targetidx, :, 60, :, order], name_pic_2d_map_contr, x_range, y_range, target, xy_index)
 
         # return results
         return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
