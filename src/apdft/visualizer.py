@@ -9,6 +9,25 @@ class Visualizer():
         self._nuclear_number = nuclear_number
         self._nuclear_coordinate = nuclear_coordinate
 
+    @staticmethod
+    def conv_log_scale(values):
+        thres = 1.e-6
+
+        # All zero values
+        if np.amax(values) == 0.0 and np.amin(values) == 0.0:
+            return values
+
+        else:
+            values = values / thres
+            for i in range(len(values)):
+                for j in range(len(values)):
+                    if np.abs(values[i, j]) < 1.0:
+                        values[i, j] = 0.0
+                    else:
+                        values[i, j] = np.sign(values[i, j]) * np.log10(np.abs(values[i, j]))
+
+        return values
+
     def contour_map(self, grids, values, pic_name, x_range, y_range, target, xy_index, dim_map="2d"):
 
         plt.rcParams['xtick.direction'] = 'in'
@@ -62,8 +81,9 @@ class Visualizer():
                     raise NotImplementedError(
                         "Atom number %s cannot be treated in the cube generation." % (str(atom)))
 
+                atom_radius = 0.2
                 atom = patches.Circle(
-                    xy=[self._nuclear_coordinate[atomidx, xy_index[0]], self._nuclear_coordinate[atomidx, xy_index[1]]], radius=atom_radius * 0.6, fc=atom_color, alpha=1.0)
+                    xy=[self._nuclear_coordinate[atomidx, xy_index[0]], self._nuclear_coordinate[atomidx, xy_index[1]]], radius=atom_radius * 0.6, fc=atom_color, ec='black', alpha=1.0)
                 ax.add_patch(atom)
 
             ax.set_xticks(x_range)
@@ -77,32 +97,37 @@ class Visualizer():
             ax.set_xlabel("$\it{x}$ / Å", fontsize=18, fontname='Arial')
             ax.set_ylabel("$\it{y}$ / Å", fontsize=18, fontname='Arial')
 
-            if all(values.flatten() > -0.00001):
-                # contour_range = np.linspace(0.005, 1.0, 10)
-                contour_range = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-                # contour_range_line = np.linspace(0.0, 1.0, 20)
-                contour_range_line = np.logspace(-6.0, 0.0, 30, base=10)
-                # contour_range_line = []
-                # for i in range(6):
-                #     for j in range(5):
-                #         contour_range_line.append(2.0 * (j + 1) * (10.0 ** (-(i + 1))))
-                # contour_range_line = np.sort(np.array(contour_range_line))
-            else:
-                contour_range = [-1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
-                # contour_range_line = np.linspace(-1.0, 1.0, 40)
-                contour_range_line = np.logspace(-6.0, 0.0, 30, base=10)
-                contour_range_line = np.sort(np.unique(np.r_[contour_range_line, -contour_range_line]))
-                # contour_range_line = []
-                # for i in range(6):
-                #     for j in range(5):
-                #         contour_range_line.append(2.0 * (j + 1) * (10.0 ** (-(i + 1))))
-                # contour_range_line = np.sort(np.array(contour_range_line))
-                # contour_range_line = np.sort(np.unique(np.r_[contour_range_line, -contour_range_line]))
+            min_value = np.amin(values)
+            max_value = np.amax(values)
 
-            # ax = plt.contour(grids[0], grids[1], values, contour_range_line, colors='black')
-            ax = plt.contour(grids[0], grids[1], values, contour_range_line, colors='black')
-            ax = plt.contourf(grids[0], grids[1], values, contour_range)
-            ax = plt.colorbar(ticks=contour_range, label="contour level", format='%1.3f')
+            # For the reference molecule
+            if min_value == 0.0 and max_value == 0.0:
+                # To avoid the error
+                contour_range = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+                map_color = 'Blues'
+            else:
+                if min_value >= 0.0:
+                    contour_range = np.linspace(0.0, 7.0, 40)
+                    map_color = 'Blues'
+                else:
+                    contour_range = np.linspace(-7.0, 7.0, 40)
+                    map_color = 'RdBu_r'
+
+            values = self.conv_log_scale(values)
+
+            # pcm = ax.pcolormesh(grids[0], grids[1], values,
+            #            norm=colors.SymLogNorm(linthresh=0.01, linscale=0.000001,
+            #                                   vmin=0.0, vmax=1.0),
+            #            cmap='Blues')
+            # fig.colorbar(pcm, ax=ax)
+
+            # pcm = ax.pcolormesh(grids[0], grids[1], values, cmap='Blues', vmin=np.min(values))
+            # fig.colorbar(pcm, ax=ax)
+
+            ax = plt.contour(grids[0], grids[1], values, contour_range, colors='black')
+
+            ax = plt.contourf(grids[0], grids[1], values, contour_range, cmap=map_color)
+            # ax = plt.colorbar(ticks=contour_range, label="contour level", format='%1.3f')
 
             plt.xlim(min(x_range), max(x_range))
             plt.ylim(min(y_range), max(y_range))
