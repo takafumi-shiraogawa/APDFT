@@ -6,7 +6,7 @@ from apdft import visualizer
 #: Conversion factor from Angstrom to Bohr
 angstrom = 1 / 0.52917721067
 
-nuclear_numbers, coordinates = apdft.read_xyz("n2.xyz")
+nuclear_numbers, coordinates = apdft.read_xyz("mol.xyz")
 
 # Get the calculated density maps (cubes)
 div_elements = 251
