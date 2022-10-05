@@ -103,17 +103,17 @@ class Visualizer():
             # For the reference molecule
             if min_value == 0.0 and max_value == 0.0:
                 # To avoid the error
-                contour_range = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+                contour_range = np.linspace(0.0, 1.0, 11)
                 map_color = 'Blues'
             else:
                 if min_value >= 0.0:
-                    contour_range = np.linspace(0.0, 7.0, 40)
+                    contour_range = np.linspace(0.0, 1.0, 11)
                     map_color = 'Blues'
                 else:
-                    contour_range = np.linspace(-7.0, 7.0, 40)
+                    contour_range = np.linspace(-1.0, 1.0, 21)
                     map_color = 'RdBu_r'
 
-            values = self.conv_log_scale(values)
+            # values = self.conv_log_scale(values)
 
             # pcm = ax.pcolormesh(grids[0], grids[1], values,
             #            norm=colors.SymLogNorm(linthresh=0.01, linscale=0.000001,
@@ -124,10 +124,10 @@ class Visualizer():
             # pcm = ax.pcolormesh(grids[0], grids[1], values, cmap='Blues', vmin=np.min(values))
             # fig.colorbar(pcm, ax=ax)
 
-            ax = plt.contour(grids[0], grids[1], values, contour_range, colors='black')
+            # ax = plt.contour(grids[0], grids[1], values, contour_range, colors='black')
 
-            ax = plt.contourf(grids[0], grids[1], values, contour_range, cmap=map_color)
-            # ax = plt.colorbar(ticks=contour_range, label="contour level", format='%1.3f')
+            ax = plt.contourf(grids[0], grids[1], values, contour_range, cmap=map_color, extend='both')
+            ax = plt.colorbar(ticks=contour_range, label="contour level / a.u.", format='%1.2f')
 
             plt.xlim(min(x_range), max(x_range))
             plt.ylim(min(y_range), max(y_range))
