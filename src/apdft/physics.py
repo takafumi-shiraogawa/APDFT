@@ -323,7 +323,7 @@ class APDFT(object):
         self._finite_field = finite_field
         self._field_vector = field_vector
         if self._finite_field:
-            if len(self._finite_field) != 3:
+            if len(self._field_vector) != 3:
                 raise ValueError("The dimensiton of the given perturbation field is %s, but should be 3." % str(len(self._field_vector)))
 
         self._gener_prop = gener_prop
@@ -411,7 +411,9 @@ class APDFT(object):
                         self._nuclear_numbers,
                         charges,
                         None,
+                        field_vector=self._field_vector,
                         includeonly=self._include_atoms,
+                        flag_finite_field=self._finite_field,
                         flag_plot_density=self._plot_density
                     )
                     with open("%s/run.inp" % path, "w") as fh:
