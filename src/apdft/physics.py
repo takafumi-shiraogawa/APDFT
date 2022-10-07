@@ -321,8 +321,8 @@ class APDFT(object):
         self._control_outputs = control_outputs
         self._plot_density = plot_density
         self._finite_field = finite_field
+        self._field_vector = field_vector
         if self._finite_field:
-            self._field_vector = field_vector
             if len(self._finite_field) != 3:
                 raise ValueError("The dimensiton of the given perturbation field is %s, but should be 3." % str(len(self._field_vector)))
 
