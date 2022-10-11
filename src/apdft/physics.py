@@ -3842,7 +3842,10 @@ class APDFT(object):
             qm_folders = self.get_folder_order()
 
             # Get the calculated density maps (cubes)
+            # For N2
             div_elements = 251
+            # For benzene
+            # div_elements = 301
             # div_elements is the number of divided spatial elements per axis.
             # These values should be match with the setting in pyscf_interface.py.
             cube_density_coords = np.zeros((div_elements ** 3, 3))

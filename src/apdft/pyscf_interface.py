@@ -51,8 +51,12 @@ class PySCF_Mol():
       cube_dir : A string of a cube file directory.
       cube_file_name : A string of an output cube file.
     """
+    # For N2
+    margin = 5.0
+    # For benzene
+    # margin = 6.0
     cube = pyscf.tools.cubegen.Cube(
-        self._mol, nx=self._div_elements, ny=self._div_elements, nz=self._div_elements, resolution=None, margin=5.0, origin=None)
+        self._mol, nx=self._div_elements, ny=self._div_elements, nz=self._div_elements, resolution=None, margin=margin, origin=None)
 
     cube_file_name = "%s%s%s" % (cube_dir, cube_file_name, ".cube")
 
