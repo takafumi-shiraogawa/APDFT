@@ -3996,7 +3996,10 @@ class APDFT(object):
                         self._nuclear_numbers, self._coordinates, div_elements)
 
                 # Input
+                # For N2
                 xy_index = [2, 0]
+                # For benzene
+                # xy_index = [0, 1]
 
                 for order in sorted(self._orders):
                     # Perturbed electron density
@@ -4021,20 +4024,28 @@ class APDFT(object):
                     test_xy_coords_target_densities[1] = np.unique(cube_density_coords[:, xy_index[1]]) / angstrom
 
                     # Input
-                    # x_range = [-1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0]
-                    # y_range = [-1.0, -0.5, 0.0, 0.5, 1.0]
-                    # x_range = [-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0]
-                    # y_range = [-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 3.0]
+                    # For N2
                     x_range = [-1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5]
                     y_range = [-1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5]
+                    # For benzene
+                    # x_range = [-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0]
+                    # y_range = x_range
 
                     # Perturbed electron density
+                    # For N2
                     density_2d_map.contour_map(
                         test_xy_coords_target_densities, cube_target_densities[targetidx, :, int((div_elements - 1) / 2), :, order], name_pic_2d_map, x_range, y_range, target, xy_index)
+                    # For benzene
+                    # density_2d_map.contour_map(
+                    #     test_xy_coords_target_densities, cube_target_densities[targetidx, :, :, int((div_elements - 1) / 2), order], name_pic_2d_map, x_range, y_range, target, xy_index)
 
                     # Each contribution of the perturbed electron density
+                    # For N2
                     density_2d_map.contour_map(
                         test_xy_coords_target_densities, cube_contr_target_densities[targetidx, :, int((div_elements - 1) / 2), :, order], name_pic_2d_map_contr, x_range, y_range, target, xy_index)
+                    # For benzene
+                    # density_2d_map.contour_map(
+                    #     test_xy_coords_target_densities, cube_contr_target_densities[targetidx, :, :, int((div_elements - 1) / 2), order], name_pic_2d_map_contr, x_range, y_range, target, xy_index)
 
         # return results
         return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
