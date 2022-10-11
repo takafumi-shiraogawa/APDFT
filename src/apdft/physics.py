@@ -288,7 +288,9 @@ class APDFT(object):
         calc_der = False,
         control_outputs = False,
         gener_prop = False,
-        plot_density = False
+        plot_density = False,
+        finite_field = False,
+        field_vector = None
     ):
         # Exception handling for the apdft.conf input
         # For APDFT order
@@ -318,6 +320,11 @@ class APDFT(object):
         self._calc_der = calc_der
         self._control_outputs = control_outputs
         self._plot_density = plot_density
+        self._finite_field = finite_field
+        self._field_vector = field_vector
+        if self._finite_field:
+            if len(self._field_vector) != 3:
+                raise ValueError("The dimensiton of the given perturbation field is %s, but should be 3." % str(len(self._field_vector)))
 
         self._gener_prop = gener_prop
 
@@ -404,7 +411,9 @@ class APDFT(object):
                         self._nuclear_numbers,
                         charges,
                         None,
+                        field_vector=self._field_vector,
                         includeonly=self._include_atoms,
+                        flag_finite_field=self._finite_field,
                         flag_plot_density=self._plot_density
                     )
                     with open("%s/run.inp" % path, "w") as fh:

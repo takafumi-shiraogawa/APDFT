@@ -31,6 +31,7 @@ if method not in ["CCSD", "HF", "PBE", "PBE0", "B3LYP"]:
 deltaZ = np.array(({{deltaZ}}))
 includeonly = np.array(({{includeonly}}))
 
+flag_finite_field = {{flag_finite_field}}
 
 def add_qmmm(calc, mol, deltaZ):
     mf = pyscf.qmmm.mm_charge(calc, mol.atom_coords()[includeonly]/ angstrom, deltaZ)
@@ -45,14 +46,29 @@ def add_qmmm(calc, mol, deltaZ):
     return mf
 
 
+# Apply a static electric field
+def add_ef(calc, mol):
+    field_vector = np.array({{field_vector}})
+    mol.set_common_orig(mol.atom_coords().mean(axis=0))
+    new_hcore = (calc.get_hcore() + numpy.einsum(
+        'x,xij->ij', -field_vector, mol.intor('cint1e_r_sph', comp=3)))
+    calc.get_hcore = lambda *args: new_hcore
+
+    return calc
+
+
 if method == "HF":
     calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
+    if flag_finite_field:
+        calc = add_ef(calc, mol)
     hfe = calc.kernel(verbose=0)
     dm1_ao = calc.make_rdm1()
     total_energy = calc.e_tot
     Enn = calc.energy_nuc()
 if method == "CCSD":
     calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
+    if flag_finite_field:
+        calc = add_ef(calc, mol)
     hfe = calc.kernel(verbose=0)
     mycc = pyscf.cc.CCSD(calc).run()
     dm1 = mycc.make_rdm1()
@@ -71,6 +87,8 @@ if method in ["PBE", "PBE0", "B3LYP"]:
         calc.xc = 'pbe0'
     elif method == "B3LYP":
         calc.xc = 'b3lyp'
+    if flag_finite_field:
+        calc = add_ef(calc, mol)
     calc.kernel(verbose=0)
     # One-particle density matrix in AO representation:
     # MO occupation number

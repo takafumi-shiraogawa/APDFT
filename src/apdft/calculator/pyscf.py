@@ -39,8 +39,10 @@ class PyscfCalculator(apc.Calculator):
         nuclear_numbers,
         nuclear_charges,
         grid,
+        field_vector=None,
         iscomparison=False,
         includeonly=None,
+        flag_finite_field=False,
         flag_plot_density=False
     ):
         basedir = os.path.dirname(os.path.abspath(__file__))
@@ -51,6 +53,8 @@ class PyscfCalculator(apc.Calculator):
         env["atoms"] = PyscfCalculator._format_coordinates(nuclear_numbers, coordinates)
         env["basisset"] = PyscfCalculator._format_basis(nuclear_numbers, self._basisset)
         env["method"] = self._methods[self._method]
+        env["flag_finite_field"] = flag_finite_field
+        env["field_vector"] = field_vector
         env["flag_plot_density"] = flag_plot_density
 
         if includeonly is None:
