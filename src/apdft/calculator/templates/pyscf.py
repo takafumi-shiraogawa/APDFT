@@ -151,7 +151,7 @@ flag_plot_density = {{flag_plot_density}}
 # For N2
 div_elements = 251
 # For benzene
-# div_elements = 251
+# div_elements = 301
 if flag_plot_density:
     # margin is in the Bohr unit
     # For N2
