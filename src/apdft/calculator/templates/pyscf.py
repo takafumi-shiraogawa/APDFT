@@ -89,6 +89,10 @@ if method in ["PBE", "PBE0", "B3LYP"]:
         calc.xc = 'b3lyp'
     if flag_finite_field:
         calc = add_ef(calc, mol)
+    # High accuracy
+    # calc.grids.level = 9
+    # calc.direct_scf = False
+    # calc.conv_tol = 1e-13
     calc.kernel(verbose=0)
     # One-particle density matrix in AO representation:
     # MO occupation number
