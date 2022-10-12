@@ -2,6 +2,9 @@ import os
 import glob
 import shutil
 
+# input
+field_strength = "0.001"
+
 dir_fd = "./finite_difference/"
 if os.path.isdir(dir_fd):
   shutil.rmtree(dir_fd)
@@ -20,16 +23,20 @@ f = open('./template/apdft.conf', 'r')
 data = f.readlines()
 f.close()
 
+field_param_list = []
+field_param_list.append("%s, 0.0, 0.0" % field_strength)
+field_param_list.append("-%s, 0.0, 0.0" % field_strength)
+field_param_list.append("0.0, %s, 0.0" % field_strength)
+field_param_list.append("0.0, -%s, 0.0" % field_strength)
+field_param_list.append("0.0, 0.0, %s" % field_strength)
+field_param_list.append("0.0, 0.0, -%s" % field_strength)
+
 # Set parameters
 flag_string = 'apdft_finite_field = True'
 field_param = []
 field_param_string = 'apdft_field_vector = '
-field_param.append("%s%s" % (field_param_string, '0.01, 0.0, 0.0'))
-field_param.append("%s%s" % (field_param_string, '-0.01, 0.0, 0.0'))
-field_param.append("%s%s" % (field_param_string, '0.0, 0.01, 0.0'))
-field_param.append("%s%s" % (field_param_string, '0.0, -0.01, 0.0'))
-field_param.append("%s%s" % (field_param_string, '0.0, 0.0, 0.01'))
-field_param.append("%s%s" % (field_param_string, '0.0, 0.0, -0.01'))
+for i in range(6):
+  field_param.append("%s%s" % (field_param_string, field_param_list[i]))
 
 # Set directories for calculations
 os.mkdir('finite_difference/')

@@ -45,9 +45,15 @@ def read_ele_dipoles(num_mol, apdft_order, path_ele_dipoles):
 
 au_to_debye = 2.54174776
 
+# Inputs
 # TODO: automation
+# For N2
 num_mol = 3
+# For benzene
+# num_mol = 18
 max_apdft_order = 2
+
+field_strength = 0.001
 
 max_apdft_order += 1
 
@@ -76,7 +82,7 @@ total_dipoles = np.zeros((num_mol, max_apdft_order, 3))
 for i in range(num_mol):
   for j in range(max_apdft_order):
     for k in range(3):
-      ele_dipoles[i, j, k] = (energies[2 * k, i, j] - energies[2 * k + 1, i, j]) / (2.0 * 0.01)
+      ele_dipoles[i, j, k] = (energies[2 * k, i, j] - energies[2 * k + 1, i, j]) / (2.0 * field_strength)
 
 with open("ele_dipole.out", mode='w') as f_out:
   for i in range(num_mol):
