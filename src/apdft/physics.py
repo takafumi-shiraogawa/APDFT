@@ -4040,7 +4040,7 @@ class APDFT(object):
                         test_xy_coords_target_densities, cube_target_densities[targetidx, :, int((div_elements - 1) / 2), :, order], name_pic_2d_map, x_range, y_range, target, xy_index)
                     # For benzene
                     # density_2d_map.contour_map(
-                    #     test_xy_coords_target_densities, cube_target_densities[targetidx, :, :, int((div_elements - 1) / 2), order], name_pic_2d_map, x_range, y_range, target, xy_index)
+                    #     test_xy_coords_target_densities, np.transpose(cube_target_densities[targetidx, :, :, int((div_elements - 1) / 2), order]), name_pic_2d_map, x_range, y_range, target, xy_index)
 
                     # Each contribution of the perturbed electron density
                     # For N2
@@ -4048,7 +4048,7 @@ class APDFT(object):
                         test_xy_coords_target_densities, cube_contr_target_densities[targetidx, :, int((div_elements - 1) / 2), :, order], name_pic_2d_map_contr, x_range, y_range, target, xy_index)
                     # For benzene
                     # density_2d_map.contour_map(
-                    #     test_xy_coords_target_densities, cube_contr_target_densities[targetidx, :, :, int((div_elements - 1) / 2), order], name_pic_2d_map_contr, x_range, y_range, target, xy_index)
+                    #     test_xy_coords_target_densities, np.transpose(cube_contr_target_densities[targetidx, :, :, int((div_elements - 1) / 2), order]), name_pic_2d_map_contr, x_range, y_range, target, xy_index)
 
         # return results
         return targets, energies, ele_energies, nuc_energies, dipoles, ele_dipoles, nuc_dipoles, forces, ele_forces, nuc_forces
