@@ -35,8 +35,12 @@ class PySCF_Mol():
       A numpy array of the coordinates of the grids of the density in the dimension (div_elements^3, 3).
       A numpy array of the real-space density amplitudes in the dimension (div_elements, div_elements, div_elements).
     """
+    # For N2
+    margin = 5.0
+    # For benzene
+    # margin = 6.0
     cube = pyscf.tools.cubegen.Cube(
-        self._mol, nx=self._div_elements, ny=self._div_elements, nz=self._div_elements, resolution=None, margin=5.0, origin=None)
+        self._mol, nx=self._div_elements, ny=self._div_elements, nz=self._div_elements, resolution=None, margin=margin, origin=None)
 
     file_cube = "%s%s" % (str(pos_cube), "/cubegen.cube")
 
