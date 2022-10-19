@@ -61,6 +61,9 @@ if method == "HF":
     calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
     if flag_finite_field:
         calc = add_ef(calc, mol)
+    # High accuracy
+    # calc.direct_scf = False
+    # calc.conv_tol = 1e-13
     hfe = calc.kernel(verbose=0)
     dm1_ao = calc.make_rdm1()
     total_energy = calc.e_tot
@@ -69,8 +72,16 @@ if method == "CCSD":
     calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
     if flag_finite_field:
         calc = add_ef(calc, mol)
+    # High accuracy
+    # calc.direct_scf = False
+    # calc.conv_tol = 1e-13
     hfe = calc.kernel(verbose=0)
-    mycc = pyscf.cc.CCSD(calc).run()
+    # mycc = pyscf.cc.CCSD(calc).run()
+    mycc = pyscf.cc.CCSD(calc)
+    # High accuracy
+    # mycc.conv_tol = 1.e-11
+    # mycc.conv_tol_normt = 1.e-10
+    mycc.run()
     dm1 = mycc.make_rdm1()
     dm1_ao = np.einsum("pi,ij,qj->pq", calc.mo_coeff, dm1, calc.mo_coeff.conj())
     total_energy = mycc.e_tot
