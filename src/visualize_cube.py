@@ -1,3 +1,6 @@
+import os
+import sys
+import shutil
 import numpy as np
 import apdft
 from apdft import pyscf_interface
@@ -25,9 +28,10 @@ elif target_mol == 'benzene':
 # These values should be match with the setting in pyscf_interface.py.
 cube_density_coords = np.zeros((div_elements ** 3, 3))
 cube_density_values = np.zeros((div_elements, div_elements, div_elements))
-pyscf_mol = pyscf_interface.PySCF_Mol(
-    nuclear_numbers, coordinates, div_elements)
-cube_density_coords[:, :], cube_density_values[:, :, :] = pyscf_mol.read_cube('.')
+if len(sys.argv) == 1:
+    pyscf_mol = pyscf_interface.PySCF_Mol(
+        nuclear_numbers, coordinates, div_elements)
+    cube_density_coords[:, :], cube_density_values[:, :, :] = pyscf_mol.read_cube('.')
 
 pyscf_mol = pyscf_interface.PySCF_Mol(nuclear_numbers, coordinates, div_elements)
 
@@ -59,11 +63,57 @@ elif target_mol == 'benzene':
     y_range = x_range
 
 # Perturbed electron density
+if len(sys.argv) == 1:
+    # For N2
+    if target_mol == 'n2':
+        density_2d_map.contour_map(test_xy_coords_densities, cube_density_values[:, int(
+            (div_elements - 1) / 2), :], name_pic_2d_map, x_range, y_range, nuclear_numbers, xy_index)
+    # For benzene
+    elif target_mol == 'benzene':
+        density_2d_map.contour_map(test_xy_coords_densities, np.transpose(cube_density_values[:, :, int(
+            (div_elements - 1) / 2)]), name_pic_2d_map, x_range, y_range, nuclear_numbers, xy_index)
+
+if len(sys.argv) == 1:
+    sys.exit()
+
+
+### Compute density difference
+# Inputs
+par_var1 = sys.argv[1]
+par_var2 = sys.argv[2]
+par_var1 = str(par_var1)
+par_var2 = str(par_var2)
+os.mkdir('cube1')
+os.mkdir('cube2')
+shutil.copyfile(par_var1, "cube1/cubegen.cube")
+shutil.copyfile(par_var2, "cube2/cubegen.cube")
+
+# Read cubes
+cube_diff_density_coords = np.zeros((2, div_elements ** 3, 3))
+cube_diff_density_values = np.zeros((2, div_elements, div_elements, div_elements))
+pyscf_mol = pyscf_interface.PySCF_Mol(
+    nuclear_numbers, coordinates, div_elements)
+cube_diff_density_coords[0, :, :], cube_diff_density_values[0,
+                                                            :, :, :] = pyscf_mol.read_cube('./cube1/')
+pyscf_mol = pyscf_interface.PySCF_Mol(
+    nuclear_numbers, coordinates, div_elements)
+cube_diff_density_coords[1, :, :], cube_diff_density_values[1,
+                                                            :, :, :] = pyscf_mol.read_cube('./cube2/')
+
+pyscf_mol = pyscf_interface.PySCF_Mol(nuclear_numbers, coordinates, div_elements)
+
+name_pic_2d_map = "%s" % ("diffdensity2Dmap")
+
 # For N2
 if target_mol == 'n2':
-    density_2d_map.contour_map(test_xy_coords_densities, cube_density_values[:, int(
-        (div_elements - 1) / 2), :], name_pic_2d_map, x_range, y_range, nuclear_numbers, xy_index)
+    density_2d_map.contour_map(test_xy_coords_densities, cube_diff_density_values[0, :, int(
+        (div_elements - 1) / 2), :] - cube_diff_density_values[1, :, int((div_elements - 1) / 2), :], name_pic_2d_map, x_range, y_range, nuclear_numbers, xy_index)
 # For benzene
 elif target_mol == 'benzene':
-    density_2d_map.contour_map(test_xy_coords_densities, np.transpose(cube_density_values[:, :, int(
-        (div_elements - 1) / 2)]), name_pic_2d_map, x_range, y_range, nuclear_numbers, xy_index)
+    density_2d_map.contour_map(test_xy_coords_densities, np.transpose(cube_diff_density_values[0, :, :, int(
+        (div_elements - 1) / 2)] - cube_diff_density_values[1, :, :, int((div_elements - 1) / 2)]), name_pic_2d_map, x_range, y_range, nuclear_numbers, xy_index)
+
+# print(cube_diff_density_values[0, :, int((div_elements - 1) / 2), :] - cube_diff_density_values[1, :, int((div_elements - 1) / 2)])
+
+shutil.rmtree('cube1/')
+shutil.rmtree('cube2/')
