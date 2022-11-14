@@ -27,6 +27,9 @@ class PySCF_Mol():
     self._mol = mol
     self._div_elements = div_elements
 
+    self._target_mol = 'n2'
+    # self._target_mol = 'benzene'
+
   def read_cube(self, pos_cube):
     """ Read a cube file.
     Args:
@@ -36,9 +39,11 @@ class PySCF_Mol():
       A numpy array of the real-space density amplitudes in the dimension (div_elements, div_elements, div_elements).
     """
     # For N2
-    margin = 5.0
+    if self._target_mol == 'n2':
+      margin = 5.0
     # For benzene
-    # margin = 6.0
+    elif self._target_mol == 'benzene':
+      margin = 6.0
     cube = pyscf.tools.cubegen.Cube(
         self._mol, nx=self._div_elements, ny=self._div_elements, nz=self._div_elements, resolution=None, margin=margin, origin=None)
 
@@ -56,9 +61,11 @@ class PySCF_Mol():
       cube_file_name : A string of an output cube file.
     """
     # For N2
-    margin = 5.0
+    if self._target_mol == 'n2':
+      margin = 5.0
     # For benzene
-    # margin = 6.0
+    elif self._target_mol == 'benzene':
+      margin = 6.0
     cube = pyscf.tools.cubegen.Cube(
         self._mol, nx=self._div_elements, ny=self._div_elements, nz=self._div_elements, resolution=None, margin=margin, origin=None)
 
