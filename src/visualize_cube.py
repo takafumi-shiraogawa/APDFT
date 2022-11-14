@@ -12,6 +12,7 @@ angstrom = 1 / 0.52917721067
 nuclear_numbers, coordinates = apdft.read_xyz("mol.xyz")
 
 # Input
+# apdft/pyscf_interface.py should be changed!!!
 # N2 or benzene
 target_mol = 'n2'
 # target_mol = 'benzene'
