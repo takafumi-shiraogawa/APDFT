@@ -100,6 +100,13 @@ pyscf_mol = pyscf_interface.PySCF_Mol(
 cube_diff_density_coords[1, :, :], cube_diff_density_values[1,
                                                             :, :, :] = pyscf_mol.read_cube('./cube2/')
 
+test_xy_coords_densities = np.zeros((2, div_elements))
+# For x axis
+# angstrom converts Angstrom to Bohr
+test_xy_coords_densities[0] = np.unique(cube_diff_density_coords[0, :, xy_index[0]]) / angstrom
+# For y axis
+test_xy_coords_densities[1] = np.unique(cube_diff_density_coords[0, :, xy_index[1]]) / angstrom
+
 pyscf_mol = pyscf_interface.PySCF_Mol(nuclear_numbers, coordinates, div_elements)
 
 name_pic_2d_map = "%s" % ("diffdensity2Dmap")
