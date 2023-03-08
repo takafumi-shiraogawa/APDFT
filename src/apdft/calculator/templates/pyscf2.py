@@ -113,8 +113,20 @@ if method == "CCSD":
     if (np.count_nonzero(deltaZ) != 0) or (mol.atom != original_mol.atom) or (target_mol.atom != original_mol.atom):
         calc = add_qmmm(pyscf.scf.RHF(mol), mol, deltaZ)
         calc.max_cycle = 1000
-        calc.kernel(verbose=0)
+
+        # # High accuracy
+        # calc.direct_scf = False
+        # calc.conv_tol = 1e-13
+        # calc.kernel(verbose=0)
+
         mycc = pyscf.cc.CCSD(calc).run()
+
+        # # High accuracy
+        # mycc = pyscf.cc.CCSD(calc)
+        # mycc.conv_tol = 1.e-11
+        # mycc.conv_tol_normt = 1.e-10
+        # mycc.run()
+
         # Unrelaxed density matrix is evaluated in the MO basis
         dm1 = mycc.make_rdm1()
         # Convert the density matrix into the AO basis
@@ -133,9 +145,18 @@ if method == "CCSD":
     else:
         hfe = pyscf.scf.RHF(mol)
         hfe.max_cycle = 1000
-        hfe.kernel(verbose=0)
+
+        # # High accuracy
+        # hfe.direct_scf = False
+        # hfe.conv_tol = 1e-13
+        # hfe.kernel(verbose=0)
 
         mycc = pyscf.cc.CCSD(hfe)
+
+        # # High accuracy
+        # mycc.conv_tol = 1.e-11
+        # mycc.conv_tol_normt = 1.e-10
+
         # Perform a CC calculation
         mycc.run()
         # Unrelaxed density matrix is evaluated in the MO basis
