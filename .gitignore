@@ -14,6 +14,7 @@ manualtest
 apdft-run
 coord
 *.xyz
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
