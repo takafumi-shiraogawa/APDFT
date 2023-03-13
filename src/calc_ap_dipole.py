@@ -1,8 +1,6 @@
 import numpy as np
 import csv
 
-# Because it is difficult to import APDFT_Proc of apdft_interface.py of Lime,
-
 def get_property_values(property_name, dict, num_mol, apdft_order = 1):
   """ Read property values """
   property_values = np.zeros(num_mol)
