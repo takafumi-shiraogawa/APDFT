@@ -51,7 +51,7 @@ num_mol = 3
 # num_mol = 18
 max_apdft_order = 2
 
-field_strength = 0.001
+field_strength = 0.01
 
 max_apdft_order += 1
 

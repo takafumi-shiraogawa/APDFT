@@ -3,7 +3,7 @@ import glob
 import shutil
 
 # input
-field_strength = "0.001"
+field_strength = "0.01"
 
 dir_fd = "./finite_difference/"
 if os.path.isdir(dir_fd):
