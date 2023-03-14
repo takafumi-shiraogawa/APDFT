@@ -1,3 +1,15 @@
+# Modified APDFT
+
+[GitHub of original APDFT](https://github.com/ferchault/APDFT)
+
+<br/>
+
+
+Original README
+-------------------
+
+<br/>
+
 [![DOI](https://zenodo.org/badge/180519723.svg)](https://zenodo.org/badge/latestdoi/180519723) 
 [![Build Status](https://travis-ci.org/ferchault/APDFT.svg?branch=master)](https://travis-ci.org/ferchault/APDFT)
 
