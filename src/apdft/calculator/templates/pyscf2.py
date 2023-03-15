@@ -117,8 +117,8 @@ if method == "CCSD":
         # # High accuracy
         # calc.direct_scf = False
         # calc.conv_tol = 1e-13
-        # calc.kernel(verbose=0)
 
+        calc.kernel(verbose=0)
         mycc = pyscf.cc.CCSD(calc).run()
 
         # # High accuracy
@@ -149,8 +149,8 @@ if method == "CCSD":
         # # High accuracy
         # hfe.direct_scf = False
         # hfe.conv_tol = 1e-13
-        # hfe.kernel(verbose=0)
 
+        hfe.kernel(verbose=0)
         mycc = pyscf.cc.CCSD(hfe)
 
         # # High accuracy
