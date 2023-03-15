@@ -1,12 +1,18 @@
 # Modified APDFT
+## Related Literature
 
-[GitHub of original APDFT](https://github.com/ferchault/APDFT)
+Paper | Title
+------|--------------
+[J. Phys. Chem. 2022](https://aip.scitation.org/doi/10.1063/5.0085817) | Alchemical geometry relaxation
+[J. Phys. Chem. Lett. 2022](https://pubs.acs.org/doi/10.1021/acs.jpclett.2c02355) | Exploration of Chemical Space for Designing Functional Molecules Accounting for Geometric Stability
 
 <br/>
 
+[Original APDFT code](https://github.com/ferchault/APDFT)
 
-Original README
--------------------
+<br/>
+
+# Original README
 
 <br/>
 
@@ -27,7 +33,7 @@ Used to calculate quantum-chemical data one molecule at a time? [APDFT](https://
 
 # Related Literature
 
-Paper | Preprint | Content 
+Paper | Preprint | Content
 ------|--------|--------------
 [PhysRevRes2020](https://doi.org/10.1103/PhysRevResearch.2.023220) | [arXiv](https://arxiv.org/abs/1809.01647) | Original description of fundamental theory, rigorous proofs of perturbation convergence for special cases, application example for millons of target molecules
 [JChemPhys2020](https://aip.scitation.org/doi/10.1063/5.0023590) | [arXiv](https://arxiv.org/abs/2007.15511) | Which basis sets to use for APDFT, how to correct for basis set errors
