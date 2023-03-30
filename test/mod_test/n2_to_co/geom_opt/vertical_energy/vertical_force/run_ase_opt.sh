@@ -1,1 +1,1 @@
-python3 ~/Program/APDFT/src/apdft/ase/run_ase_opt.py > opt.log
+python3 ~/Program/APDFT/src/apdft/ase/run_ase_opt_bfgs.py > opt.log
