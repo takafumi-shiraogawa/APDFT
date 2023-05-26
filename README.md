@@ -6,7 +6,7 @@ Paper | Title
 [J. Phys. Chem. 2022](https://aip.scitation.org/doi/10.1063/5.0085817) | Alchemical geometry relaxation
 [J. Phys. Chem. Lett. 2022](https://pubs.acs.org/doi/10.1021/acs.jpclett.2c02355) | Exploration of Chemical Space for Designing Functional Molecules Accounting for Geometric Stability
 [J. Chem. Phys. 2016](https://aip.scitation.org/doi/10.1063/1.4947217) | Fast and accurate predictions of covalent bonds in chemical space
-[ChemRxiv 2023](https://chemrxiv.org/engage/chemrxiv/article-details/63bbe84ba5c354823a8c1f54) | Optimization of General Molecular Properties in the Equilibrium Geometry Using Quantum Alchemy: An Inverse Molecular Design Approach
+[J. Phys. Chem. A 2023](https://pubs.acs.org/doi/10.1021/acs.jpca.3c00205) ([ChemRxiv 2023](https://chemrxiv.org/engage/chemrxiv/article-details/63bbe84ba5c354823a8c1f54)) | Optimization of General Molecular Properties in the Equilibrium Geometry Using Quantum Alchemy: An Inverse Molecular Design Approach
 
 <br/>
 
